@@ -22,6 +22,7 @@
     - b. [熊牛指标](https://www.joinquant.com/view/community/detail/d0b0406c2ad2086662de715c92d518cd)
 7. [羊群效应(国泰君安)](https://www.joinquant.com/view/community/detail/3b4c68880062b3b660165bba7571d5a4)
 8. [小波分析择时](https://www.joinquant.com/view/community/detail/eab0008b70882d0b1966bb6425db3469)
+9. [时变夏普](https://www.joinquant.com/view/community/detail/634a7a14e79f87d44c980094c5e8d5d1)
 
 **因子**
 
