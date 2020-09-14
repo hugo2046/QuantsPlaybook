@@ -28,3 +28,4 @@
 
 1. [基于量价关系度量股票的买卖压力(东方证券)](https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980)
 2. [来自优秀基金经理的超额收益(东方证券)](https://www.joinquant.com/view/community/detail/51d97afb8d619ffb5219d2e166414d70)
+3. [开源证券-市场微观结构研究系列（1）：A股反转之力的微观来源](https://www.joinquant.com/view/community/detail/521e854c0accab11c0bac2a9d8dac484)
