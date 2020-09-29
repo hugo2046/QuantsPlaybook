@@ -4,7 +4,7 @@
 
 数据依赖:[jqdata](https://www.joinquant.com/) 和 [tushare](https://tushare.pro/)
 
-每个文件夹中有对于的券商研报及相关的论文,py文件中为ipynb的复现文档
+每个文件夹中有对应的券商研报及相关的论文,py文件中为ipynb的复现文档
 
 ## 目录
 
