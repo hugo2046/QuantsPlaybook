@@ -31,3 +31,7 @@
 2. [来自优秀基金经理的超额收益(东方证券)](https://www.joinquant.com/view/community/detail/51d97afb8d619ffb5219d2e166414d70)
 3. [开源证券-市场微观结构研究系列（1）：A股反转之力的微观来源](https://www.joinquant.com/view/community/detail/521e854c0accab11c0bac2a9d8dac484)
 4. [多因子指数增强的思路](https://www.joinquant.com/view/community/detail/8c60c343407d41b09def615c52c8693d)
+
+**量化价值**
+
+1. [罗伯·瑞克超额现金流选股法则](https://www.joinquant.com/view/community/detail/30543ad72454c7648b03bae542af55c9)
