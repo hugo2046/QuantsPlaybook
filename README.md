@@ -32,6 +32,7 @@
 3. [开源证券-市场微观结构研究系列（1）：A股反转之力的微观来源](https://www.joinquant.com/view/community/detail/521e854c0accab11c0bac2a9d8dac484)
 4. [多因子指数增强的思路](https://www.joinquant.com/view/community/detail/8c60c343407d41b09def615c52c8693d)
 5. [特质波动率因子](https://www.joinquant.com/view/community/detail/6e4ddf0a1cf3bb17367b463cefe3b5e4?type=1)
+6. [处置效应因子](https://www.joinquant.com/view/community/detail/1c3aa95d7485065d977f9ba17cc014fd)
 
 **量化价值**
 
