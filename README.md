@@ -24,6 +24,7 @@
 8. [小波分析择时](https://www.joinquant.com/view/community/detail/eab0008b70882d0b1966bb6425db3469)
 9. [时变夏普](https://www.joinquant.com/view/community/detail/634a7a14e79f87d44c980094c5e8d5d1)
 10. [北向资金交易能力一定强吗](https://www.joinquant.com/view/community/detail/c11731e00f6de8e489ed64cec1621c33)
+11. [择时视角下的波动率因子](https://www.joinquant.com/view/community/detail/986f2732c0b0287bc8f161829f32b689)
 
 **因子**
 
@@ -37,3 +38,7 @@
 **量化价值**
 
 1. [罗伯·瑞克超额现金流选股法则](https://www.joinquant.com/view/community/detail/30543ad72454c7648b03bae542af55c9)
+
+**组合优化**
+
+1. [DE进化算法下的组合优化](https://www.joinquant.com/view/community/detail/2044ade4baf51132d257f2d3c0e56597)
