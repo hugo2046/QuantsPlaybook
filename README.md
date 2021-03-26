@@ -13,6 +13,7 @@
 1. RSRS择时指标
     - [原始](https://www.joinquant.com/view/community/detail/1f0faa953856129e5826979ff9b68095)
     - [修正](https://www.joinquant.com/view/community/detail/32b60d05f16c7d719d7fb836687504d6)
+    - [本土改造](https://www.joinquant.com/view/community/detail/e855e5b3cf6a3f9219583c2281e4d048)
 2. [低延迟趋势线与交易择时（LLT均线，本质为一种低阶滤波器)](https://www.joinquant.com/view/community/detail/f011921f2398c593eee3542a6069f61c)
 3. [基于相对强弱下单向波动差值应用](https://www.joinquant.com/view/community/detail/ddf35e24e9dbad456d3e6beaf0841262)
 4. [扩散指标](https://www.joinquant.com/view/community/detail/aa69406f4427ea472b1c640fc2e8c448)
