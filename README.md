@@ -36,6 +36,9 @@
 5. [特质波动率因子](https://www.joinquant.com/view/community/detail/6e4ddf0a1cf3bb17367b463cefe3b5e4?type=1)
 6. [处置效应因子](https://www.joinquant.com/view/community/detail/1c3aa95d7485065d977f9ba17cc014fd)
 7. [技术因子-上下影线因子](https://www.joinquant.com/view/community/detail/92d2ccab2d412dbfa7df366369e6373b)
+8. [聪明钱因子模型](https://www.joinquant.com/view/community/detail/fa281cadcbbca005854c7c45c3c9bd58)
+9. [A股市场中如何构造动量因子？](https://www.joinquant.com/view/community/detail/d709c7c9abbee23149d3d4d07e128357)
+10. [振幅因子的隐藏结构](https://www.joinquant.com/view/community/detail/a35fe484e3164893d4e48fafd3e08fd2)
 
 **量化价值**
 
