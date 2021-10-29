@@ -46,6 +46,7 @@
 **量化价值**
 
 1. [罗伯·瑞克超额现金流选股法则](https://www.joinquant.com/view/community/detail/30543ad72454c7648b03bae542af55c9)
+2. [华泰FFScore](https://www.joinquant.com/view/community/detail/c4bb321a8124ed575a66a88caf100b9f)
 
 **组合优化**
 
