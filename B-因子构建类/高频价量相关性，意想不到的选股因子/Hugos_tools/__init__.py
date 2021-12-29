@@ -1,0 +1,1 @@
+from .FactorWarData import Get_FactorWar_Data
