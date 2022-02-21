@@ -27,6 +27,8 @@
 10. [北向资金交易能力一定强吗](https://www.joinquant.com/view/community/detail/c11731e00f6de8e489ed64cec1621c33)
 11. [择时视角下的波动率因子](https://www.joinquant.com/view/community/detail/986f2732c0b0287bc8f161829f32b689)
 12. [趋与势的量化定义研究](https://www.joinquant.com/view/community/detail/9d12d9691b4201f95e4d0b99ada7676d)
+13. [【复现】技术指标形态识别](https://www.joinquant.com/view/community/detail/1636a1cadab86dc65c65355fe431380c)
+    - 复现《Foundations of Technical Analysis》
 
 **因子**
 
