@@ -1,0 +1,12 @@
+matplotlib==3.5.1
+mplfinance==0.12.8b9
+numba==0.54.1
+numpy==1.20.3
+pandas==1.4.1
+plotly==5.5.0
+pyvisflow==0.3.1
+scikit_learn==1.0.2
+scipy==1.7.3
+statsmodels==0.13.2
+TA_Lib==0.4.19
+tqdm==4.63.0
