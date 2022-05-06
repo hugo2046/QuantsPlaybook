@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-04-17 00:54:11
+ * @LastEditTime: 2022-05-06 10:43:10
+ * @LastEditors: hugo2046 shen.lan123@gmail.com
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: \undefinedd:\WrokSpace\Quantitative-analysis\README.md
+-->
 # Quantitative-analysis
 
 ## 利用python对国内各大券商的金工研报进行复现
@@ -30,6 +38,8 @@
 13. [基于点位效率理论的个股趋势预测研究](https://www.joinquant.com/view/community/detail/f5d05b8233169adbbf44fb7522b2bf53)
 14. [技术指标形态识别](https://www.joinquant.com/view/community/detail/1636a1cadab86dc65c65355fe431380c)
     - 复现《Foundations of Technical Analysis》
+    - Technical Pattern Recognition文件：申万行业日度跟踪(Technical Pattern Recognition)
+
 
 **因子**
 
@@ -45,7 +55,11 @@
 10. [振幅因子的隐藏结构](https://www.joinquant.com/view/community/detail/a35fe484e3164893d4e48fafd3e08fd2)
 11. [高质量动量因子选股](https://www.joinquant.com/view/community/detail/f72c599da7d4ca155b25bff4b281e2e6)
 12. [APM因子改进模型](https://www.joinquant.com/view/community/detail/992fe40cc06c0bde50aa4aaf93fa042c)
-12. [高频价量相关性，意想不到的选股因子](https://www.joinquant.com/view/community/detail/539e74507dbf571f2be21d8fa4ebb8e6)
+13. [高频价量相关性，意想不到的选股因子](https://www.joinquant.com/view/community/detail/539e74507dbf571f2be21d8fa4ebb8e6)
+14. ["因时制宜"系列研究之二：基于企业生命周期的因子有效性分析]()
+    1.  composition_factor算法来源于:《20190104-华泰证券-因子合成方法实证分析》
+    2.  [IPCA](https://github.com/bkelly-lab/ipca)来源于[《Instrumented Principal Component Analysis》](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2983919)
+15. [因子择时](https://www.joinquant.com/view/community/detail/a873b8ba2b510a228eac411eafb93bea)
 
 **量化价值**
 
