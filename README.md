@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-04-17 00:54:11
- * @LastEditTime: 2022-05-06 10:43:10
+ * @LastEditTime: 2022-05-12 13:43:54
  * @LastEditors: hugo2046 shen.lan123@gmail.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \undefinedd:\WrokSpace\Quantitative-analysis\README.md
@@ -39,6 +39,7 @@
 14. [技术指标形态识别](https://www.joinquant.com/view/community/detail/1636a1cadab86dc65c65355fe431380c)
     - 复现《Foundations of Technical Analysis》
     - Technical Pattern Recognition文件：申万行业日度跟踪(Technical Pattern Recognition)
+15. [C-VIX 中国版 VIX 编制手册](https://www.joinquant.com/view/community/detail/787f5bf7ba5add2d5bc68e154046c10e)
 
 
 **因子**
