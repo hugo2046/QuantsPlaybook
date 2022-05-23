@@ -1,9 +1,9 @@
 '''
 Author: shen.lan123@gmail.com
 Date: 2022-04-18 17:03:51
-LastEditTime: 2022-05-05 22:04:17
+LastEditTime: 2022-05-20 17:20:56
 LastEditors: hugo2046 shen.lan123@gmail.com
-Description: 
+Description: 用于获取数据
 '''
 import os
 import sys
@@ -17,7 +17,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-from my_scr import (get_dichotomy, get_quadrant, get_factors, get_pricing)
+from .my_scr import (get_dichotomy, get_quadrant, get_factors, get_pricing)
 
 Begin = '2013-01-01'
 End = '2022-02-28'
@@ -81,6 +81,14 @@ def _dump_factor(**kw):
         quandrant_df = pd.read_csv(r'Data/quandrant_df.csv',
                                    index_col=[0],
                                    parse_dates=True)
+
+        quandrant_df.columns = ['code', 'cat_type']
+        quandrant_df.index.names = ['date']
+        quandrant_df = pd.pivot_table(quandrant_df.reset_index(),
+                                      index='date',
+                                      columns='code',
+                                      values='cat_type')
+
         print('开始获取因子数据...')
         factors_df = get_factors(quandrant_df)
         factors_df.to_csv(r'Data/factors_frame.csv')
@@ -119,7 +127,9 @@ def load_data() -> List:
 
         if os.path.exists(file_path):
 
-            if file in ['dichotomy.csv', 'factors_frame.csv']:
+            if file in [
+                    'dichotomy.csv', 'factors_frame.csv', 'quandrant_df.csv'
+            ]:
                 df = pd.read_csv(file_path, index_col=[0, 1], parse_dates=True)
                 df.index.names = ['date', 'asset']
                 out_put.append(df)
