@@ -1,7 +1,7 @@
 '''
 Author: shen.lan123@gmail.com
 Date: 2022-04-27 22:54:24
-LastEditTime: 2022-05-06 15:58:41
+LastEditTime: 2022-05-20 17:23:08
 LastEditors: hugo2046 shen.lan123@gmail.com
 Description: 用于因子合成
 
@@ -38,14 +38,22 @@ Description: 用于因子合成
 
 import numpy as np
 import pandas as pd
+from multiprocessing import Pool
+import functools
 
 import warnings
 from scipy import stats
 from scipy import optimize
 import statsmodels.api as sm
+from sklearn.decomposition import (PCA, IncrementalPCA)
+from sklearn.preprocessing import StandardScaler
 from sklearn.covariance import ledoit_wolf
-from my_scr import (get_factor_columns, get_factor_rank)
+from scr.my_scr import (get_factor_columns, get_factor_rank)
+
+from scr.utils import (calculate_best_chunk_size, rolling_windows)
 from typing import (Tuple, List, Union, Dict, Callable)
+
+CPU_WORKER_NUM = 6
 """utils"""
 
 
@@ -93,57 +101,6 @@ def compute_forward_returns(prices, periods=(1, 5, 10), filter_zscore=None):
     return forward_returns
 
 
-def rolling_windows(a: Union[np.ndarray, pd.Series, pd.DataFrame],
-                    window: int) -> np.ndarray:
-    """Creates rolling-window 'blocks' of length `window` from `a`.
-    Note that the orientation of rows/columns follows that of pandas.
-    Example
-    -------
-    import numpy as np
-    onedim = np.arange(20)
-    twodim = onedim.reshape((5,4))
-    print(twodim)
-    [[ 0  1  2  3]
-     [ 4  5  6  7]
-     [ 8  9 10 11]
-     [12 13 14 15]
-     [16 17 18 19]]
-    print(rwindows(onedim, 3)[:5])
-    [[0 1 2]
-     [1 2 3]
-     [2 3 4]
-     [3 4 5]
-     [4 5 6]]
-    print(rwindows(twodim, 3)[:5])
-    [[[ 0  1  2  3]
-      [ 4  5  6  7]
-      [ 8  9 10 11]]
-     [[ 4  5  6  7]
-      [ 8  9 10 11]
-      [12 13 14 15]]
-     [[ 8  9 10 11]
-      [12 13 14 15]
-      [16 17 18 19]]]
-    """
-
-    if window > a.shape[0]:
-        raise ValueError("Specified `window` length of {0} exceeds length of"
-                         " `a`, {1}.".format(window, a.shape[0]))
-    if isinstance(a, (pd.Series, pd.DataFrame)):
-        a = a.values
-    if a.ndim == 1:
-        a = a.reshape(-1, 1)
-    shape = (a.shape[0] - window + 1, window) + a.shape[1:]
-    strides = (a.strides[0], ) + a.strides
-    windows = np.squeeze(
-        np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides))
-    # In cases where window == len(a), we actually want to "unsqueeze" to 2d.
-    #     I.e., we still want a "windowed" structure with 1 window.
-    if windows.ndim == 1:
-        windows = np.atleast_2d(windows)
-    return windows
-
-
 def calc_information_coefficient(factors: pd.DataFrame) -> pd.DataFrame:
     """计算因子IC
 
@@ -183,7 +140,7 @@ def calc_ols(factors: pd.DataFrame) -> pd.DataFrame:
         f = group['next_ret']
 
         ols = group[get_factor_columns(factors.columns)] \
-            .apply(lambda x: _ols(x,f))
+            .apply(lambda x: _ols(x, f))
         return ols
 
     ols = factors.groupby(level='date').apply(src_ols)
@@ -444,7 +401,7 @@ def fac_maxicir_ledoit(factors: pd.DataFrame, window: int) -> pd.Series:
 
 
 def fac_maxicir_cov(factors: pd.DataFrame, window: int) -> pd.Series:
-    """最大化 IC_IR 加权法
+    """最大化IC_IR加权法
     以历史一段时间的复合因子平均IC值作为对复合因子下一期IC值的估计,
     以历史 IC 值的协方差矩阵作为对复合因子下一期波动率的估计
     Args:
@@ -479,12 +436,12 @@ def fac_maxicir_cov(factors: pd.DataFrame, window: int) -> pd.Series:
 def fac_maxic(factors: pd.DataFrame, window: int) -> pd.Series:
     '''
     最大化 IC 加权法,ledoit_wolf z_score
-    
+
     $max IC = \frac{w.T * IC}{\sqrt{w.T * V *w}}
-    
+
     𝑉是当前截面期因子值的相关系数矩阵(由于因子均进行过标准化,自身方差为1,因此相关系数矩阵亦是协方差阵)
     协方差使用压缩协方差矩阵估计方式
-    
+
     使用约束解
     '''
 
@@ -510,6 +467,96 @@ def fac_maxic(factors: pd.DataFrame, window: int) -> pd.Series:
     score = score.to_frame('score')
     idx = score.index.levels[0][window * 2 - 2:]
     return score.loc[idx]
+
+
+# def fac_pca2pool(factors: pd.DataFrame, window: int) -> pd.Series:
+#     """pca
+
+#     Parameters
+#     ----------
+#     factors : pd.DataFrame
+#         MutliIndex level0-date level1-code
+#         columns factors_name
+#     window : int
+#         滚动窗口
+
+#     Returns
+#     -------
+#     pd.Series
+#         MutliIndex level0-date level1-code
+#     """
+
+#     periods = factors.index.levels[0]
+#     func = functools.partial(_calc_roll_pca, df=factors)
+#     roll_idx = rolling_windows(periods.to_numpy(), window)
+#     chunk_size = calculate_best_chunk_size(len(roll_idx), CPU_WORKER_NUM)
+
+#     with Pool(processes=CPU_WORKER_NUM) as pool:
+
+#         df = pd.concat((pool.imap(func, roll_idx, chunksize=chunk_size)))
+#         # res_tuple: Tuple[pd.Series] = tuple(
+#         #     pool.imap(func, roll_idx, chunksize=chunk_size))
+
+#     return df  # pd.concat(res_tuple)
+
+
+def fac_pca(factors: pd.DataFrame, window: int) -> pd.Series:
+    """pca
+
+    Parameters
+    ----------
+    factors : pd.DataFrame
+        MutliIndex level0-date level1-code
+        columns factors_name
+    window : int
+        滚动窗口
+
+    Returns
+    -------
+    pd.Series
+        MutliIndex level0-date level1-code
+    """
+
+    periods = factors.index.levels[0]
+    factors_ = factors[get_factor_columns(factors.columns)]
+    func = functools.partial(_calc_roll_pca, df=factors_)
+    roll_idx = rolling_windows(periods.to_numpy(), window)
+    ser = pd.concat(
+        (func(idxs=idx).loc[slice(idx[-1], None)] for idx in roll_idx))
+
+    ser = ser.to_frame('score')
+    return ser.loc[periods[window:]]
+
+
+def _calc_roll_pca(idxs: List, df: pd.DataFrame) -> pd.Series:
+
+    return get_pca(df.loc[idxs])
+
+
+def get_pca(df: pd.DataFrame) -> pd.Series:
+    """获取PCA
+       因子进行了标准化
+    Parameters
+    ----------
+    df : pd.DataFrame
+        MutliIndex-level0 date level1 code
+        column 因子名称
+
+    Returns
+    -------
+    pd.Series
+        MutliIndex-level0 date level1 code
+        values factor
+    """
+    pca = IncrementalPCA(n_components=1)  # PCA(n_components=1)
+    scaler = StandardScaler()
+    # 这里进行了标准化
+    factor_scaler = scaler.fit_transform(df.fillna(0).values)
+
+    ser = pd.Series(data=pca.fit_transform(factor_scaler).flatten(),
+                    index=df.index)
+
+    return ser
 
 
 def factor_score_indicators(factors: pd.DataFrame,
@@ -548,7 +595,8 @@ def factor_score_indicators(factors: pd.DataFrame,
         'ic_half': fac_ic_half,
         'maxicir_ledoit': fac_maxicir_ledoit,
         'maxicir_cov': fac_maxicir_cov,
-        'maxic': fac_maxic
+        'maxic': fac_maxic,
+        'pca': fac_pca
     }
 
     if is_rank:

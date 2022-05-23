@@ -1,7 +1,7 @@
 '''
 Author: your name
 Date: 2022-04-22 13:21:17
-LastEditTime: 2022-05-05 14:07:39
+LastEditTime: 2022-05-20 12:29:57
 LastEditors: hugo2046 shen.lan123@gmail.com
 Description: 
 '''
@@ -17,43 +17,6 @@ import pandas as pd
 plt.rcParams['font.sans-serif'] = ['SimHei']  #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus'] = False  #用来正常显示负号
 """画图相关"""
-
-# def plotting_dichotomy_res(res_nametuple: namedtuple):
-
-#     cols = 'IC Mean,mean_ret'.split(',')
-#     cols1 = 'IC Std.,Risk-Adjusted IC,t-stat(IC),p-value(IC),IC Skew,IC Kurtosis'.split(
-#         ',')
-
-#     ic_frame = res_nametuple.ic_info_table
-#     style_df = (ic_frame.style.format('{:.2%}',
-#                                       subset=cols).format('{:.4f}',
-#                                                           subset=cols1))
-
-#     print_table(style_df)
-#     size = ic_frame.shape[1]
-
-#     if size % 2 == 0:
-#         rows = size // 2
-#     else:
-#         rows = size // 2 + 1
-
-#     gf = GridFigure(rows=rows, cols=2, figsize=(18, rows * 4))
-#     for name, ser in res_nametuple.ic_info_table['mean_ret'].groupby(level=0):
-
-#         ser = ser.reset_index(level=0)
-
-#         ser.plot.bar(ax=gf.next_cell(), title=name)
-
-#     plt.show()
-#     gf.close()
-
-#     gf = GridFigure(rows=rows, cols=2, figsize=(18, rows * 5))
-#     for name, ser in res_nametuple.quantile_cum_returns.items():
-
-#         ser.plot(ax=gf.next_cell(), title=name)
-
-#     plt.show()
-#     gf.close()
 
 
 def highlight_max(df: pd.DataFrame, col: str):
