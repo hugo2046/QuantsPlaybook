@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-25 10:50:52
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-05-25 11:27:51
+LastEditTime: 2022-05-25 17:58:43
 Description: 高低点划分
 '''
 from collections import (defaultdict, namedtuple)
@@ -44,7 +44,7 @@ def _approximation_method(dif: pd.Series, dea: pd.Series, atr: pd.Series,
     return func_dic[method](dif, dea, atr, rate)
 
 
-def create_method_a(dif: pd.Series, dea: pd.Series, **kw) -> pd.Series:
+def create_method_a(dif: pd.Series, dea: pd.Series, *args, **kw) -> pd.Series:
     """方式一
     
         $$
@@ -91,11 +91,33 @@ def create_method_b(dif: pd.Series, dea: pd.Series, atr: pd.Series,
     """
 
     delta: pd.Series = atr * rate
+    diff = dif - dea
 
-    dir_ = np.where((dif - dea - delta) >= 0, 1, 0) + np.where(
-        (dif - dea + delta <= 0), -1, 0)
+    dir_ser = pd.Series(index=dif.index)
 
-    dir_ser = pd.Series(dir_, index=dif.index)
+    for num, (diff_v, delta_v) in enumerate(zip(diff, delta)):
+
+        if num == 0:
+
+            previous_dir = 0
+            dir_ser.iloc[num] = 0
+            continue
+
+        else:
+
+            if diff_v - delta_v >= 0:
+
+                dir_ser.iloc[num] = 1
+
+            elif diff_v + delta_v <= 0:
+
+                dir_ser.iloc[num] = -1
+
+            else:
+
+                dir_ser.iloc[num] = previous_dir
+
+            previous_dir = dir_ser.iloc[num]
 
     return dir_ser
 
@@ -654,18 +676,18 @@ def calc_relative_price(df: pd.DataFrame) -> float:
                                                        df['PEAK'])
 
 
-def calc_pct_distance(df: pd.DataFrame):
+# def calc_pct_distance(df: pd.DataFrame):
 
-    current_dt = df.name
-    peak_date = df['PEAK_DATE']
-    valley_date = df['VALLEY_DATE']
-    current_price = df['close']
+#     current_dt = df.name
+#     peak_date = df['PEAK_DATE']
+#     valley_date = df['VALLEY_DATE']
+#     current_price = df['close']
 
-    if estimate_distance(df):
+#     if estimate_distance(df):
 
-        pass
-    else:
-        pass
+#         pass
+#     else:
+#         pass
 
 
 def estimate_distance(df: pd.DataFrame) -> bool:
