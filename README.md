@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-04-17 00:54:11
- * @LastEditTime: 2022-05-23 09:31:56
+ * @LastEditTime: 2022-05-25 13:05:12
  * @LastEditors: hugo2046 shen.lan123@gmail.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \undefinedd:\WrokSpace\Quantitative-analysis\README.md
@@ -29,7 +29,7 @@
 6. [CSVC框架及熊牛指标](https://www.joinquant.com/view/community/detail/6a77f468b6f996fcd995a8d0ad8c939c)
     - a. CSVC为一个防过拟框架
     - b. [熊牛指标](https://www.joinquant.com/view/community/detail/d0b0406c2ad2086662de715c92d518cd)
-7. [羊群效应](https://www.joinquant.com/view/community/detail/3b4c68880062b3b660165bba7571d5a4)
+7. [基于CCK模型的股票市场羊群效应研究](https://www.joinquant.com/view/community/detail/3b4c68880062b3b660165bba7571d5a4)
 8. [小波分析择时](https://www.joinquant.com/view/community/detail/eab0008b70882d0b1966bb6425db3469)
 9. [时变夏普](https://www.joinquant.com/view/community/detail/634a7a14e79f87d44c980094c5e8d5d1)
 10. [北向资金交易能力一定强吗](https://www.joinquant.com/view/community/detail/c11731e00f6de8e489ed64cec1621c33)
