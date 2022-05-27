@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 16:28:13
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-05-27 18:09:09
+LastEditTime: 2022-05-27 18:49:46
 Description: 使用jqdatasdk/jqdata获取期权数据
 '''
 from typing import (List, Dict, Tuple, Union)
@@ -164,6 +164,14 @@ def prepare_data(code: str, start_date: str, end_date: str) -> pd.DataFrame:
     return data
 
 
+"""
+
+df_rate 数据结构
+| date     | on    | 1w    | 2w    | 1m    | 3m    | 6m     | 9m     | 1y    |
+| :------- | :---- | :---- | :---- | :---- | :---- | :----- | :----- | :---- |
+| 2015/2/9 | 2.812 | 4.335 | 4.807 | 5.025 | 4.904 | 4.7796 | 4.7538 | 4.779 |
+
+"""
 # # 测试
 # if __name__ == '__main__':
 
