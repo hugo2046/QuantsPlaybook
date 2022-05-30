@@ -2,21 +2,28 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 14:16:36
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-05-27 18:15:56
+LastEditTime: 2022-05-30 16:03:51
 FilePath: 
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
-from typing import (List, Dict, Tuple, Union)
+# import datetime as dt
+from typing import Dict, List, Tuple, Union
 
-import datetime as dt
-import pandas as pd
 import numpy as np
-
+import pandas as pd
 from scipy.interpolate import interp1d
 
 
-def get_cboe_vix(opt_data: pd.DataFrame, df_rate: pd.DataFrame) -> pd.Series:
+def get_cboe_vix(opt_data: pd.DataFrame, rate_df: pd.DataFrame) -> pd.Series:
+    """计算CIV和SKEW
 
+    Args:
+        opt_data (pd.DataFrame): _description_
+        rate_df (pd.DataFrame): _description_
+
+    Returns:
+        pd.Series: _description_
+    """
     date_index = []  # 储存index
     vix_value = []  # 储存vix
     skew_value = []  # 储存skew
@@ -29,8 +36,8 @@ def get_cboe_vix(opt_data: pd.DataFrame, df_rate: pd.DataFrame) -> pd.Series:
         maturity, df_jy, df_cjy = filter_contract(slice_df)
 
         # 获取无风险收益
-        rf_rate_jy = df_rate.loc[trade_date, int(maturity['jy'] * 365)]
-        rf_rate_cjy = df_rate.loc[trade_date, int(maturity['cjy'] * 365)]
+        rf_rate_jy = rate_df.loc[trade_date, int(maturity['jy'] * 365)]
+        rf_rate_cjy = rate_df.loc[trade_date, int(maturity['cjy'] * 365)]
 
         # 计算远期价格
         fp_jy = cal_forward_price(maturity['jy'], rf_rate=rf_rate_jy, df=df_jy)
@@ -107,16 +114,16 @@ def cal_vix(df_jy: pd.DataFrame, forward_price_jy: float, rf_rate_jy: float,
 
 
 # 计算SKEW
-def cal_skew(self, df_jy: pd.DataFrame, forward_price_jy: float,
+def cal_skew(df_jy: pd.DataFrame, forward_price_jy: float,
              rf_rate_jy: float, maturity_jy: float, nearest_k_jy: float,
              df_cjy: pd.DataFrame, forward_price_cjy: float,
              rf_rate_cjy: float, maturity_cjy: float,
              nearest_k_cjy: float) -> float:
 
-    s_jy = self.cal_moments_sub(df_jy, maturity_jy, rf_rate_jy,
+    s_jy = cal_moments_sub(df_jy, maturity_jy, rf_rate_jy,
                                 forward_price_jy, nearest_k_jy)
 
-    s_cjy = self.cal_moments_sub(df_cjy, maturity_cjy, rf_rate_cjy,
+    s_cjy = cal_moments_sub(df_cjy, maturity_cjy, rf_rate_cjy,
                                  forward_price_cjy, nearest_k_cjy)
 
     w = (maturity_cjy - 30.0 / 365) / (maturity_cjy - maturity_jy)
@@ -141,10 +148,10 @@ def cal_vix_sub(df: pd.DataFrame, forward_price: float, rf_rate: float,
     return sigma
 
 
-def cal_moments_sub(self, df: pd.DataFrame, maturity: float, rf_rate: float,
+def cal_moments_sub(df: pd.DataFrame, maturity: float, rf_rate: float,
                     forward_price: float, nearest_k: float) -> float:
 
-    e1, e2, e3 = self.cal_epsilon(forward_price, nearest_k)
+    e1, e2, e3 = cal_epsilon(forward_price, nearest_k)
 
     temp_p1 = -np.sum(
         df['mid_p'] * df['diff_k'] / np.square(df['exercise_price']))
@@ -168,7 +175,19 @@ def cal_moments_sub(self, df: pd.DataFrame, maturity: float, rf_rate: float,
 
     return s
 
+def cal_epsilon(forward_price:float, nearest_k:float)->tuple:
 
+    e1 = -(1 + np.log(forward_price / nearest_k) - forward_price / nearest_k)
+
+    e2 = 2 * np.log(nearest_k / forward_price) * (
+        nearest_k / forward_price - 1) + np.square(
+            np.log(nearest_k / forward_price)) * 0.5
+
+    e3 = 3 * np.square(np.log(nearest_k / forward_price)) * (
+        np.log(nearest_k / forward_price) / 3 - 1 + forward_price / nearest_k)
+
+    return e1, e2, e3
+    
 def cal_forward_price(maturity: dict, rf_rate: float,
                       df: pd.DataFrame) -> float:
 
