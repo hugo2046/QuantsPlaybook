@@ -32,7 +32,7 @@ def get_cboe_vix(opt_data: pd.DataFrame, rate_df: pd.DataFrame) -> pd.Series:
 
         # maturity距离到期日的时间字典
         # df_jy近一月
-        ## df_cjy次近月
+        # df_cjy次近月
         maturity, df_jy, df_cjy = filter_contract(slice_df)
 
         # 获取无风险收益
@@ -77,7 +77,7 @@ def get_cboe_vix(opt_data: pd.DataFrame, rate_df: pd.DataFrame) -> pd.Series:
         "CH_VIX": vix_value,
         "CH_SKEW": skew_value
     },
-                        index=date_index)
+        index=date_index)
 
     data.fillna(method='pad', inplace=True)
 
@@ -121,10 +121,10 @@ def cal_skew(df_jy: pd.DataFrame, forward_price_jy: float,
              nearest_k_cjy: float) -> float:
 
     s_jy = cal_moments_sub(df_jy, maturity_jy, rf_rate_jy,
-                                forward_price_jy, nearest_k_jy)
+                           forward_price_jy, nearest_k_jy)
 
     s_cjy = cal_moments_sub(df_cjy, maturity_cjy, rf_rate_cjy,
-                                 forward_price_cjy, nearest_k_cjy)
+                            forward_price_cjy, nearest_k_cjy)
 
     w = (maturity_cjy - 30.0 / 365) / (maturity_cjy - maturity_jy)
 
@@ -175,7 +175,8 @@ def cal_moments_sub(df: pd.DataFrame, maturity: float, rf_rate: float,
 
     return s
 
-def cal_epsilon(forward_price:float, nearest_k:float)->tuple:
+
+def cal_epsilon(forward_price: float, nearest_k: float) -> tuple:
 
     e1 = -(1 + np.log(forward_price / nearest_k) - forward_price / nearest_k)
 
@@ -187,7 +188,8 @@ def cal_epsilon(forward_price:float, nearest_k:float)->tuple:
         np.log(nearest_k / forward_price) / 3 - 1 + forward_price / nearest_k)
 
     return e1, e2, e3
-    
+
+
 def cal_forward_price(maturity: dict, rf_rate: float,
                       df: pd.DataFrame) -> float:
 
@@ -302,7 +304,7 @@ def filter_contract(cur_df: pd.DataFrame) -> Tuple[Dict, pd.Series, pd.Series]:
     maturity_dict: Dict = dict(zip(['jy', 'cjy'], [jy_dt, cjy_dt]))
 
     # 选取近月及次近月合约
-    ## 到期时间为近月及次近月的合约
+    # 到期时间为近月及次近月的合约
     cur_df: pd.DataFrame = cur_df[cur_df['maturity'].isin([jy_dt, cjy_dt])]
 
     keep_cols: List = ['close', 'contract_type', 'exercise_price']
