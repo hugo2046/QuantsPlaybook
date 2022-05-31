@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-05-31 16:03:08
+LastEditTime: 2022-05-31 17:24:40
 FilePath: 
 Description: 
 '''
@@ -16,7 +16,9 @@ import pandas as pd
 YEARS = 365
 
 
-def _get_near_or_next_options(df: pd.Series, n: int = 1) -> pd.DataFrame:
+def _get_near_or_next_options(df: pd.Series,
+                              n: int = 1,
+                              filter_num: int = 5) -> pd.DataFrame:
     """获取opt_data中近月及次近月
 
     Args:
@@ -24,12 +26,13 @@ def _get_near_or_next_options(df: pd.Series, n: int = 1) -> pd.DataFrame:
         | idnex | list_date | exercise_date | exercise_price | contract_type | code          |
         | :---- | :-------- | :------------ | :------------- | :------------ | :------------ |
         | 0     | 2021/7/29 | 2022/3/23     | 4.332          | CO            | 10003549.XSHG |
-
+        n (int): 下标起始为0 为1时表示获取maturity最小的两个值
+        filter_num (int):表示过滤小于filter_num的合约
     Returns:
         pd.DataFrame
     """
-    # 需要到期日至现在大于等于一周
-    df = df[df['maturity'] >= 5 / YEARS]
+    # # 需要到期日至现在大于等于一周
+    df = df[df['maturity'] >= (filter_num / YEARS)]
     cond = (df['maturity'] <= np.sort(df['maturity'].unique())[n])
 
     return df[cond]
@@ -161,9 +164,9 @@ def _get_median_price_table(strike_matrix: pd.DataFrame,
         K_0: float = strike_matrix.loc[K_cond1, 'diff'].idxmin()
     except ValueError:
         print('F:%.4f' % F)
-        print(K_cond1)
+        print('strike_matrix:')
         print(strike_matrix)
-        raise ValueError('无对应的K_0数据!')
+        raise ValueError('无对应的K0数据!')
 
     # 根据K构建中间价
     call_ser: pd.Series = strike_matrix.loc[exercise_price > K_0, 'call']
