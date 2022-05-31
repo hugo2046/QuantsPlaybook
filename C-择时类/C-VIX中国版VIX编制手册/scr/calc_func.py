@@ -2,10 +2,11 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-05-31 17:24:40
+LastEditTime: 2022-05-31 23:48:32
 FilePath: 
 Description: 
 '''
+import warnings
 from collections import namedtuple
 from typing import Dict, List, Tuple, Union
 
@@ -18,7 +19,7 @@ YEARS = 365
 
 def _get_near_or_next_options(df: pd.Series,
                               n: int = 1,
-                              filter_num: int = 5) -> pd.DataFrame:
+                              filter_num: int = 7) -> pd.DataFrame:
     """获取opt_data中近月及次近月
 
     Args:
@@ -123,11 +124,7 @@ def calc_delta_k_table(strike_matrix: pd.DataFrame) -> pd.Series:
     diff_ser.iloc[0] = exercise_price[1] - exercise_price[0]
     diff_ser.iloc[1:-1] = 0.5 * (exercise_price[2:] - exercise_price[0:-2])
     diff_ser.iloc[-1] = exercise_price[-1] - exercise_price[-2]
-    # diff: List = []
-    # diff.append(exercise_price[1] - exercise_price[0])
-    # diff.extend(0.5 * (exercise_price[2:] - exercise_price[0:-2]))
-    # diff.append(exercise_price[-1] - exercise_price[-2])
-    # pd.Series(index=exercise_price, data=diff)
+
     return diff_ser
 
 
@@ -159,25 +156,33 @@ def _get_median_price_table(strike_matrix: pd.DataFrame,
     # 选取比F小，但差值又最小的合约
     K_cond1: np.ndarray = (exercise_price < F)
 
+    empty_put = False  # 判断是否empty
     try:
         # K值
         K_0: float = strike_matrix.loc[K_cond1, 'diff'].idxmin()
     except ValueError:
-        print('F:%.4f' % F)
-        print('strike_matrix:')
-        print(strike_matrix)
-        raise ValueError('无对应的K0数据!')
+        # TODO:执行价全部小于远期价格时的处理是否正确？？？
+        K_0: float = F
+        empty_put: bool = True
+        warnings.warn('F:%.4f,strike_marix中最小执行价为:%.4f,故开跌部分无数据,无中间价K0.' % (
+            F, strike_matrix.index[0]))
 
     # 根据K构建中间价
     call_ser: pd.Series = strike_matrix.loc[exercise_price > K_0, 'call']
-    put_ser: pd.Series = strike_matrix.loc[exercise_price < K_0, 'put']
-    median: float = (strike_matrix.loc[K_0, 'call'] +
-                     strike_matrix.loc[K_0, 'put']) * 0.5
 
-    # 合并call,put
-    all_ser: pd.Series = pd.concat((put_ser, call_ser))
-    # 添加中间价
-    all_ser[K_0] = median
+    if not empty_put:
+        put_ser: pd.Series = strike_matrix.loc[exercise_price < K_0, 'put']
+
+        median: float = (strike_matrix.loc[K_0, 'call'] +
+                         strike_matrix.loc[K_0, 'put']) * 0.5
+        # 添加中间价
+        put_ser[K_0] = median
+
+        # 合并call,put
+        all_ser: pd.Series = pd.concat((put_ser, call_ser))
+
+    else:
+        all_ser: pd.Series = call_ser
 
     return all_ser.sort_index(), K_0
 
@@ -274,8 +279,8 @@ def calc_vix(near_sigma: float, next_sigma: float, near_term: float,
     weight = calc_weight(near_term, next_term)
 
     return np.sqrt(
-        (near_term * np.power(near_sigma, 2) * weight +
-         next_term * np.power(next_sigma, 2) * (1 - weight)) * (YEARS / 30))
+        (near_term * near_sigma * weight +
+         next_term * next_sigma * (1 - weight)) * (YEARS / 30))
 
 
 def calc_weight(t1: float, t2: float) -> float:
@@ -291,6 +296,72 @@ def calc_weight(t1: float, t2: float) -> float:
     t30 = 30 / YEARS
 
     return (t2 - t30) / (t2 - t1)
+
+
+def _get_sigma(df: pd.DataFrame, method: str = None) -> Dict:
+    """
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        | index | date      | exercise_date | close  | contract_type | exercise_price | maturity | near_maturity | next_maturity | near_rate | next_rate |
+        | :---- | :-------- | :------------ | :----- | :------------ | :------------- | :------- | :------------ | :------------ | :-------- | :-------- |
+        | 1     | 2015/3/11 | 2015/3/25     | 0.0552 | call          | 2.35           | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+        | 2     | 2015/3/11 | 2015/3/25     | 0.1348 | put           | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+        | 3     | 2015/3/11 | 2015/3/25     | 0.0063 | call          | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+
+    method:near 或者 next
+    Returns
+    -------
+    Dict
+
+    """
+    if method is None:
+        raise ValueError('method参数不能为空')
+
+    method = method.lower()
+    if method not in ['near', 'next']:
+
+        raise ValueError('method参数必须为near或者next')
+
+    # TODO:这里直接丢弃了缺失值
+    strike_matrix: pd.DataFrame = _build_strike_matrix(df).dropna()
+    # 计算F值所需信息
+    strike_row: pd.Series = _get_min_strike_diff(strike_matrix)
+
+    # 近月无风险收益等
+    term: float = df[f'{method}_maturity'].iloc[0]
+    term_rate: float = df[f'{method}_rate'].iloc[0]
+
+    # 计算远期价格
+    F: float = calc_F(strike_row['exercise_price'], term_rate,
+                      term, strike_row['call'],
+                      strike_row['put'])
+
+    # 计算中间价格表
+    median_table, K_0 = _get_median_price_table(
+        strike_matrix, F)
+
+    # 计算delta_k
+    delta_k: pd.Series = calc_delta_k_table(median_table)
+
+    # 计算simma
+    sigma: float = calc_sigma(K_0, median_table.index._values,
+                              delta_k.values,
+                              median_table.values, F,
+                              term_rate, term)
+
+    return {'strike_matrix': strike_matrix,
+            'median_table': median_table,
+            'delta_k': delta_k,
+            'F': F,
+            'K0': K_0,
+            'term': term,
+            'term_rate': term_rate,
+            'sigma': sigma}
+
+
+"""结果"""
 
 
 def get_daily_vix(df: pd.DataFrame) -> namedtuple:
@@ -316,7 +387,7 @@ def get_daily_vix(df: pd.DataFrame) -> namedtuple:
                                         | 2.3            | 0.1225 | 0.0969 | 0.0256  |
                                         | 2.35           | 0.0942 | 0.1268 | 0.0326  |
                                         | 2.4            | 0.0735 | 0.1542 | 0.0807  |
-                                        
+
                     F (Dict):k-near|next 近月,次近月 v-float
                     k (Dict):k-near|next 近月,次近月 v-float
                     median_table (Dict):k-near|next 近月,次近月
@@ -334,83 +405,126 @@ def get_daily_vix(df: pd.DataFrame) -> namedtuple:
                     sigma (Dict):k-near|next 近月,次近月 v-float
                     term  (Dict):k-near|next 近月,次近月 v-float
                     vix-float
-                   
+
     """
     # 储存中间变量
     variable = namedtuple(
-        'Variable', 'strike_matrix,F,K,median_table,delta_k,sigma,term,vix')
+        'Variable', 'strike_matrix,F,K,median_table,delta_k,sigma,rate,term,vix')
     # 获取对应的期权信息
-    ## 近月
+    # 近月
     near_df: pd.DataFrame = df[df['maturity'] == df['near_maturity']]
-    near_strike_matrix: pd.DataFrame = _build_strike_matrix(near_df)
+    near_sigma_variable: Dict = _get_sigma(near_df, 'near')
 
-    near_strike_ser: pd.Series = _get_min_strike_diff(near_strike_matrix)
-
-    ## 近月无风险收益等
-    near_term: float = near_df['near_maturity'].iloc[0]
-    near_term_rate: float = near_df['near_rate'].iloc[0]
-
-    ## 次近月
+    # 次近月
     next_df: pd.DataFrame = df[df['maturity'] == df['next_maturity']]
-    next_strike_matrix: pd.DataFrame = _build_strike_matrix(
-        df[df['maturity'] == df['next_maturity']])
+    next_sigma_variable: Dict = _get_sigma(next_df, 'next')
 
-    next_strike_ser: pd.Series = _get_min_strike_diff(next_strike_matrix)
-    ## 次近月无风险收益等
-    next_term: float = next_df['next_maturity'].iloc[0]
-    next_term_rate: float = next_df['next_rate'].iloc[0]
-
-    # 计算远期价格
-    near_F: float = calc_F(near_strike_ser['exercise_price'], near_term_rate,
-                           near_term, near_strike_ser['call'],
-                           near_strike_ser['put'])
-
-    next_F: float = calc_F(next_strike_ser['exercise_price'], next_term_rate,
-                           next_term, next_strike_ser['call'],
-                           next_strike_ser['put'])
-
-    # 计算中间价格表
-    near_median_table, near_K_0 = _get_median_price_table(
-        near_strike_matrix, near_F)
-    next_median_table, next_K_0 = _get_median_price_table(
-        next_strike_matrix, next_F)
-
-    # 计算delta_k
-    near_delta_k: pd.Series = calc_delta_k_table(near_median_table)
-    next_delta_k: pd.Series = calc_delta_k_table(next_median_table)
-
-    # 计算simma
-    near_sigma: float = calc_sigma(near_K_0, near_median_table.index._values,
-                                   near_delta_k.values,
-                                   near_median_table.values, near_F,
-                                   near_term_rate, near_term)
-
-    next_sigma: float = calc_sigma(next_K_0, next_median_table.index._values,
-                                   next_delta_k.values,
-                                   next_median_table.values, next_F,
-                                   next_term_rate, next_term)
     # 计算vix
-    vix = calc_vix(near_sigma, next_sigma, near_term, next_term)
 
-    return variable({
-        'near': near_strike_matrix,
-        'next': near_strike_matrix
-    }, {
-        'near': near_F,
-        'next': next_F
-    }, {
-        'near': near_K_0,
-        'next': next_K_0
-    }, {
-        'near': near_median_table,
-        'next': next_median_table
-    }, {
-        'near': near_delta_k,
-        'next': next_delta_k
-    }, {
-        'near': near_sigma,
-        'next': next_sigma
-    }, {
-        'near': near_term,
-        'next': next_term
-    }, vix)
+    vix = calc_vix(near_sigma_variable['sigma'], next_sigma_variable['sigma'],
+                   near_sigma_variable['term'], next_sigma_variable['term'])
+
+    strike_matrix = {
+        'near': near_sigma_variable['strike_matrix'],
+        'next': near_sigma_variable['strike_matrix']
+    }
+
+    F = {
+        'near': near_sigma_variable['F'],
+        'next': near_sigma_variable['F']
+    }
+
+    K = {
+        'near': near_sigma_variable['K0'],
+        'next': near_sigma_variable['K0']
+    }
+
+    median_table = {
+        'near': near_sigma_variable['median_table'],
+        'next': near_sigma_variable['median_table']
+    }
+
+    delta_k = {
+        'near': near_sigma_variable['delta_k'],
+        'next': near_sigma_variable['delta_k']
+    }
+
+    sigma = {
+        'near': near_sigma_variable['sigma'],
+        'next': near_sigma_variable['sigma']
+    }
+
+    rate = {
+        'near': near_sigma_variable['term_rate'],
+        'next': near_sigma_variable['term_rate']
+    }
+
+    term = {
+        'near': near_sigma_variable['term'],
+        'next': near_sigma_variable['term']
+    }
+    return variable(strike_matrix, F, K, median_table, delta_k, sigma, rate, term, vix)
+
+
+def prepare_data2calc(opt_data: pd.DataFrame, shibor_data: pd.DataFrame) -> pd.DataFrame:
+    """前期数据均值
+
+    Parameters
+    ----------
+    opt_data : pd.DataFrame
+            期权合约数据
+            | index | date      | exercise_date | close  | contract_type | exercise_price | maturity |
+            | :---- | :-------- | :------------ | :----- | :------------ | :------------- | :------- |
+            | 0     | 2021/7/29 | 2022/3/23     | 0.5275 | call          | 4.332          | 0.649315 |
+    shibor_data : pd.DataFrame
+            无风险收益数据
+            | index    | 1      | 2        | 3        | ...      | 356      | 357   | 358     | 360      |
+            | :------- | :----- | :------- | :------- | :------- | :------- | :---- | :------ | :------- |
+            | 2015/1/4 | 0.0364 | 0.038687 | 0.040898 | 0.043026 | 0.045063 | 0.047 | 0.04883 | 0.050544 |
+
+    Returns
+    -------
+    pd.DataFrame
+        _description_
+    """
+
+    # step 1.获取每日的次月及次近月合约
+    # 获取每日的近月和次近月期权合约
+    filter_opt_data: pd.DataFrame = opt_data.groupby(
+        'date', group_keys=False).apply(_get_near_or_next_options, filter_num=7)
+    filter_opt_data['date'] = pd.to_datetime(filter_opt_data['date'])
+
+    # 获取每日
+    maturity_ser: pd.Series = filter_opt_data.groupby('date').apply(
+        lambda x: x['maturity'].unique())
+
+    # step 2.根据近月次近月合约获取对应的无风险收益
+    # 近月、次近月
+    sel_rate: pd.Series = shibor_data.loc[maturity_ser.index].apply(
+        lambda x: _get_free_rate(x, np.min(maturity_ser.loc[x.name]),
+                                 np.max(maturity_ser.loc[x.name])),
+        axis=1)
+
+    # 根据maturity对齐shibor
+    maturity_align, shibor_algin = maturity_ser.align(sel_rate,
+                                                      axis=0,
+                                                      join='left')
+
+    # step 3.拼接数据
+    # 储存中间变量
+    df = pd.DataFrame(
+        index=maturity_align.index,
+        columns='near_maturity,next_maturity,near_rate,next_rate'.split(','))
+
+    df['near_maturity'] = maturity_align.apply(lambda x: np.min(x))
+    df['next_maturity'] = maturity_align.apply(lambda x: np.max(x))
+
+    df['near_rate'] = shibor_algin.apply(lambda x: np.min(x))
+    df['next_rate'] = shibor_algin.apply(lambda x: np.max(x))
+    df.index.names = ['date']
+
+    #opt_data['date'] = pd.to_datetime(opt_data['date'])
+    data_all = pd.merge(filter_opt_data, df.reset_index(),
+                        on='date', how='outer')
+
+    return data_all
