@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 16:28:13
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-05-31 16:00:18
+LastEditTime: 2022-06-01 00:04:52
 Description: 使用jqdatasdk/jqdata获取期权数据
 '''
 import datetime as dt
@@ -26,7 +26,7 @@ def get_opt_basic(code: str, start_date: str, end_date: str) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: 
-        
+
         | idnex | list_date | exercise_date | exercise_price | contract_type | code          |
         | :---- | :-------- | :------------ | :------------- | :------------ | :------------ |
         | 0     | 2021/7/29 | 2022/3/23     | 4.332          | CO            | 10003549.XSHG |
@@ -59,15 +59,15 @@ def offset_limit_func(model, fields: Union[List, Tuple], limit: int,
     """
     total_size: int = model.run_query(query(
         func.count('*')).filter(*args)).iloc[0, 0]
-    print('总数%s' % total_size)
+    # print('总数%s' % total_size)
     dfs: List = []
 
-    #以limit为步长循环offset的参数
+    # 以limit为步长循环offset的参数
     for i in range(0, total_size, limit):
 
-        q = query(*fields).filter(*args).offset(i).limit(limit)  #自第i条数据之后进行获取
+        q = query(*fields).filter(*args).offset(i).limit(limit)  # 自第i条数据之后进行获取
         df: pd.DataFrame = model.run_query(q)
-        print(i, len(df))
+        # print(i, len(df))
         dfs.append(df)
 
     df: pd.DataFrame = pd.concat(dfs)
