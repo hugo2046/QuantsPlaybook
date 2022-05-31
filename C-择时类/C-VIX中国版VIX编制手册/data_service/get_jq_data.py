@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 16:28:13
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-05-27 18:49:46
+LastEditTime: 2022-05-31 16:00:18
 Description: 使用jqdatasdk/jqdata获取期权数据
 '''
 import datetime as dt
@@ -100,15 +100,16 @@ def get_opt_all_price(codes: Union[str, List]) -> pd.DataFrame:
     return opt_price
 
 
-def calc_maturity(exercise_date: pd.Series, trade_date: pd.Series,
-                  days: int) -> pd.Series:
+def calc_maturity(exercise_date: pd.Series,
+                  trade_date: pd.Series,
+                  days: int = 365) -> pd.Series:
     """计算交易日到期权执行期直接的时间
 
         $maturity=\frac{(exercise_date - trade_date)}{days}$
     Args:
         exercise_date (pd.Series): 执行期
         date (pd.Series): 交易日
-        days (int): 转化年
+        days (int): 转化年,默认为365
 
     Returns:
         pd.Series

@@ -2,7 +2,7 @@
  * @Author: hugo2046 shen.lan123@gmail.com
  * @Date: 2022-05-27 14:21:01
  * @LastEditors: hugo2046 shen.lan123@gmail.com
- * @LastEditTime: 2022-05-30 20:54:22
+ * @LastEditTime: 2022-05-31 15:50:29
  * @FilePath: \visualization_stock_markete:\WorkSpace\Quantitative-analysis\C-择时类\C-VIX中国版VIX编制手册\test.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -45,3 +45,10 @@
 | 2.3            | 0.1225 | 0.0969 | 0.0256  |
 | 2.35           | 0.0942 | 0.1268 | -0.0326 |
 | 2.4            | 0.0735 | 0.1542 | -0.0807 |
+
+
+| index | date      | exercise_date | close  | contract_type | exercise_price | maturity | near_maturity | next_maturity | near_rate | next_rate |
+| :---- | :-------- | :------------ | :----- | :------------ | :------------- | :------- | :------------ | :------------ | :-------- | :-------- |
+| 1     | 2015/3/11 | 2015/3/25     | 0.0552 | call          | 2.35           | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+| 2     | 2015/3/11 | 2015/3/25     | 0.1348 | put           | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+| 3     | 2015/3/11 | 2015/3/25     | 0.0063 | call          | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |

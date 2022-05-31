@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-30 11:35:26
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-05-30 20:53:38
+LastEditTime: 2022-05-31 16:36:08
 FilePath: 
 Description: 使用爬虫获取shibor
     上海银行业同业拆借报告:
@@ -40,9 +40,8 @@ def query_china_shibor_all() -> pd.DataFrame:
     """
     t = time.time()
     params = {"_": t}
-    res = requests.get(
-        "https://cdn.jin10.com/data_center/reports/il_1.json", params=params
-    )
+    res = requests.get("https://cdn.jin10.com/data_center/reports/il_1.json",
+                       params=params)
     json_data = res.json()
     temp_df = pd.DataFrame(json_data["values"]).T
     temp_df.index = pd.to_datetime(temp_df.index)
@@ -61,7 +60,10 @@ def _load_csv() -> pd.DataFrame:
         | 2006/01/01 | 2.633 | 2.725 | 3.236 | 4.2775 | 4.3507 | 4.2909 | 4.134 | 4.1246 |
     """
 
-    return pd.read_csv(r'data_service/shibor_data/shibor_db.csv', index_col=[0], parse_dates=True, usecols=[0, 1, 2, 3, 4, 5, 6, 7, 8])
+    return pd.read_csv(r'data_service/shibor_data/shibor_db.csv',
+                       index_col=[0],
+                       parse_dates=True,
+                       usecols=[0, 1, 2, 3, 4, 5, 6, 7, 8])
 
 
 def get_shibor_data(start: str, end: str) -> pd.DataFrame:
@@ -104,13 +106,12 @@ def get_interpld_shibor(shibor_df: pd.DataFrame) -> pd.DataFrame:
             | :------- | :----- | :------- | :------- | :------- | :------- | :---- | :------ | :------- |
             | 2015/1/4 | 0.0364 | 0.038687 | 0.040898 | 0.043026 | 0.045063 | 0.047 | 0.04883 | 0.050544 |
      """
-
     def _interpld_fun(r):
         """用于差值"""
         y_vals = r.values / 100
 
-        daily_range = np.arange(1, 361)
-        periods = [1, 7, 14, 30, 90, 180, 270, 360]
+        daily_range = np.arange(1, 365)
+        periods = [1, 7, 14, 30, 90, 180, 270, 365]
 
         # 插值三次样条插值法补全利率曲线
         f = interp1d(periods, y_vals, kind='cubic')
@@ -123,6 +124,7 @@ def get_interpld_shibor(shibor_df: pd.DataFrame) -> pd.DataFrame:
     shibor_df.index = pd.DatetimeIndex(shibor_df.index)
 
     return shibor_df
+
 
 # if __name__ == '__main__':
 
