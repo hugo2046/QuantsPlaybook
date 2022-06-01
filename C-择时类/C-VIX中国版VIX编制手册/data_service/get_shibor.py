@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-30 11:35:26
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-05-31 16:36:08
+LastEditTime: 2022-06-01 10:38:29
 FilePath: 
 Description: 使用爬虫获取shibor
     上海银行业同业拆借报告:
@@ -87,6 +87,7 @@ def get_shibor_data(start: str, end: str) -> pd.DataFrame:
     df1 = _load_csv()  # 用于补充数据
 
     df = pd.concat((df1, df2)).sort_index()
+    df = df.loc[~df.index.duplicated(keep='last')]
 
     return df.loc[start:end]
 

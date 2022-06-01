@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 16:28:13
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-01 00:04:52
+LastEditTime: 2022-06-01 11:27:42
 Description: 使用jqdatasdk/jqdata获取期权数据
 '''
 import datetime as dt
@@ -160,9 +160,13 @@ def prepare_data(code: str, start_date: str, end_date: str) -> pd.DataFrame:
         "PO": "put"
     })
 
+    # 范围选择
     data = data.sort_values('date')
+    data['date'] = pd.to_datetime(data['date'])
+    start_date = pd.to_datetime(start_date)
+    end_dade = pd.to_datetime(end_date)
 
-    return data
+    return data.query('date >= @start_date and date <= @end_date')
 
 
 """
