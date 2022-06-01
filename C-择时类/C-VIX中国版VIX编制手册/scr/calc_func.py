@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-01 12:45:29
+LastEditTime: 2022-06-01 13:57:18
 FilePath: 
 Description: 
 '''
@@ -358,9 +358,35 @@ def _get_sigma(df: pd.DataFrame, method: str = None) -> Dict:
     }
 
 
-# def calc_epsilon(F0:float,K0:float)->Tuple:
+def calc_epsilons(F0: float, K0: float) -> Tuple:
+    """根据F0和K0计算epsilon
 
-#     epsilon1 =  1 + np.log
+    Args:
+        F0 (float): 
+        K0 (float): 
+
+    Returns:
+        Tuple: 
+    """
+    epsilon1 = -1 - np.log(F0 / K0) + (F0 / K0)
+    epsilon2 = 2 * np.log(K0 / F0) * (F0 / K0 - 1) + 0.5 * np.square(
+        np.log(K0 / F0))
+    epsilon3 = 3 * np.square(np.log(
+        K0 / F0)) * (np.log(K0 / F0) / 3 - 1 + F0 / K0)
+
+    return epsilon1, epsilon2, epsilon3
+
+
+def calc_p_values(K: np.ndarray, Q_K: np.ndarray, delta_K: np.ndarray,
+                  epsilons: Tuple, rate: float, term: float) -> Tuple:
+
+    e1, e2, e3 = epsilons
+    p1: float = np.exp(rate * term) * np.sum(
+        (Q_K * delta_K) / np.square(K)) * e1
+    p2: float = np.exp(rate * term) * np.sum(
+        (2 / np.square(K) * Q_K * delta_K))
+
+
 """结果"""
 
 
