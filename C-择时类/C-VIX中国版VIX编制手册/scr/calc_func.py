@@ -2,12 +2,12 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-01 13:57:18
+LastEditTime: 2022-06-02 20:25:16
 FilePath: 
 Description: 
 '''
 import warnings
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
@@ -378,16 +378,127 @@ def calc_epsilons(F0: float, K0: float) -> Tuple:
 
 
 def calc_p_values(K: np.ndarray, Q_K: np.ndarray, delta_K: np.ndarray,
-                  epsilons: Tuple, rate: float, term: float) -> Tuple:
+                  epsilons: Tuple, rate: float, term: float,
+                  F: float) -> Tuple:
 
     e1, e2, e3 = epsilons
-    p1: float = np.exp(rate * term) * np.sum(
-        (Q_K * delta_K) / np.square(K)) * e1
-    p2: float = np.exp(rate * term) * np.sum(
-        (2 / np.square(K) * Q_K * delta_K))
+    e_rt: float = np.exp(rate * term)
+    p1: float = e_rt * (-1 * np.sum((Q_K * delta_K) / np.square(K))) + e1
+
+    p2: float = e_rt * np.sum(
+        (2 * Q_K * delta_K) / np.square(K) * (1 - np.log(K / F))) + e2
+
+    p3: float = e_rt * np.sum(
+        (3 * Q_K * delta_K) / np.square(K) *
+        (2 * np.log(K / F) - np.square(np.log(K / F)))) + e3
+
+    return p1, p2, p3
+
+
+def calc_S(P: Union[np.ndarray, Tuple, List]) -> float:
+    p1, p2, p3 = P
+    return (p3 - 3 * p1 * p2 + 2 * np.power(p1, 3)) / np.power(
+        p2 - np.square(p1), 3 / 2)
+
+
+def _get_s(df: pd.DataFrame) -> pd.Series:
+
+    df.set_index('trade_date', inplace=True)
+
+    df['espilons'] = df.apply(lambda x: calc_epsilons(x['F'], x['K0']), axis=1)
+
+    df['P'] = df.apply(lambda x: calc_p_values(x['K'], x['Q_K'], x[
+        'delta_k'], x['espilons'], x['term_rate'], x['term'], x['F']),
+                       axis=1)
+
+    return df['P'].apply(calc_S)
+
+
+def calc_skew(w: float, s_near: float, s_next: float) -> float:
+
+    return 100 - 10 * (w * s_near + (1 - w) * s_next)
 
 
 """结果"""
+
+
+class CVIX():
+    def __init__(self, data: pd.DataFrame) -> None:
+        """_summary_
+
+        Args:
+            data (pd.DataFrame): 
+                | index | date      | exercise_date | close  | contract_type | exercise_price | maturity | near_maturity | next_maturity | near_rate | next_rate |
+                | :---- | :-------- | :------------ | :----- | :------------ | :------------- | :------- | :------------ | :------------ | :-------- | :-------- |
+                | 1     | 2015/3/11 | 2015/3/25     | 0.0552 | call          | 2.35           | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+                | 2     | 2015/3/11 | 2015/3/25     | 0.1348 | put           | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+                | 3     | 2015/3/11 | 2015/3/25     | 0.0063 | call          | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+            """
+        self.data: pd.DataFrame = data
+        self.variable_dict: defaultdict = defaultdict(list)
+
+    def vix(self) -> pd.Series:
+
+        return self.data.groupby('date').apply(lambda x: self._calc_vix(x))
+
+    def _calc_vix(self, df: pd.DataFrame) -> pd.Series:
+
+        trade_date = df.name
+        # 获取对应的期权信息
+        # 近月
+        near_df: pd.DataFrame = df.query('maturity == near_maturity')
+        near_sigma_variable: Dict = _get_sigma(near_df, 'near')
+        near_sigma_variable['trade_date'] = trade_date
+        self._get_variable_dict(near_sigma_variable, 'near')
+        # 次近月
+        next_df: pd.DataFrame = df.query('maturity == next_maturity')
+        next_sigma_variable: Dict = _get_sigma(next_df, 'next')
+        next_sigma_variable['trade_date'] = trade_date
+        self._get_variable_dict(next_sigma_variable, 'next')
+        # 计算vix
+
+        vix = calc_vix(near_sigma_variable['sigma'],
+                       next_sigma_variable['sigma'],
+                       near_sigma_variable['term'],
+                       next_sigma_variable['term'])
+
+        return vix
+
+    def skew(self) -> pd.Series:
+
+        next_variable = pd.DataFrame(self.variable_dict['next'])
+        near_variable = pd.DataFrame(self.variable_dict['near'])
+
+        next_s = _get_s(next_variable)
+        near_s = _get_s(near_variable)
+        df = pd.concat(
+            (near_variable['term'], next_variable['term'], near_s, next_s),
+            axis=1)
+        df.columns = ['t1', 't2', 'p1', 'p2']
+        df['w'] = df.apply(lambda x: calc_weight(x['t1'], x['t2']), axis=1)
+
+        return df.apply(calc_skew)
+
+    def _get_variable_dict(self, sigma_variable: Dict, name: str) -> None:
+
+        tmp: Dict = {}
+
+        for k, v in sigma_variable.items():
+
+            if k == 'median_table':
+
+                tmp['Q_K'] = v.values
+                tmp['K'] = np.array(v.index)
+
+            elif k == 'delta_k':
+
+                tmp['delta_k'] = v.values
+
+            elif k not in ['strike_matrix']:
+
+                tmp[k] = v
+
+        self.variable_dict[name].append(tmp)
 
 
 def get_daily_vix(df: pd.DataFrame) -> namedtuple:
