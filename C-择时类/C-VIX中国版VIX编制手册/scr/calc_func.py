@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-02 20:25:16
+LastEditTime: 2022-06-03 21:08:40
 FilePath: 
 Description: 
 '''
@@ -395,7 +395,7 @@ def calc_p_values(K: np.ndarray, Q_K: np.ndarray, delta_K: np.ndarray,
     return p1, p2, p3
 
 
-def calc_S(P: Union[np.ndarray, Tuple, List]) -> float:
+def calc_s(P: Union[np.ndarray, Tuple, List]) -> float:
     p1, p2, p3 = P
     return (p3 - 3 * p1 * p2 + 2 * np.power(p1, 3)) / np.power(
         p2 - np.square(p1), 3 / 2)
@@ -409,9 +409,9 @@ def _get_s(df: pd.DataFrame) -> pd.Series:
 
     df['P'] = df.apply(lambda x: calc_p_values(x['K'], x['Q_K'], x[
         'delta_k'], x['espilons'], x['term_rate'], x['term'], x['F']),
-                       axis=1)
+        axis=1)
 
-    return df['P'].apply(calc_S)
+    return df['P'].apply(calc_s)
 
 
 def calc_skew(w: float, s_near: float, s_next: float) -> float:
@@ -449,11 +449,14 @@ class CVIX():
         near_df: pd.DataFrame = df.query('maturity == near_maturity')
         near_sigma_variable: Dict = _get_sigma(near_df, 'near')
         near_sigma_variable['trade_date'] = trade_date
+
         self._get_variable_dict(near_sigma_variable, 'near')
+
         # 次近月
         next_df: pd.DataFrame = df.query('maturity == next_maturity')
         next_sigma_variable: Dict = _get_sigma(next_df, 'next')
         next_sigma_variable['trade_date'] = trade_date
+
         self._get_variable_dict(next_sigma_variable, 'next')
         # 计算vix
 
@@ -466,18 +469,26 @@ class CVIX():
 
     def skew(self) -> pd.Series:
 
-        next_variable = pd.DataFrame(self.variable_dict['next'])
-        near_variable = pd.DataFrame(self.variable_dict['near'])
+        if ('next' in self.variable_dict) and ('near' in self.variable_dict):
+            next_variable = pd.DataFrame(self.variable_dict['next'])
+            near_variable = pd.DataFrame(self.variable_dict['near'])
+
+        else:
+
+            self.vix()
 
         next_s = _get_s(next_variable)
         near_s = _get_s(near_variable)
+
         df = pd.concat(
             (near_variable['term'], next_variable['term'], near_s, next_s),
             axis=1)
+
         df.columns = ['t1', 't2', 'p1', 'p2']
+
         df['w'] = df.apply(lambda x: calc_weight(x['t1'], x['t2']), axis=1)
 
-        return df.apply(calc_skew)
+        return df.apply(lambda x: calc_skew(x['w'], x['p1'], x['p2']), axis=1)
 
     def _get_variable_dict(self, sigma_variable: Dict, name: str) -> None:
 
@@ -501,103 +512,103 @@ class CVIX():
         self.variable_dict[name].append(tmp)
 
 
-def get_daily_vix(df: pd.DataFrame) -> namedtuple:
-    """计算vix
+# def get_daily_vix(df: pd.DataFrame) -> namedtuple:
+#     """计算vix
 
-    Args:
-        df (pd.DataFrame): 
-        | index | date      | exercise_date | close  | contract_type | exercise_price | maturity | near_maturity | next_maturity | near_rate | next_rate |
-        | :---- | :-------- | :------------ | :----- | :------------ | :------------- | :------- | :------------ | :------------ | :-------- | :-------- |
-        | 1     | 2015/3/11 | 2015/3/25     | 0.0552 | call          | 2.35           | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
-        | 2     | 2015/3/11 | 2015/3/25     | 0.1348 | put           | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
-        | 3     | 2015/3/11 | 2015/3/25     | 0.0063 | call          | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+#     Args:
+#         df (pd.DataFrame):
+#         | index | date      | exercise_date | close  | contract_type | exercise_price | maturity | near_maturity | next_maturity | near_rate | next_rate |
+#         | :---- | :-------- | :------------ | :----- | :------------ | :------------- | :------- | :------------ | :------------ | :-------- | :-------- |
+#         | 1     | 2015/3/11 | 2015/3/25     | 0.0552 | call          | 2.35           | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+#         | 2     | 2015/3/11 | 2015/3/25     | 0.1348 | put           | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
+#         | 3     | 2015/3/11 | 2015/3/25     | 0.0063 | call          | 2.5            | 0.038356 | 0.038356      | 0.115068      | 0.04814   | 0.052589  |
 
-    Returns:
-        namedtuple: strike_matrix,F,K,median_table,delta_k,sigma,term,vix
-                    strike_matrix (Dict):k-near|next 近月,次近月
-                                        v-pd.DataFrame
-                                        | contract_type  | call   | put    | diff    |
-                                        | :------------- | :----- | :----- | :------ |
-                                        | exercise_price |        |        |         |
-                                        | 2.2            | 0.1826 | 0.0617 | 0.1209  |
-                                        | 2.25           | 0.146  | 0.0777 | 0.0683  |
-                                        | 2.3            | 0.1225 | 0.0969 | 0.0256  |
-                                        | 2.35           | 0.0942 | 0.1268 | 0.0326  |
-                                        | 2.4            | 0.0735 | 0.1542 | 0.0807  |
+#     Returns:
+#         namedtuple: strike_matrix,F,K,median_table,delta_k,sigma,term,vix
+#                     strike_matrix (Dict):k-near|next 近月,次近月
+#                                         v-pd.DataFrame
+#                                         | contract_type  | call   | put    | diff    |
+#                                         | :------------- | :----- | :----- | :------ |
+#                                         | exercise_price |        |        |         |
+#                                         | 2.2            | 0.1826 | 0.0617 | 0.1209  |
+#                                         | 2.25           | 0.146  | 0.0777 | 0.0683  |
+#                                         | 2.3            | 0.1225 | 0.0969 | 0.0256  |
+#                                         | 2.35           | 0.0942 | 0.1268 | 0.0326  |
+#                                         | 2.4            | 0.0735 | 0.1542 | 0.0807  |
 
-                    F (Dict):k-near|next 近月,次近月 v-float
-                    k (Dict):k-near|next 近月,次近月 v-float
-                    median_table (Dict):k-near|next 近月,次近月
-                                 v-pd.DataFrame
-                                | contract_type  | call   | put    | diff    |
-                                | :------------- | :----- | :----- | :------ |
-                                | exercise_price |        |        |         |
-                                | 2.2            | 0.1826 | 0.0617 | 0.1209  |
-                                | 2.25           | 0.146  | 0.0777 | 0.0683  |
-                                | 2.3            | 0.1225 | 0.0969 | 0.0256  |
-                                | 2.35           | 0.0942 | 0.1268 | 0.0326  |
-                                | 2.4            | 0.0735 | 0.1542 | 0.0807  |
-                    delta_k (Dict):k-near|next 近月,次近月 
-                                   v-pd.Series index-执行价 values
-                    sigma (Dict):k-near|next 近月,次近月 v-float
-                    term  (Dict):k-near|next 近月,次近月 v-float
-                    vix-float
+#                     F (Dict):k-near|next 近月,次近月 v-float
+#                     k (Dict):k-near|next 近月,次近月 v-float
+#                     median_table (Dict):k-near|next 近月,次近月
+#                                  v-pd.DataFrame
+#                                 | contract_type  | call   | put    | diff    |
+#                                 | :------------- | :----- | :----- | :------ |
+#                                 | exercise_price |        |        |         |
+#                                 | 2.2            | 0.1826 | 0.0617 | 0.1209  |
+#                                 | 2.25           | 0.146  | 0.0777 | 0.0683  |
+#                                 | 2.3            | 0.1225 | 0.0969 | 0.0256  |
+#                                 | 2.35           | 0.0942 | 0.1268 | 0.0326  |
+#                                 | 2.4            | 0.0735 | 0.1542 | 0.0807  |
+#                     delta_k (Dict):k-near|next 近月,次近月
+#                                    v-pd.Series index-执行价 values
+#                     sigma (Dict):k-near|next 近月,次近月 v-float
+#                     term  (Dict):k-near|next 近月,次近月 v-float
+#                     vix-float
 
-    """
-    # 储存中间变量
-    variable = namedtuple(
-        'Variable',
-        'strike_matrix,F,K,median_table,delta_k,sigma,rate,term,vix')
-    # 获取对应的期权信息
-    # 近月
-    near_df: pd.DataFrame = df[df['maturity'] == df['near_maturity']]
-    near_sigma_variable: Dict = _get_sigma(near_df, 'near')
+#     """
+#     # 储存中间变量
+#     variable = namedtuple(
+#         'Variable',
+#         'strike_matrix,F,K,median_table,delta_k,sigma,rate,term,vix')
+#     # 获取对应的期权信息
+#     # 近月
+#     near_df: pd.DataFrame = df[df['maturity'] == df['near_maturity']]
+#     near_sigma_variable: Dict = _get_sigma(near_df, 'near')
 
-    # 次近月
-    next_df: pd.DataFrame = df[df['maturity'] == df['next_maturity']]
-    next_sigma_variable: Dict = _get_sigma(next_df, 'next')
+#     # 次近月
+#     next_df: pd.DataFrame = df[df['maturity'] == df['next_maturity']]
+#     next_sigma_variable: Dict = _get_sigma(next_df, 'next')
 
-    # 计算vix
+#     # 计算vix
 
-    vix = calc_vix(near_sigma_variable['sigma'], next_sigma_variable['sigma'],
-                   near_sigma_variable['term'], next_sigma_variable['term'])
+#     vix = calc_vix(near_sigma_variable['sigma'], next_sigma_variable['sigma'],
+#                    near_sigma_variable['term'], next_sigma_variable['term'])
 
-    ## 储存中间过程
-    strike_matrix = {
-        'near': near_sigma_variable['strike_matrix'],
-        'next': near_sigma_variable['strike_matrix']
-    }
+#     ## 储存中间过程
+#     strike_matrix = {
+#         'near': near_sigma_variable['strike_matrix'],
+#         'next': near_sigma_variable['strike_matrix']
+#     }
 
-    F = {'near': near_sigma_variable['F'], 'next': near_sigma_variable['F']}
+#     F = {'near': near_sigma_variable['F'], 'next': near_sigma_variable['F']}
 
-    K = {'near': near_sigma_variable['K0'], 'next': near_sigma_variable['K0']}
+#     K = {'near': near_sigma_variable['K0'], 'next': near_sigma_variable['K0']}
 
-    median_table = {
-        'near': near_sigma_variable['median_table'],
-        'next': near_sigma_variable['median_table']
-    }
+#     median_table = {
+#         'near': near_sigma_variable['median_table'],
+#         'next': near_sigma_variable['median_table']
+#     }
 
-    delta_k = {
-        'near': near_sigma_variable['delta_k'],
-        'next': near_sigma_variable['delta_k']
-    }
+#     delta_k = {
+#         'near': near_sigma_variable['delta_k'],
+#         'next': near_sigma_variable['delta_k']
+#     }
 
-    sigma = {
-        'near': near_sigma_variable['sigma'],
-        'next': near_sigma_variable['sigma']
-    }
+#     sigma = {
+#         'near': near_sigma_variable['sigma'],
+#         'next': near_sigma_variable['sigma']
+#     }
 
-    rate = {
-        'near': near_sigma_variable['term_rate'],
-        'next': near_sigma_variable['term_rate']
-    }
+#     rate = {
+#         'near': near_sigma_variable['term_rate'],
+#         'next': near_sigma_variable['term_rate']
+#     }
 
-    term = {
-        'near': near_sigma_variable['term'],
-        'next': near_sigma_variable['term']
-    }
-    return variable(strike_matrix, F, K, median_table, delta_k, sigma, rate,
-                    term, vix)
+#     term = {
+#         'near': near_sigma_variable['term'],
+#         'next': near_sigma_variable['term']
+#     }
+#     return variable(strike_matrix, F, K, median_table, delta_k, sigma, rate,
+#                     term, vix)
 
 
 def prepare_data2calc(opt_data: pd.DataFrame,
@@ -639,7 +650,7 @@ def prepare_data2calc(opt_data: pd.DataFrame,
     shibor_data = shibor_data.loc[maturity_ser.index].copy()
     sel_rate: pd.Series = shibor_data.apply(lambda x: _get_free_rate(
         x, np.min(maturity_ser.loc[x.name]), np.max(maturity_ser.loc[x.name])),
-                                            axis=1)
+        axis=1)
 
     # 根据maturity对齐shibor
     maturity_align, shibor_algin = maturity_ser.align(sel_rate,
