@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-06 08:23:59
+LastEditTime: 2022-06-07 14:28:09
 FilePath: 
 Description: 
 '''
@@ -12,11 +12,15 @@ from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 
 # 设置全年天数
 YEARS = 365
 
 
+################################################################################################
+#                             计算VIX,STEW的组件
+################################################################################################
 def _get_near_or_next_options(df: pd.Series,
                               n: int = 1,
                               filter_num: int = 7) -> pd.DataFrame:
@@ -419,7 +423,9 @@ def calc_skew(w: float, s_near: float, s_next: float) -> float:
     return 100 - 10 * (w * s_near + (1 - w) * s_next)
 
 
-"""结果"""
+################################################################################################
+#                             结果
+################################################################################################
 
 
 class CVIX():
@@ -578,3 +584,126 @@ def prepare_data2calc(opt_data: pd.DataFrame,
                         how='outer')
 
     return data_all
+
+
+################################################################################################
+#                                其他
+################################################################################################
+def get_quantreg_res(endog: pd.Series, exog: pd.Series) -> pd.DataFrame:
+    """_summary_
+
+    Args:
+        endog (pd.Series): _description_
+        exog (pd.Series): _description_
+
+    Returns:
+        pd.DataFrame: _description_
+    """
+    # 分位数回归
+    mod = sm.QuantReg(endog, sm.add_constant(exog))
+    quantiles = np.arange(0.05, 1, 0.2)
+
+    def fit_model(q) -> List:
+
+        res = mod.fit(q=q)
+
+        return [q, res.params.iloc[0], res.params.iloc[1]
+                ] + res.conf_int().iloc[1].tolist()
+
+    models = [fit_model(x) for x in quantiles]
+    models = pd.DataFrame(models,
+                          columns=["q", "Intercept", "vix", "lb", "ub"])
+
+    return models
+
+
+def get_n_next_ret(endog: pd.Series,
+                   exog: pd.Series,
+                   periods: List = [5, 20, 60]) -> Tuple:
+    """构建未来N期收益并对齐信号与收益
+
+    Args:
+        endog (pd.Series): _description_
+        exog (pd.Series): _description_
+
+    Returns:
+        Tuple: _description_
+    """
+
+    # 未来N日收益
+    next_ret_name: List = ['未来%s日收益' % i for i in periods]
+
+    # 生成未来N期的收益序列
+    next_chg: pd.DataFrame = pd.concat(
+        (endog.pct_change(i).shift(-i) for i in periods), axis=1)
+    next_chg.columns = next_ret_name
+    next_chg = next_chg.dropna()
+
+    # 日期对齐
+    algin_next_chg, algin_vix = next_chg.align(exog, join='left', axis=0)
+    return algin_next_chg, algin_vix
+
+
+def create_quantile_bound(signal: pd.Series, window: int,
+                          bound: Tuple) -> pd.DataFrame:
+    """构造滚动百分位数上下轨
+
+    Args:
+        signal (pd.Series): index-price
+        window (int): 时间窗口
+        bound (Tuple): 0-上轨百分位,1-下轨百分位
+
+    Returns:
+        pd.DataFrame: index-date columns-ub,signal,lb
+    """
+    up, lw = bound
+    ub: pd.Series = signal.rolling(window).apply(
+        lambda x: np.percentile(x, up), raw=True)
+    lb: pd.Series = signal.rolling(window).apply(
+        lambda x: np.percentile(x, lw), raw=True)
+
+    df: pd.DataFrame = pd.concat((up, signal, lb), axis=1)
+    df.columns = ['ub', 'signal', 'lb']
+
+    return df.dropna()
+
+
+def get_hold_series(price: pd.Series, signal: pd.Series, window: int,
+                    bound: Tuple) -> pd.Series:
+    """获取持仓信号
+       当signal小于下轨时开仓,大于上轨时平仓
+    Args:
+        price (pd.Series): _description_
+        signal (pd.Series): _description_
+        window (int): _description_
+        bound (Tuple): _description_
+
+    Returns:
+        pd.Series: _description_
+    """
+    signal_df: pd.DataFrame = create_quantile_bound(signal, window, bound)
+    hold = pd.Series(index=signal.index)
+
+    previous_flag = 0
+
+    for trade, rows in signal_df.iterrows():
+
+        s: float = rows['signal']
+        ub: float = rows['ub']
+        lb: float = rows['lb']
+
+        if s <= lb:
+
+            hold.loc[trade] = 1
+            previous_flag = 1
+
+        elif s >= ub:
+
+            hold.loc[trade] = 0
+            previous_flag = 0
+
+        else:
+
+            hold.loc[trade] = previous_flag
+
+    return hold

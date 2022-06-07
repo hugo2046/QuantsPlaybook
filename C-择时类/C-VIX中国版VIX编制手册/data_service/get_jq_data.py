@@ -2,15 +2,20 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 16:28:13
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-01 11:27:42
+LastEditTime: 2022-06-07 10:55:05
 Description: 使用jqdatasdk/jqdata获取期权数据
 '''
+import sys
+
+sys.path.append('..')
+
 import datetime as dt
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from jqdata import *
+from scr.calc_func import YEARS
 from sqlalchemy.sql import func
 
 from .utils import trans_ser2datetime
@@ -102,7 +107,7 @@ def get_opt_all_price(codes: Union[str, List]) -> pd.DataFrame:
 
 def calc_maturity(exercise_date: pd.Series,
                   trade_date: pd.Series,
-                  days: int = 365) -> pd.Series:
+                  days: int = YEARS) -> pd.Series:
     """计算交易日到期权执行期直接的时间
 
         $maturity=\frac{(exercise_date - trade_date)}{days}$

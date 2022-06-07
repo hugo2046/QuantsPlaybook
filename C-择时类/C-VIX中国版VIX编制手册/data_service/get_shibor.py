@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-30 11:35:26
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-01 10:38:29
+LastEditTime: 2022-06-07 11:02:00
 FilePath: 
 Description: 使用爬虫获取shibor
     上海银行业同业拆借报告:
@@ -12,6 +12,10 @@ Description: 使用爬虫获取shibor
     shibor_data中储存的2006至20170316的数据
     
 '''
+import sys
+
+sys.path.append('..')
+
 import functools
 import json
 import time
@@ -20,6 +24,7 @@ import numpy as np
 import pandas as pd
 import requests
 from scipy.interpolate import interp1d
+from scr.calc_func import YEARS
 
 
 @functools.lru_cache()
@@ -86,7 +91,7 @@ def get_shibor_data(start: str, end: str) -> pd.DataFrame:
     df2 = query_china_shibor_all()  # 爬虫数据
     df1 = _load_csv()  # 用于补充数据
 
-    df = pd.concat((df1, df2)).sort_index()
+    df = pd.concat((df1, df2), sort=True).sort_index()
     df = df.loc[~df.index.duplicated(keep='last')]
 
     return df.loc[start:end]
@@ -111,7 +116,7 @@ def get_interpld_shibor(shibor_df: pd.DataFrame) -> pd.DataFrame:
         """用于差值"""
         y_vals = r.values / 100
 
-        daily_range = np.arange(1, 365)
+        daily_range = np.arange(1, YEARS)
         periods = [1, 7, 14, 30, 90, 180, 270, 365]
 
         # 插值三次样条插值法补全利率曲线
@@ -131,3 +136,5 @@ def get_interpld_shibor(shibor_df: pd.DataFrame) -> pd.DataFrame:
 
 #     df = _load_csv()
 #     print(df)
+
+
