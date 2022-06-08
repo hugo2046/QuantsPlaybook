@@ -2,8 +2,8 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-08 17:07:22
-Description: 
+LastEditTime: 2022-06-08 20:06:04
+Description: 画图相关函数
 '''
 from typing import Tuple
 
@@ -148,7 +148,7 @@ def plot_hist2d(endog: pd.Series,
     ax.set_ylabel('收益率')
     ax.set_xlabel('vix')
     ax.axhline(0, ls='--', color='black')
-    #plt.colorbar(ax=ax)
+    # plt.colorbar(ax=ax)
     return ax
 
 

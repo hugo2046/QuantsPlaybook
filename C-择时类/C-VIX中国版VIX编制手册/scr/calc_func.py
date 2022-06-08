@@ -3,8 +3,7 @@ Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
 LastEditTime: 2022-06-07 14:28:09
-FilePath: 
-Description: 
+Description: VIX,STEW计算相关的核心计算
 '''
 import warnings
 from collections import defaultdict, namedtuple
@@ -413,7 +412,7 @@ def _get_s(df: pd.DataFrame) -> pd.Series:
 
     df['P'] = df.apply(lambda x: calc_p_values(x['K'], x['Q_K'], x[
         'delta_k'], x['espilons'], x['term_rate'], x['term'], x['F']),
-                       axis=1)
+        axis=1)
 
     return df['P'].apply(calc_s)
 
@@ -557,7 +556,7 @@ def prepare_data2calc(opt_data: pd.DataFrame,
     shibor_data = shibor_data.loc[maturity_ser.index].copy()
     sel_rate: pd.Series = shibor_data.apply(lambda x: _get_free_rate(
         x, np.min(maturity_ser.loc[x.name]), np.max(maturity_ser.loc[x.name])),
-                                            axis=1)
+        axis=1)
 
     # 根据maturity对齐shibor
     maturity_align, shibor_algin = maturity_ser.align(sel_rate,

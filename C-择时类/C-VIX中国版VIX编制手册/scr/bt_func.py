@@ -1,3 +1,10 @@
+'''
+Author: hugo2046 shen.lan123@gmail.com
+Date: 2022-05-27 17:54:06
+LastEditors: hugo2046 shen.lan123@gmail.com
+LastEditTime: 2022-06-08 20:05:32
+Description: 回测相关函数
+'''
 import datetime as dt
 from collections import namedtuple
 from typing import Tuple
@@ -13,7 +20,7 @@ from .utils import print_table
 
 class add_pandas_data(PandasData):
     """用于加载回测用数据
-    
+
     添加信号数据
     """
     lines = (
@@ -27,10 +34,11 @@ class add_pandas_data(PandasData):
 
 class vix_over_quantile_bound_strategy(bt.Strategy):
     """vix百分位上下轨策略
-    
+
     当下穿下轨时开仓,上穿上轨时平仓
     signal,ub,lb提前加载到数据中
     """
+
     def log(self, txt: str, current_dt: dt.datetime = None) -> None:
 
         current_dt = current_dt or self.datas[0].datetime.date(0)
@@ -39,7 +47,7 @@ class vix_over_quantile_bound_strategy(bt.Strategy):
     def __init__(self) -> None:
         print('signal', self.data0.lines.signal)
         # 开仓信号
-        ## if上穿则1,否则为-1
+        # if上穿则1,否则为-1
         self.open_signal = bt.indicators.CrossOver(self.data0.lines.lb,
                                                    self.data0.lines.signal)
         # 平仓信号
@@ -91,6 +99,7 @@ class vix_over_quantile_bound_strategy(bt.Strategy):
 
 class trade_list(bt.Analyzer):
     """获取交易明细"""
+
     def __init__(self):
 
         self.trades = []
@@ -102,7 +111,8 @@ class trade_list(bt.Analyzer):
 
             brokervalue = self.strategy.broker.getvalue()
             dir = 'short'
-            if trade.history[0].event.size > 0: dir = 'long'
+            if trade.history[0].event.size > 0:
+                dir = 'long'
 
             pricein = trade.history[len(trade.history) - 1].status.price
             priceout = trade.history[len(trade.history) - 1].event.price
