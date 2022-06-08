@@ -662,7 +662,7 @@ def create_quantile_bound(signal: pd.Series, window: int,
     lb: pd.Series = signal.rolling(window).apply(
         lambda x: np.percentile(x, lw), raw=True)
 
-    df: pd.DataFrame = pd.concat((up, signal, lb), axis=1)
+    df: pd.DataFrame = pd.concat((ub, signal, lb), axis=1)
     df.columns = ['ub', 'signal', 'lb']
 
     return df.dropna()

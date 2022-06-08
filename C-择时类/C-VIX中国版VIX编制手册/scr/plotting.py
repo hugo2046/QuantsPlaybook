@@ -2,16 +2,24 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-07 14:03:02
+LastEditTime: 2022-06-08 17:07:22
 Description: 
 '''
 from typing import Tuple
 
+import empyrical as ep
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import mplfinance as mpf
 import numpy as np
 import pandas as pd
 from matplotlib.gridspec import GridSpec
+
+# 设置字体 用来正常显示中文标签
+mpl.rcParams['font.sans-serif'] = ['SimHei']
+
+# 用来正常显示负号
+mpl.rcParams['axes.unicode_minus'] = False
 
 
 def plot_indicator(price: pd.Series,
@@ -50,8 +58,11 @@ def plot_indicator(price: pd.Series,
     return ax
 
 
-def plot_qunatile_signal(price: pd.Series, signal: pd.Series, window: int,
-                         bound: Tuple,title:str='') -> mpl.axes:
+def plot_qunatile_signal(price: pd.Series,
+                         signal: pd.Series,
+                         window: int,
+                         bound: Tuple,
+                         title: str = '') -> mpl.axes:
     """画价格与信号的关系图
 
     Args:
@@ -86,7 +97,7 @@ def plot_qunatile_signal(price: pd.Series, signal: pd.Series, window: int,
     ax2.legend()
 
     plt.subplots_adjust(hspace=0)
-    return fig
+    return gs
 
 
 def plot_quantreg_res(model: pd.DataFrame,
@@ -179,3 +190,78 @@ def plot_group_ret(endog: pd.Series,
     ax.axhline(0, color='black')
 
     return ax
+
+
+def plot_trade_flag(price: pd.DataFrame, buy_flag: pd.Series,
+                    sell_flag: pd.Series):
+    """买卖点标记
+
+    Args:
+        price (pd.DataFrame): _description_
+        buy_flag (pd.Series): _description_
+        sell_flag (pd.Series): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    buy_flag = buy_flag.reindex(price.index)
+    sell_flag = sell_flag.reindex(price.index)
+
+    # 设置蜡烛图风格
+    mc = mpf.make_marketcolors(up='r', down='g', wick='i', edge='i', ohlc='i')
+
+    s = mpf.make_mpf_style(marketcolors=mc)
+
+    buy_apd = mpf.make_addplot(buy_flag,
+                               type='scatter',
+                               markersize=100,
+                               marker='^',
+                               color='r')
+    sell_apd = mpf.make_addplot(sell_flag,
+                                type='scatter',
+                                markersize=100,
+                                marker='v',
+                                color='g')
+    ax = mpf.plot(price,
+                  type='candle',
+                  style=s,
+                  datetime_format='%Y-%m-%d',
+                  volume=True,
+                  figsize=(18, 6),
+                  addplot=[buy_apd, sell_apd],
+                  warn_too_much_data=2000)
+
+    return ax
+
+
+def plot_algorithm_nav(result, price: pd.Series, title: str = '') -> mpl.axes:
+    """画净值表现
+
+    Args:
+        result (_type_): 回测结果
+        price (pd.Series): 基准价格
+        title (str, optional): 标题. Defaults to ''.
+
+    Returns:
+        mpl.axes: 图
+    """
+    # 净值表现
+    rets = get_strat_ret(result)
+
+    align_rest, align_price = rets.align(price, join='left')
+
+    cum: pd.Series = ep.cum_returns(align_rest, 1)
+    ax = cum.plot(figsize=(18, 6), color='r', label='策略净值')
+
+    (align_price / align_price[0]).loc[rets.index].plot(ls='--',
+                                                        color='darkgray',
+                                                        label='基准',
+                                                        ax=ax)
+    plt.legend()
+
+    return ax
+
+
+def get_strat_ret(result) -> pd.Series:
+
+    return pd.Series(result[0].analyzers._TimeReturn.get_analysis())
