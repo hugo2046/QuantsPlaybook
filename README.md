@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-04-17 00:54:11
- * @LastEditTime: 2022-05-25 13:05:12
+ * @LastEditTime: 2022-06-09 10:29:30
  * @LastEditors: hugo2046 shen.lan123@gmail.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \undefinedd:\WrokSpace\Quantitative-analysis\README.md
@@ -40,7 +40,51 @@
     - 复现《Foundations of Technical Analysis》
     - Technical Pattern Recognition文件：申万行业日度跟踪(Technical Pattern Recognition)
 15. [C-VIX中国版VIX编制手册](https://www.joinquant.com/view/community/detail/787f5bf7ba5add2d5bc68e154046c10e)
+    参考:
+    >《20140331-国信证券-衍生品应用与产品设计系列之vix介绍及gsvx编制》
+    >
+    >《20180707_东北证券_金融工程_市场波动风险度量：vix与skew指数构建与应用》
+    >
+    >《20191210-东海证券-VIX及SKEW指数的构建、分析与预测》
+    >
+    >《20200317_浙商证券_金融工程_衍生品系列（一）：c-vix：中国版vix编制手册》
+    >
+    >《vixwhite》
 
+    本文主要参考《20180707_东北证券_金融工程_市场波动风险度量：vix与skew指数构建与应用》
+
+    ```
+    项目结构如下
+    ├─Data 已经下载号的数据文件
+    │  ├─hs300.csv
+    │  ├─interpld_shibor.csv
+    │  ├─opt_data.csv
+    │  ├─price.csv
+    │  ├─shibor_df.csv
+    │  └─sz50.csv
+    ├─data_service 数据服务
+    │  ├─shibor_data
+    │  │  ├─shibor_db.csv 储存前期的shibor数据
+    │  │  └─说明.txt
+    │  ├─get_jq_data.py 用于获取期权数据,使用jqdata
+    │  ├─get_shibor.py  爬虫获取shibor
+    │  ├─utils.py
+    │  └─__init__.py
+    ├─scr
+    │  ├─bt_func.py 用于回测,使用backtrader库
+    │  ├─calc_func.py 计算vix,stew的核心
+    │  ├─plotting.py 画图调用了mpfinance库
+    │  └─utils.py
+    ├─参考
+    │  ├─20140331-国信证券-衍生品应用与产品设计系列之vix介绍及gsvx编制.pdf
+    │  ├─20180707_东北证券_金融工程_市场波动风险度量：vix与skew指数构建与应用.pdf
+    │  ├─20191210-东海证券-VIX及SKEW指数的构建、分析与预测.pdf
+    │  ├─20200317_浙商证券_金融工程_衍生品系列（一）：c-vix：中国版vix编制手册.pdf
+    │  ├─vixwhite.pdf
+    │  └─VIX_Methodology.pdf
+    ├─老版本
+    │  └─中国版VIV.ipynb
+    ```
 
 **因子**
 
@@ -70,4 +114,9 @@
 **组合优化**
 
 1. [DE进化算法下的组合优化](https://www.joinquant.com/view/community/detail/2044ade4baf51132d257f2d3c0e56597)
+
+
+## 请我喝杯咖啡吧
+
+![image](https://raw.githubusercontent.com/hugo2046/Quantitative-analysis/recover_cvix/coffee.png)
 
