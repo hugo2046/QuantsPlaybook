@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-04-17 00:54:11
- * @LastEditTime: 2022-06-09 10:29:30
+ * @LastEditTime: 2022-06-09 11:31:07
  * @LastEditors: hugo2046 shen.lan123@gmail.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \undefinedd:\WrokSpace\Quantitative-analysis\README.md
@@ -118,5 +118,5 @@
 
 ## 请我喝杯咖啡吧
 
-![image](https://raw.githubusercontent.com/hugo2046/Quantitative-analysis/recover_cvix/coffee.png)
+![image](https://raw.githubusercontent.com/hugo2046/Quantitative-analysis/master/coffee.png)
 
