@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-08 20:05:32
+LastEditTime: 2022-06-22 16:37:07
 Description: 回测相关函数
 '''
 import datetime as dt
@@ -24,35 +24,28 @@ class add_pandas_data(PandasData):
     添加信号数据
     """
     lines = (
-        'ub',
-        'signal',
-        'lb',
+        'fast',
+        'slow',
     )
 
-    params = (('ub', -1), ('signal', -1), ('lb', -1))
+    params = (
+        ('fast', -1),
+        ('slow', -1),
+    )
 
 
-class vix_over_quantile_bound_strategy(bt.Strategy):
-    """vix百分位上下轨策略
+class ma_cross(bt.Strategy):
+    """策略逻辑:
 
-    当下穿下轨时开仓,上穿上轨时平仓
-    signal,ub,lb提前加载到数据中
+    1.大幅相对净流入:IS_NetBuy_S_S>IS_NetBuy_S_L(短期均线大于长期均线)且短期均 线 IS_NetBuy_S_S>0 且长期均线 IS_NetBuy_S_L>0 做多
+    2.大幅相对净流出:IS_NetBuy_S_S<IS_NetBuy_S_L(短期均线小于长期均线) 且短期 均线 IS_NetBuy_S_S<0 且长期均线 IS_NetBuy_S_L<0 做多
     """
-
     def log(self, txt: str, current_dt: dt.datetime = None) -> None:
 
         current_dt = current_dt or self.datas[0].datetime.date(0)
         print('%s,%s' % (current_dt.isoformat(), txt))
 
     def __init__(self) -> None:
-        print('signal', self.data0.lines.signal)
-        # 开仓信号
-        # if上穿则1,否则为-1
-        self.open_signal = bt.indicators.CrossOver(self.data0.lines.lb,
-                                                   self.data0.lines.signal)
-        # 平仓信号
-        self.close_signal = bt.indicators.CrossOver(self.data0.lines.signal,
-                                                    self.data0.lines.ub)
 
         self.order = None
 
@@ -61,14 +54,23 @@ class vix_over_quantile_bound_strategy(bt.Strategy):
         if self.order:
             self.cancel(self.order)
 
+        # 大幅相对净流入
+        to_buy1 = (self.datas[0].fast[0] > self.datas[0].slow[0]) and (
+            self.datas[0].fast[0] > 0) and (self.datas[0].slow[0] > 0)
+        
+        # 大幅相对净流出
+        to_buy2 = (self.datas[0].fast[0] < self.datas[0].slow[0]) and (
+            self.datas[0].fast[0] < 0) and (self.datas[0].slow[0] < 0)
+        
         # 检查是否有持仓
         if not self.position:
-            # vix下穿下轨,买入
-            if self.open_signal > 0:
+
+            if to_buy1 or to_buy2:
                 # 全仓买入
                 self.order = self.order_target_percent(target=0.9)
-        # vix上穿上轨,卖出
-        elif self.close_signal < 0:
+
+        # 有持仓但不满足规则
+        elif (not to_buy1) or (not to_buy2):
             # 平仓
             self.order = self.close()
 
@@ -99,7 +101,6 @@ class vix_over_quantile_bound_strategy(bt.Strategy):
 
 class trade_list(bt.Analyzer):
     """获取交易明细"""
-
     def __init__(self):
 
         self.trades = []

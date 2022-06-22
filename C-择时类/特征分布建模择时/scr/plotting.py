@@ -2,10 +2,10 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-08 20:06:04
+LastEditTime: 2022-06-22 16:14:00
 Description: 画图相关函数
 '''
-from typing import Tuple
+from typing import Tuple, Union
 
 import empyrical as ep
 import matplotlib as mpl
@@ -23,53 +23,14 @@ mpl.rcParams['axes.unicode_minus'] = False
 
 
 def plot_indicator(price: pd.Series,
-                   indicator: pd.Series,
-                   label: Tuple,
-                   ylabel: Tuple,
-                   title: str = '',
-                   ax: mpl.axes = None) -> mpl.axes:
-    """画指标与价格走势图
+                   indincator: Union[pd.Series, pd.DataFrame],
+                   title: str = '') -> mpl.axes:
+    """标的与信号的关系图
 
     Args:
-        price (pd.Series): 价格 index-date value-close
-        indicator (pd.Series): 指标 index-date value-指标
-        label (Tuple): 标签1,标签2
-        ylabel (Tuple): 标签1,标签2
+        price (pd.Series): 标的价格走势
+        indincator (Union[pd.Series,pd.DataFrame]): 信号
         title (str, optional): 标题. Defaults to ''.
-        ax (mpl.axes, optional): 轴. Defaults to None.
-
-    Returns:
-        mpl.axes: _description_
-    """
-    label1, label2 = label
-    ylabel1, ylabel2 = ylabel
-
-    if ax is None:
-        ax = plt.gca()
-
-    price.plot(ax=ax, color='#FFD700', title=title, label=label1)
-    ax.set_ylabel(ylabel1)
-    ax_twin = indicator.plot(ax=ax, secondary_y=True, color='r', label=label2)
-    ax_twin.set_ylabel(ylabel2)
-    handles1, labels1 = ax.get_legend_handles_labels()
-    handles2, labels2 = ax_twin.get_legend_handles_labels()
-
-    ax.legend(handles1 + handles2, labels1 + labels2)
-    return ax
-
-
-def plot_qunatile_signal(price: pd.Series,
-                         signal: pd.Series,
-                         window: int,
-                         bound: Tuple,
-                         title: str = '') -> mpl.axes:
-    """画价格与信号的关系图
-
-    Args:
-        price (pd.Series): 价格
-        signal (pd.Series): 信号
-        window (int): 滚动时间窗口
-        bound (Tuple): bound[0]-上轨百分位数,bound[1]-下轨百分位数
 
     Returns:
         mpl.axes: _description_
@@ -80,20 +41,10 @@ def plot_qunatile_signal(price: pd.Series,
     ax1 = plt.subplot(gs[:2, :])
     ax2 = plt.subplot(gs[2:, :])
 
-    price.plot(ax=ax1, title=title)
+    price.plot(ax=ax1, color='darkgray', title=title)
+    ax1.legend()
+    indincator.plot(ax=ax2, color=['red', 'green'], label='signal')
 
-    signal.plot(ax=ax2, color='darkgray', label='signal')
-
-    # 构建上下轨
-    up, lw = bound
-    ub: pd.Series = signal.rolling(window).apply(
-        lambda x: np.percentile(x, up), raw=True)
-
-    lb: pd.Series = signal.rolling(window).apply(
-        lambda x: np.percentile(x, lw), raw=True)
-    # 画上下轨
-    ub.plot(ls='--', color='r', ax=ax2, label='ub')
-    lb.plot(ls='--', color='green', ax=ax2, label='lb')
     ax2.legend()
 
     plt.subplots_adjust(hspace=0)
@@ -119,8 +70,6 @@ def plot_quantreg_res(model: pd.DataFrame,
 
     ax.set_title(title)
     ax.plot(model['q'], model['vix'], color='black')
-    # ax.plot(model['q'], model['lb'], color='green', ls='--')
-    # ax.plot(model['q'], model['ub'], color='red', ls='--')
     ax.fill_between(model['q'], model['ub'], model['lb'], alpha=0.2)
     return ax
 
