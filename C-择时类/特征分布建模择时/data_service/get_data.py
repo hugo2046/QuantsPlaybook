@@ -2,19 +2,17 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-22 10:22:58
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-22 11:02:24
+LastEditTime: 2022-06-22 11:31:05
 Description: 数据获取
 '''
-import sys
 
-sys.path.append('..')
 from typing import List
 
 import pandas as pd
 from scr import Tdaysoffset, get_trade_days
 from scr.tushare_api import TuShare
 
-my_ts = TuShare
+my_ts = TuShare()
 
 from tqdm.notebook import tqdm
 
@@ -47,7 +45,7 @@ def get_sales_depart_billboard(start_date: str = None,
 
     # 获取周期
     periods = get_trade_days(start_date, end_date)
-    periods = periods.dt.strftime('%Y%m%d')
+    periods = periods.strftime('%Y%m%d')
 
     dfs: List = []
     for trade in tqdm(periods, desc='机构龙虎榜数据获取'):
