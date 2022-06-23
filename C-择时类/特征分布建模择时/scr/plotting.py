@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-22 16:14:00
+LastEditTime: 2022-06-23 11:22:30
 Description: 画图相关函数
 '''
 from typing import Tuple, Union
@@ -101,27 +101,28 @@ def plot_hist2d(endog: pd.Series,
     return ax
 
 
-def plot_group_ret(endog: pd.Series,
-                   exog: pd.Series,
-                   title: str = '',
-                   ax: mpl.axes = None) -> mpl.axes:
-    """_summary_
+def plot_quantile_group_ret(endog: pd.Series,
+                            exog: pd.Series,
+                            title: str = '',
+                            group: int = 10,
+                            ax: mpl.axes = None) -> mpl.axes:
+    """将信号按10档分组画与未来收益的关系图
 
     Args:
-        endog (pd.Series): _description_
-        exog (pd.Series): _description_
-        title (str, optional): _description_. Defaults to ''.
-        ax (_type_, optional): _description_. Defaults to None.
+        endog (pd.Series): 未来收益
+        exog (pd.Series): 信号
+        title (str, optional): 标题. Defaults to ''.
+        ax (_type_, optional): ax. Defaults to None.
 
     Returns:
-        mpl.axes: _description_
+        mpl.axes: 图
     """
     if ax is None:
 
         ax = plt.gca()
 
     # 采用百分位分组 分为10组
-    group_ser: pd.Series = pd.qcut(endog, 10, False) + 1
+    group_ser: pd.Series = pd.qcut(endog, group, False) + 1
     df: pd.DataFrame = group_ser.to_frame('group')
     df['next'] = exog
     df.index.names = ['date']
