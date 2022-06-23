@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-23 11:22:30
+LastEditTime: 2022-06-23 14:49:01
 Description: 画图相关函数
 '''
 from typing import Tuple, Union
@@ -49,29 +49,6 @@ def plot_indicator(price: pd.Series,
 
     plt.subplots_adjust(hspace=0)
     return gs
-
-
-def plot_quantreg_res(model: pd.DataFrame,
-                      title: str = '',
-                      ax: mpl.axes = None) -> mpl.axes:
-    """画百分数回归图
-
-    Args:
-        model (pd.DataFrame): 百分位数回归模型结果
-        title (str, optional): 标题. Defaults to ''.
-        ax (_type_, optional): Defaults to None.
-
-    Returns:
-        _type_: _description_
-    """
-    if ax is None:
-
-        ax = plt.gca()
-
-    ax.set_title(title)
-    ax.plot(model['q'], model['vix'], color='black')
-    ax.fill_between(model['q'], model['ub'], model['lb'], alpha=0.2)
-    return ax
 
 
 def plot_hist2d(endog: pd.Series,
@@ -125,6 +102,7 @@ def plot_quantile_group_ret(endog: pd.Series,
     group_ser: pd.Series = pd.qcut(endog, group, False) + 1
     df: pd.DataFrame = group_ser.to_frame('group')
     df['next'] = exog
+
     df.index.names = ['date']
 
     group_avg_ret: pd.Series = pd.pivot_table(df.reset_index(),
@@ -137,6 +115,7 @@ def plot_quantile_group_ret(endog: pd.Series,
                                                 (x * 100))
     ax.yaxis.set_major_formatter(xmajor_formatter)
     group_avg_ret.plot.bar(ax=ax, color='#1f77b4')
+    group_avg_ret.rolling(5).sum().plot.line(ax=ax, color='red')
     ax.axhline(0, color='black')
 
     return ax
