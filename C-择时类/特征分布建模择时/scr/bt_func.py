@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-22 16:37:07
+LastEditTime: 2022-06-23 16:52:20
 Description: 回测相关函数
 '''
 import datetime as dt
@@ -57,11 +57,11 @@ class ma_cross(bt.Strategy):
         # 大幅相对净流入
         to_buy1 = (self.datas[0].fast[0] > self.datas[0].slow[0]) and (
             self.datas[0].fast[0] > 0) and (self.datas[0].slow[0] > 0)
-        
+
         # 大幅相对净流出
         to_buy2 = (self.datas[0].fast[0] < self.datas[0].slow[0]) and (
             self.datas[0].fast[0] < 0) and (self.datas[0].slow[0] < 0)
-        
+
         # 检查是否有持仓
         if not self.position:
 
@@ -172,16 +172,19 @@ class trade_list(bt.Analyzer):
         return self.trades
 
 
-def get_backtesting(data: pd.DataFrame, name: str,
-                    strategy: bt.Strategy) -> namedtuple:
+def get_backtesting(data: pd.DataFrame,
+                    name: str,
+                    strategy: bt.Strategy,
+                    load_class: PandasData = add_pandas_data) -> namedtuple:
     """回测
 
     添加了百分比滑点(0.0001)
     当日信号次日开盘买入
     Args:
-        data (pd.DataFrame): _description_
-        name (str): _description_
-        strategy (bt.Strategy): _description_
+        data (pd.DataFrame): OHLC数据包含信号
+        name (str): 数据名称
+        strategy (bt.Strategy): 策略
+        load_class (PandasData): 加载模块
 
     Returns:
         _type_: _description_
@@ -194,7 +197,7 @@ def get_backtesting(data: pd.DataFrame, name: str,
     begin_dt = data.index.min()
     end_dt = data.index.max()
 
-    datafeed = add_pandas_data(dataname=data, fromdate=begin_dt, todate=end_dt)
+    datafeed = load_class(dataname=data, fromdate=begin_dt, todate=end_dt)
     cerebro.adddata(datafeed, name=name)
 
     # 设置百分比滑点

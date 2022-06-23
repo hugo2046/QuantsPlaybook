@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-23 14:49:01
+LastEditTime: 2022-06-23 16:25:54
 Description: 画图相关函数
 '''
 from typing import Tuple, Union
@@ -14,6 +14,7 @@ import mplfinance as mpf
 import numpy as np
 import pandas as pd
 from matplotlib.gridspec import GridSpec
+from matplotlib.ticker import MultipleLocator
 
 # 设置字体 用来正常显示中文标签
 mpl.rcParams['font.sans-serif'] = ['SimHei']
@@ -98,24 +99,20 @@ def plot_quantile_group_ret(endog: pd.Series,
 
         ax = plt.gca()
 
+    # 根据特征分值分组
     # 采用百分位分组 分为10组
-    group_ser: pd.Series = pd.qcut(endog, group, False) + 1
-    df: pd.DataFrame = group_ser.to_frame('group')
-    df['next'] = exog
+    group = pd.qcut(exog, group, labels=False) + 1
+    group_ret = endog.groupby(group).mean()
 
-    df.index.names = ['date']
-
-    group_avg_ret: pd.Series = pd.pivot_table(df.reset_index(),
-                                              index='date',
-                                              columns='group',
-                                              values='next').mean()
-
+    # 画图
     ax.set_title(title)
-    xmajor_formatter = mpl.ticker.FuncFormatter(lambda x, pos: '%.2f%%' %
-                                                (x * 100))
-    ax.yaxis.set_major_formatter(xmajor_formatter)
-    group_avg_ret.plot.bar(ax=ax, color='#1f77b4')
-    group_avg_ret.rolling(5).sum().plot.line(ax=ax, color='red')
+    ax = group_ret.plot(kind='bar', figsize=(18, 6), color='1f77b4')
+    # 画5组累计收益
+    group_ret.rolling(5).sum().plot(kind='line', color='red', secondary_y=True)
+
+    ax.yaxis.set_major_formatter('{x:.2%}')
+    ax.xaxis.set_major_locator(MultipleLocator(5))
+    ax.xaxis.set_major_formatter('{x:.0f}')
     ax.axhline(0, color='black')
 
     return ax
