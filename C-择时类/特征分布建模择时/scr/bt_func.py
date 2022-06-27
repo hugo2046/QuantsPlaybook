@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-23 16:52:20
+LastEditTime: 2022-06-27 22:24:21
 Description: 回测相关函数
 '''
 import datetime as dt
@@ -40,6 +40,7 @@ class ma_cross(bt.Strategy):
     1.大幅相对净流入:IS_NetBuy_S_S>IS_NetBuy_S_L(短期均线大于长期均线)且短期均 线 IS_NetBuy_S_S>0 且长期均线 IS_NetBuy_S_L>0 做多
     2.大幅相对净流出:IS_NetBuy_S_S<IS_NetBuy_S_L(短期均线小于长期均线) 且短期 均线 IS_NetBuy_S_S<0 且长期均线 IS_NetBuy_S_L<0 做多
     """
+
     def log(self, txt: str, current_dt: dt.datetime = None) -> None:
 
         current_dt = current_dt or self.datas[0].datetime.date(0)
@@ -62,6 +63,15 @@ class ma_cross(bt.Strategy):
         to_buy2 = (self.datas[0].fast[0] < self.datas[0].slow[0]) and (
             self.datas[0].fast[0] < 0) and (self.datas[0].slow[0] < 0)
 
+        # 当 IS_NetBuy_S_S>IS_NetBuy_S_L 且 IS_NetBuy_S_S>0 且 IS_NetBuy_S_L<0
+
+        to_sell1 = (self.datas[0].fast[0] > self.datas[0].slow[0]) and (
+            self.datas[0].fast[0] > 0) and (self.datas[0].slow[0] < 0)
+
+        # IS_NetBuy_S_S<IS_NetBuy_S_L 且 IS_NetBuy_S_S<0 且 IS_NetBuy_S_L>0
+        to_sell2 = (self.datas[0].fast[0] < self.datas[0].slow[0]) and (
+            self.datas[0].fast[0] < 0) and (self.datas[0].slow[0] > 0)
+
         # 检查是否有持仓
         if not self.position:
 
@@ -70,7 +80,7 @@ class ma_cross(bt.Strategy):
                 self.order = self.order_target_percent(target=0.9)
 
         # 有持仓但不满足规则
-        elif (not to_buy1) or (not to_buy2):
+        elif (to_sell1) or (to_sell2):
             # 平仓
             self.order = self.close()
 
@@ -101,6 +111,7 @@ class ma_cross(bt.Strategy):
 
 class trade_list(bt.Analyzer):
     """获取交易明细"""
+
     def __init__(self):
 
         self.trades = []
