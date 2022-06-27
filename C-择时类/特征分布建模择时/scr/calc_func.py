@@ -36,7 +36,8 @@ def HMA(price: pd.Series, window: int) -> pd.Series:
 
     return hma
 
-def get_forward_returns(price:pd.Series,periods:List)->pd.DataFrame:
+
+def get_forward_returns(price: pd.Series, periods: List) -> pd.DataFrame:
     """获取远期收益率
 
     Args:
@@ -46,7 +47,8 @@ def get_forward_returns(price:pd.Series,periods:List)->pd.DataFrame:
     Returns:
         pd.DataFrame: 收益
     """
-    pct_chg:pd.DataFrame = pd.concat((price.pct_change(i).shift(-i) for i in periods),axis=1)
-    pct_chg.columns = ['%s日收益'%i for i in periods]
-    
-    return pct_chg.dropna()
+    pct_chg: pd.DataFrame = pd.concat(
+        (price.pct_change(i).shift(-i) for i in periods), axis=1)
+    pct_chg.columns = ['%s日收益' % i for i in periods]
+
+    return pct_chg
