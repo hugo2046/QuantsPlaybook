@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-27 22:24:21
+LastEditTime: 2022-06-28 13:58:57
 Description: 回测相关函数
 '''
 import datetime as dt
@@ -16,6 +16,74 @@ from backtrader.feeds import PandasData
 
 from .plotting import get_strat_ret, plot_algorithm_nav, plot_trade_flag
 from .utils import print_table
+
+
+class netbuy_cross(bt.Strategy):
+    """策略逻辑:
+
+    1.大幅相对净流入:IS_NetBuy_S_S>IS_NetBuy_S_L(短期均线大于长期均线)且短期均 线 IS_NetBuy_S_S>0 且长期均线 IS_NetBuy_S_L>0 做多
+    2.大幅相对净流出:IS_NetBuy_S_S<IS_NetBuy_S_L(短期均线小于长期均线) 且短期 均线 IS_NetBuy_S_S<0 且长期均线 IS_NetBuy_S_L<0 做多
+    """
+    def log(self, txt: str, current_dt: dt.datetime = None) -> None:
+
+        current_dt = current_dt or self.datas[0].datetime.date(0)
+        print('%s,%s' % (current_dt.isoformat(), txt))
+
+    def __init__(self) -> None:
+
+        self.order = None
+        # 大幅相对净流入
+        to_buy1: pd.Series = bt.And(
+            self.datas[0].lines.fast > self.datas[0].lines.slow,
+            self.datas[0].lines.fast > 0, self.datas[0].lines.slow > 0)
+        # 大幅相对净流出
+        to_buy2: pd.Series = bt.And(
+            self.datas[0].lines.fast < self.datas[0].lines.slow,
+            self.datas[0].lines.fast < 0, self.datas[0].lines.slow < 0)
+        self.entries = bt.Or(to_buy1, to_buy2)
+
+    def next(self):
+        # 取消之前未执行的订单
+        if self.order:
+            self.cancel(self.order)
+
+        # 检查是否有持仓
+
+        if self.entries:
+            if not self.position:
+
+                # 全仓买入
+                self.order = self.order_target_percent(target=0.9)
+
+        # 有持仓但不满足规则
+        else:
+            if self.position:
+                # 平仓
+                self.order = self.close()
+
+    def notify_order(self, order) -> None:
+
+        # 未被处理得订单
+        if order.status in [order.Submitted, order.Accepted]:
+
+            return
+
+        if order.status in [order.Completed, order.Canceled, order.Margin]:
+            if order.isbuy():
+                # buy
+                self.log(
+                    'BUY EXECUTED,ref:%.0f,Price:%.4f,Size:%.2f,Cost:%.4f,Comm %.4f,Stock:%s'
+                    % (order.ref, order.executed.price, order.executed.size,
+                       order.executed.value, order.executed.comm,
+                       order.data._name))
+
+            else:
+                # sell
+                self.log(
+                    'SELL EXECUTED,ref:%.0f,Price:%.4f,Size:%.2f,Cost:%.4f,Comm %.4f,Stock:%s'
+                    % (order.ref, order.executed.price, order.executed.size,
+                       order.executed.value, order.executed.comm,
+                       order.data._name))
 
 
 class add_pandas_data(PandasData):
