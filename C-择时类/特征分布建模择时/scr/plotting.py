@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-23 16:25:54
+LastEditTime: 2022-06-28 11:28:03
 Description: 画图相关函数
 '''
 from typing import Tuple, Union
@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import mplfinance as mpf
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from matplotlib.gridspec import GridSpec
 from matplotlib.ticker import MultipleLocator
 
@@ -46,6 +47,48 @@ def plot_indicator(price: pd.Series,
     ax1.legend()
     indincator.plot(ax=ax2, color=['red', 'green'], label='signal')
 
+    ax2.legend()
+
+    plt.subplots_adjust(hspace=0)
+    return gs
+
+
+def plot_qunatile_signal(price: pd.Series,
+                         signal: pd.Series,
+                         window: int,
+                         bound: Tuple,
+                         title: str = '') -> mpl.axes:
+    """画价格与信号的关系图
+
+    Args:
+        price (pd.Series): 价格
+        signal (pd.Series): 信号
+        window (int): 滚动时间窗口
+        bound (Tuple): bound[0]-上轨百分位数,bound[1]-下轨百分位数
+
+    Returns:
+        mpl.axes: _description_
+    """
+    fig = plt.figure(figsize=(18, 8))
+    gs = GridSpec(3, 1)
+
+    ax1 = plt.subplot(gs[:2, :])
+    ax2 = plt.subplot(gs[2:, :])
+
+    price.plot(ax=ax1, title=title)
+
+    signal.plot(ax=ax2, color='darkgray', label='signal')
+
+    # 构建上下轨
+    up, lw = bound
+    ub: pd.Series = signal.rolling(window).apply(
+        lambda x: np.percentile(x, up), raw=True)
+
+    lb: pd.Series = signal.rolling(window).apply(
+        lambda x: np.percentile(x, lw), raw=True)
+    # 画上下轨
+    ub.plot(ls='--', color='r', ax=ax2, label='ub')
+    lb.plot(ls='--', color='green', ax=ax2, label='lb')
     ax2.legend()
 
     plt.subplots_adjust(hspace=0)
@@ -116,6 +159,59 @@ def plot_quantile_group_ret(endog: pd.Series,
     ax.axhline(0, color='black')
 
     return ax
+
+
+def plot_distribution(signal: pd.Series,
+                      index_close: pd.Series,
+                      forward: int,
+                      title: str = '') -> mpl.axes:
+    """画信号对应的N日涨幅与信号分布图
+
+    Args:
+        signal (pd.Series): _description_
+        index_close (pd.Series): _description_
+        forward (int): _description_
+        axes (mpl.axes, optional): _description_. Defaults to None.
+
+    Returns:
+        mpl.axes: _description_
+    """
+
+    fig, axes = plt.subplots(1, 2, figsize=(20, 6))
+    gs = GridSpec(1, 5)
+
+    # 计算未来N日收益
+    forward_df: pd.Series = index_close.pct_change(forward).shift(
+        -forward).iloc[:-forward]
+    # 合并
+    distribution_df: pd.DataFrame = pd.concat((signal, forward_df), axis=1)
+    distribution_df.columns = ['signal', 'next_ret']
+    # 信号分组
+    distribution_df['group'] = pd.qcut(
+        distribution_df['signal'], 50, labels=False) + 1
+    group_returns: pd.Series = distribution_df.groupby(
+        'group')['next_ret'].mean()
+    # 信号分组收益
+    roll_cum: pd.Series = group_returns.rolling(5).sum()
+
+    ax1 = fig.add_subplot(gs[0, :3])
+    ax2 = fig.add_subplot(gs[0, 3:])
+
+    ## 分组收益滚动累加
+    ax1.set_title('信号期望收益分布')
+    group_returns.plot(kind='bar', ax=ax1)
+    roll_cum.plot(kind='line', color='red', secondary_y=True, ax=ax1)
+
+    ax1.yaxis.set_major_formatter('{x:.2%}')
+    ax1.xaxis.set_major_locator(MultipleLocator(5))
+    ax1.xaxis.set_major_formatter('{x:.0f}')
+
+    ax2.set_title('信号分布')
+    sns.histplot(distribution_df['signal'], ax=ax2)
+    plt.subplots_adjust(wspace=0.6)
+    plt.suptitle(title)
+
+    return gs
 
 
 def plot_trade_flag(price: pd.DataFrame, buy_flag: pd.Series,

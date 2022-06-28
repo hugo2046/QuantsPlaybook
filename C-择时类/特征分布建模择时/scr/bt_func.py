@@ -34,84 +34,22 @@ class add_pandas_data(PandasData):
     )
 
 
-class ma_cross(bt.Strategy):
-    """策略逻辑:
+class add_quantile_data(PandasData):
+    """用于加载回测用数据
 
-    1.大幅相对净流入:IS_NetBuy_S_S>IS_NetBuy_S_L(短期均线大于长期均线)且短期均 线 IS_NetBuy_S_S>0 且长期均线 IS_NetBuy_S_L>0 做多
-    2.大幅相对净流出:IS_NetBuy_S_S<IS_NetBuy_S_L(短期均线小于长期均线) 且短期 均线 IS_NetBuy_S_S<0 且长期均线 IS_NetBuy_S_L<0 做多
+    添加信号数据
     """
+    lines = (
+        'ub',
+        'signal',
+        'lb',
+    )
 
-    def log(self, txt: str, current_dt: dt.datetime = None) -> None:
-
-        current_dt = current_dt or self.datas[0].datetime.date(0)
-        print('%s,%s' % (current_dt.isoformat(), txt))
-
-    def __init__(self) -> None:
-
-        self.order = None
-
-    def next(self):
-        # 取消之前未执行的订单
-        if self.order:
-            self.cancel(self.order)
-
-        # 大幅相对净流入
-        to_buy1 = (self.datas[0].fast[0] > self.datas[0].slow[0]) and (
-            self.datas[0].fast[0] > 0) and (self.datas[0].slow[0] > 0)
-
-        # 大幅相对净流出
-        to_buy2 = (self.datas[0].fast[0] < self.datas[0].slow[0]) and (
-            self.datas[0].fast[0] < 0) and (self.datas[0].slow[0] < 0)
-
-        # 当 IS_NetBuy_S_S>IS_NetBuy_S_L 且 IS_NetBuy_S_S>0 且 IS_NetBuy_S_L<0
-
-        to_sell1 = (self.datas[0].fast[0] > self.datas[0].slow[0]) and (
-            self.datas[0].fast[0] > 0) and (self.datas[0].slow[0] < 0)
-
-        # IS_NetBuy_S_S<IS_NetBuy_S_L 且 IS_NetBuy_S_S<0 且 IS_NetBuy_S_L>0
-        to_sell2 = (self.datas[0].fast[0] < self.datas[0].slow[0]) and (
-            self.datas[0].fast[0] < 0) and (self.datas[0].slow[0] > 0)
-
-        # 检查是否有持仓
-        if not self.position:
-
-            if to_buy1 or to_buy2:
-                # 全仓买入
-                self.order = self.order_target_percent(target=0.9)
-
-        # 有持仓但不满足规则
-        elif (to_sell1) or (to_sell2):
-            # 平仓
-            self.order = self.close()
-
-    def notify_order(self, order) -> None:
-
-        # 未被处理得订单
-        if order.status in [order.Submitted, order.Accepted]:
-
-            return
-
-        if order.status in [order.Completed, order.Canceled, order.Margin]:
-            if order.isbuy():
-                # buy
-                self.log(
-                    'BUY EXECUTED,ref:%.0f,Price:%.4f,Size:%.2f,Cost:%.4f,Comm %.4f,Stock:%s'
-                    % (order.ref, order.executed.price, order.executed.size,
-                       order.executed.value, order.executed.comm,
-                       order.data._name))
-
-            else:
-                # sell
-                self.log(
-                    'SELL EXECUTED,ref:%.0f,Price:%.4f,Size:%.2f,Cost:%.4f,Comm %.4f,Stock:%s'
-                    % (order.ref, order.executed.price, order.executed.size,
-                       order.executed.value, order.executed.comm,
-                       order.data._name))
+    params = (('ub', -1), ('signal', -1), ('lb', -1))
 
 
 class trade_list(bt.Analyzer):
     """获取交易明细"""
-
     def __init__(self):
 
         self.trades = []
