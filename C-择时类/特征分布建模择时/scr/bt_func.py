@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-28 13:58:57
+LastEditTime: 2022-06-29 13:34:46
 Description: 回测相关函数
 '''
 import datetime as dt
@@ -11,6 +11,7 @@ from typing import Tuple
 
 import backtrader as bt
 import empyrical as ep
+import numpy as np
 import pandas as pd
 from backtrader.feeds import PandasData
 

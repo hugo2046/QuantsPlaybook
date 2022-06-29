@@ -1,7 +1,7 @@
 '''
 Author: Hugo
 Date: 2021-06-18 09:42:35
-LastEditTime: 2022-05-17 16:34:13
+LastEditTime: 2022-06-29 09:49:14
 LastEditors: hugo2046 shen.lan123@gmail.com
 Description: 时间序列最大回撤相关计算
 '''
@@ -92,7 +92,7 @@ def get_top_drawdowns(returns: pd.Series, top: int = 10) -> List:
     return drawdowns
 
 
-def gen_drawdown_table(returns: pd.Series, top: int = 10) -> pd.DataFrame:
+def get_drawdown_table(returns: pd.Series, top: int = 10) -> pd.DataFrame:
     """
     Places top drawdowns in a table.
 
