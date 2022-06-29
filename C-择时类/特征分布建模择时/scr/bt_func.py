@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-29 13:34:46
+LastEditTime: 2022-06-29 23:52:15
 Description: 回测相关函数
 '''
 import datetime as dt
@@ -11,11 +11,24 @@ from typing import Tuple
 
 import backtrader as bt
 import empyrical as ep
+import ipywidgets as ipw
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 from backtrader.feeds import PandasData
 
-from .plotting import get_strat_ret, plot_algorithm_nav, plot_trade_flag
+from .plotting import (
+    get_strat_ret,
+    plot_algorithm_nav,
+    plot_annual_returns,
+    plot_cumulative_returns,
+    plot_drawdowns,
+    plot_monthly_returns_dist,
+    plot_monthly_returns_heatmap,
+    plot_trade_flag,
+    plot_underwater,
+    plotly_table,
+)
 from .utils import print_table
 
 
@@ -25,6 +38,7 @@ class netbuy_cross(bt.Strategy):
     1.大幅相对净流入:IS_NetBuy_S_S>IS_NetBuy_S_L(短期均线大于长期均线)且短期均 线 IS_NetBuy_S_S>0 且长期均线 IS_NetBuy_S_L>0 做多
     2.大幅相对净流出:IS_NetBuy_S_S<IS_NetBuy_S_L(短期均线小于长期均线) 且短期 均线 IS_NetBuy_S_S<0 且长期均线 IS_NetBuy_S_L<0 做多
     """
+
     def log(self, txt: str, current_dt: dt.datetime = None) -> None:
 
         current_dt = current_dt or self.datas[0].datetime.date(0)
@@ -119,6 +133,7 @@ class add_quantile_data(PandasData):
 
 class trade_list(bt.Analyzer):
     """获取交易明细"""
+
     def __init__(self):
 
         self.trades = []
@@ -275,8 +290,25 @@ def analysis_rets(price: pd.Series, result):
 
     df['Calmar'] = returns.apply(lambda x: ep.calmar_ratio(x, period='daily'))
 
-    print_table(df, fmt='{:.2%}')
-    plot_algorithm_nav(result, price, '净值表现')
+    #print_table(df, fmt='{:.2%}')
+    #plot_algorithm_nav(result, price, '净值表现')
+
+    f1 = plotly_table(df.applymap(lambda x: '{:.2%}'.format(x)), '指标')
+    f1 = f1.update_layout(width=1200, height=300)
+
+    f2 = plot_cumulative_returns(ret, benchmark)
+    f3 = plot_drawdowns(ret)
+    f4 = plot_underwater(ret)
+    f5 = plot_annual_returns(ret)
+    f6 = plot_monthly_returns_heatmap(ret)
+    f7 = plot_monthly_returns_dist(ret)
+
+    f1, f2, f3, f4, f5, f6, f7 = [go.FigureWidget(
+        fig) for fig in [f1, f2, f3, f4, f5, f6, f7]]
+    suplots = [f1, f2, ipw.HBox([f3, f4]), f6, ipw.HBox([f5, f7])]
+    box_layout = ipw.Layout(display='space-between',
+                            border='3px solid black', align_items='inherit')
+    return ipw.VBox(suplots, layout=box_layout)
 
 
 def analysis_trade(price: pd.DataFrame, result):

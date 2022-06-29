@@ -2,10 +2,10 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-29 18:03:38
+LastEditTime: 2022-06-29 23:50:47
 Description: 画图相关函数
 '''
-from typing import Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import empyrical as ep
 import matplotlib as mpl
@@ -13,10 +13,12 @@ import matplotlib.pyplot as plt
 import mplfinance as mpf
 import numpy as np
 import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
 import seaborn as sns
 from matplotlib.gridspec import GridSpec
 from matplotlib.ticker import MultipleLocator
+from plotly.graph_objs import Figure
 
 from .timeseries import get_drawdown_table
 
@@ -200,7 +202,7 @@ def plot_distribution(signal: pd.Series,
     ax1 = fig.add_subplot(gs[0, :3])
     ax2 = fig.add_subplot(gs[0, 3:])
 
-    ## 分组收益滚动累加
+    # 分组收益滚动累加
     ax1.set_title('信号期望收益分布')
     group_returns.plot(kind='bar', ax=ax1)
     roll_cum.plot(kind='line', color='red', secondary_y=True, ax=ax1)
@@ -295,13 +297,13 @@ def get_strat_ret(result) -> pd.Series:
 """plotly画图"""
 
 
-def plot_drawdowns(cum_ser: pd.Series):
+def plot_drawdowns(returns: pd.Series) -> Figure:
     """标记最大回撤
 
     Parameters
     ----------
     cum_ser : pd.Series
-        index-date value-累计收益率
+        index-date value-收益率
 
     Returns
     -------
@@ -310,7 +312,8 @@ def plot_drawdowns(cum_ser: pd.Series):
     """
 
     fig = go.Figure()
-    idx = cum_ser.index
+    cum_ser: pd.Series = ep.cum_returns(returns)
+    idx: pd.DatetimeIndex = cum_ser.index
     fig.add_trace(
         go.Scatter(x=idx,
                    y=cum_ser.tolist(),
@@ -318,47 +321,49 @@ def plot_drawdowns(cum_ser: pd.Series):
                    name='Algorithm_cum',
                    line=dict(color='#9467bd')))
 
-    dtype_mapping = {
+    dtype_mapping: Dict = {
         '回撤开始日': np.datetime64,
         '回撤最低点日': np.datetime64,
         '回撤恢复日': np.datetime64
     }
-    drawdown_table = drawdown_table.pipe(pd.DataFrame.astype, dtype_mapping)
 
     # 获取点位
-    drawdown_table = get_drawdown_table(cum_ser, 5)
+    drawdown_table: pd.DataFrame = get_drawdown_table(returns, 5)
+
+    drawdown_table: pd.DataFrame = drawdown_table.pipe(
+        pd.DataFrame.astype, dtype_mapping)
     # 判断近期是否处于回撤状态
-    cond = drawdown_table['回撤恢复日'].isna()
+    cond: pd.Series = drawdown_table['回撤恢复日'].isna()
 
     # 获取恢复点
-    recovery_dates = [
+    recovery_dates: List = [
         d for d, c in zip(drawdown_table['回撤恢复日'], cond) if not c
     ]
-    recovery_values = cum_ser.loc[recovery_dates].tolist()
+    recovery_values: List = cum_ser.loc[recovery_dates].tolist()
 
     # 获取开始点
-    peak_dates = [d for d in drawdown_table['回撤开始日']]
-    peak_values = cum_ser.loc[peak_dates].tolist()
+    peak_dates: List = [d for d in drawdown_table['回撤开始日']]
+    peak_values: List = cum_ser.loc[peak_dates].tolist()
 
     # 获取低点
-    valley_dates = [d for d in drawdown_table['回撤最低点日']]
-    valley_values = cum_ser.loc[valley_dates].tolist()
+    valley_dates: List = [d for d in drawdown_table['回撤最低点日']]
+    valley_values: List = cum_ser.loc[valley_dates].tolist()
 
     # 是否进行中
     if len(recovery_dates) < len(drawdown_table):
-        active_dates = idx[-1]
-        active_values = cum_ser[active_dates]
+        active_dates: pd.Timestamp = idx[-1]
+        active_values: float = cum_ser[active_dates]
 
-    is_active = False  # 是否正在处于恢复期
+    is_active: bool = False  # 是否正在处于恢复期
     # 画区间
     for num, rows in drawdown_table.iterrows():
 
-        peak_date = rows['回撤开始日']
-        valley_date = rows['回撤最低点日']
-        recovery_date = rows['回撤恢复日']
+        peak_date: pd.Timestamp = rows['回撤开始日']
+        valley_date: pd.Timestamp = rows['回撤最低点日']
+        recovery_date: pd.Timestamp = rows['回撤恢复日']
 
         if not isinstance(recovery_date, pd.Timestamp):
-            is_active = True
+            is_active: bool = True
             # 低点至还在回撤
             fig.add_vrect(x0=peak_date,
                           x1=idx[-1],
@@ -437,7 +442,7 @@ def plot_drawdowns(cum_ser: pd.Series):
                       title={
                           'text': 'Drawdown',
                           'x': 0.5,
-                          'y': 0.9
+                          'y': 0.93
                       },
                       hovermode="x unified",
                       legend=dict(orientation="h",
@@ -449,7 +454,7 @@ def plot_drawdowns(cum_ser: pd.Series):
     return fig
 
 
-def plot_trade_pnl(trade_stats: pd.DataFrame):
+def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
     """画盈亏图
 
     Args:
@@ -458,11 +463,13 @@ def plot_trade_pnl(trade_stats: pd.DataFrame):
     Returns:
         _type_: _description_
     """
-    cond = trade_stats['pnl%'] > 0
+    cond: pd.Series = trade_stats['pnl%'] > 0
     fig = go.Figure()
 
-    a_df = trade_stats.loc[cond, ['dateout', 'ref', 'pnl', 'pnl%']]
-    b_df = trade_stats.loc[~cond, ['dateout', 'ref', 'pnl', 'pnl%']]
+    a_df: pd.DataFrame = trade_stats.loc[cond, [
+        'dateout', 'ref', 'pnl', 'pnl%']]
+    b_df: pd.DataFrame = trade_stats.loc[~cond, [
+        'dateout', 'ref', 'pnl', 'pnl%']]
     fig.add_trace(
         go.Scatter(
             x=a_df['dateout'],
@@ -470,8 +477,7 @@ def plot_trade_pnl(trade_stats: pd.DataFrame):
             mode='markers',
             name='Close - Profit',
             customdata=a_df[['ref', 'pnl', 'pnl%']],
-            hovertemplate=
-            'Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
+            hovertemplate='Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
             marker=dict(size=a_df['pnl%'].abs(),
                         sizemode='area',
                         color='rgb(181,31,18)',
@@ -479,9 +485,9 @@ def plot_trade_pnl(trade_stats: pd.DataFrame):
                         line={
                             'color': 'rgb(181,31,18)',
                             'width': 1
-                        },
-                        symbol='circle',
-                        sizemin=4)))
+            },
+                symbol='circle',
+                sizemin=4)))
 
     fig.add_trace(
         go.Scatter(
@@ -490,8 +496,7 @@ def plot_trade_pnl(trade_stats: pd.DataFrame):
             mode='markers',
             name='Close - Loss',
             customdata=b_df[['ref', 'pnl', 'pnl%']],
-            hovertemplate=
-            'Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
+            hovertemplate='Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
             marker=dict(
                 size=b_df['pnl%'].abs(),
                 sizemode='area',
@@ -518,12 +523,12 @@ def plot_trade_pnl(trade_stats: pd.DataFrame):
                           'text': 'Trade PnL',
                           'x': 0.5,
                           'y': 0.9
-                      })
+    })
 
     return fig
 
 
-def plot_underwater(cum_ser: pd.Series):
+def plot_underwater(returns: pd.Series) -> Figure:
     """画动态回撤
 
     Parameters
@@ -536,9 +541,10 @@ def plot_underwater(cum_ser: pd.Series):
     _type_
         _description_
     """
-    maxdrawdown = cum_ser / cum_ser.cummax() - 1
+    cum_ser: pd.Series = ep.cum_returns(returns)
+    maxdrawdown: pd.Series = cum_ser / cum_ser.cummax() - 1
 
-    idx = maxdrawdown.index
+    idx: pd.DatetimeIndex = maxdrawdown.index
 
     fig = go.Figure()
 
@@ -572,25 +578,28 @@ def plot_underwater(cum_ser: pd.Series):
     return fig
 
 
-def plot_cumulative_returns(returns: pd.Series, benchmark: pd.Series):
+def plot_cumulative_returns(returns: pd.Series, benchmark: pd.Series) -> Figure:
     """画累计收益率
 
     Parameters
     ----------
     returns : pd.Series
-        index-date values-策略累计收益率
+        index-date values-策略收益率
     benchmark : pd.Series
-        index-date values-基准累计收益率
+        index-date values-基准收益率
     title : str, optional
         _description_, by default ''
 
     Returns
     -------
-    _type_
+    Figure
         _description_
     """
 
-    idx = returns.index
+    returns = ep.cum_returns(returns)
+    benchmark = ep.cum_returns(benchmark)
+
+    idx: pd.DatetimeIndex = returns.index
 
     fig = go.Figure()
     # area
@@ -632,7 +641,7 @@ def plot_cumulative_returns(returns: pd.Series, benchmark: pd.Series):
     return fig
 
 
-def plot_orders(trade_df: pd.DataFrame, price: pd.Series):
+def plot_orders(trade_df: pd.DataFrame, price: pd.Series) -> Figure:
     """交易点标记
 
     Args:
@@ -674,17 +683,18 @@ def plot_orders(trade_df: pd.DataFrame, price: pd.Series):
         'x': 0.5,
         'y': 0.9
     },
-                      yaxis_title="Price",
-                      hovermode="x unified",
-                      legend=dict(orientation="h",
-                                  yanchor="bottom",
-                                  y=1.02,
-                                  xanchor="center",
-                                  x=0.5))
+        yaxis_title="Price",
+        hovermode="x unified",
+        legend=dict(orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5))
 
     return fig
 
-def plot_annual_returns(returns: pd.Series):
+
+def plot_annual_returns(returns: pd.Series) -> Figure:
     """画每年累计收益
 
     Args:
@@ -693,9 +703,9 @@ def plot_annual_returns(returns: pd.Series):
     Returns:
         _type_: _description_
     """
-    ann_ret_df = ep.aggregate_returns(returns, 'yearly')
+    ann_ret_df: pd.Series = ep.aggregate_returns(returns, 'yearly')
 
-    colors = ['#4e57c6' if v > 0 else 'crimson' for v in ann_ret_df]
+    colors: List = ['#4e57c6' if v > 0 else 'crimson' for v in ann_ret_df]
 
     fig = go.Figure(
         go.Bar(x=ann_ret_df.values,
@@ -708,15 +718,112 @@ def plot_annual_returns(returns: pd.Series):
         'x': 0.5,
         'y': 0.9
     },
-                      yaxis_title="Year",
-                      xaxis_tickformat='.2%',
-                      hovermode="x unified",
-                      legend=dict(orientation="h",
-                                  yanchor="bottom",
-                                  y=1.02,
-                                  xanchor="center",
-                                  x=0.5))
+        yaxis_title="Year",
+        xaxis_tickformat='.2%',
+        hovermode="x unified",
+        legend=dict(orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5))
 
     fig.add_vline(x=ann_ret_df.mean(), line_dash='dash')
+
+    return fig
+
+
+def plot_monthly_returns_heatmap(returns: pd.Series) -> Figure:
+    """画每月收益热力图
+
+    Parameters
+    ----------
+    returns : pd.Series
+        index-date values-returns
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    monthly_ret_table: pd.Series = ep.aggregate_returns(returns, 'monthly')
+    monthly_ret_table: pd.Series = monthly_ret_table.unstack().round(3)
+
+    fig = go.Figure(data=go.Heatmap(z=monthly_ret_table.values,
+
+                    x=monthly_ret_table.columns.map(str),
+                    y=monthly_ret_table.index.map(str),
+                    text=monthly_ret_table.values,
+                    texttemplate="%{text:.2%}",
+                                    ))
+    fig.update_layout(hovermode="x unified",
+                      title={
+                          'text': 'Monthly returns (%)',
+                          "x": 0.5,
+                          "y": 0.9
+                      },
+                      yaxis_title="Year",
+                      xaxis_title='Month',
+                      )
+    return fig
+
+
+def plot_monthly_returns_dist(returns: pd.Series) -> Figure:
+    """画分月收益直方图
+
+    Parameters
+    ----------
+    returns : pd.Series
+        index-date values-returns
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    monthly_ret_table = pd.DataFrame(ep.aggregate_returns(
+        returns, 'monthly'), columns=['Returns'])
+    fig = px.histogram(monthly_ret_table, x='Returns')
+    mean_returns = monthly_ret_table['Returns'].mean()
+    fig.add_vline(x=mean_returns, line_dash='dash',
+                  annotation_text='Mean:{:.2f}'.format(mean_returns))
+    fig.update_layout(hovermode="x unified",
+                      title={
+                                'text': 'Distribution of monthly returns',
+                                "x": 0.5,
+                                "y": 0.9
+                      },
+                      yaxis_title="Number of months",
+                      xaxis_tickformat='.2%',
+                      xaxis_title='Returns',
+                      )
+    return fig
+
+
+def plotly_table(df: pd.DataFrame, index_name: str = '') -> Figure:
+
+    df.index.names = [index_name]
+    df: pd.DataFrame = df.reset_index()
+
+    headerColor = 'grey'
+    rowEvenColor = 'lightgrey'
+    rowOddColor = 'white'
+
+    fig = go.Figure(data=[go.Table(
+        header=dict(
+            values=df.columns,
+            line_color='darkslategray',
+            fill_color=headerColor,
+            align=['left', 'center'],
+            font=dict(color='white', size=12)
+        ),
+        cells=dict(
+            values=df.T.values,
+            line_color='darkslategray',
+            # 2-D list of colors for alternating rows
+            #fill_color = [[rowOddColor,rowEvenColor,rowOddColor, rowEvenColor,rowOddColor]*5],
+            align=['left', 'center'],
+            font=dict(color='darkslategray', size=11)
+        ))
+    ])
 
     return fig
