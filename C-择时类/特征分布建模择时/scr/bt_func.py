@@ -66,6 +66,7 @@ class netbuy_cross(bt.Strategy):
         # 检查是否有持仓
 
         if self.entries:
+            
             if not self.position:
 
                 # 全仓买入
