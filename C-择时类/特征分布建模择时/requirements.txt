@@ -1,0 +1,14 @@
+backtrader==1.9.76.123
+empyrical==0.5.5
+ipython==8.4.0
+ipywidgets==7.6.3
+matplotlib==3.3.4
+mplfinance==0.12.9b1
+numpy==1.22.3
+pandas==1.2.4
+plotly==5.7.0
+python_dateutil==2.8.2
+seaborn==0.11.1
+TA_Lib==0.4.21
+tqdm==4.59.0
+tushare==1.2.67
