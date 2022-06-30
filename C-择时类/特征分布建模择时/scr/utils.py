@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-08 13:30:08
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-22 10:47:06
+LastEditTime: 2022-06-30 10:36:06
 Description: 
 '''
 import datetime as dt
@@ -12,6 +12,10 @@ import pandas as pd
 from dateutil.parser import parse
 from IPython.display import display
 
+
+def trans2strftime(ser:pd.Series,fmt:str='%Y-%m-%d')->pd.Series:
+    
+    return pd.to_datetime(ser).dt.strftime(fmt)
 
 def format_dt(dt: Union[dt.datetime, dt.date, str],
               fm: str = '%Y-%m-%d') -> str:

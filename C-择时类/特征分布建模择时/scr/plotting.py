@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-30 09:59:57
+LastEditTime: 2022-06-30 10:40:50
 Description: 画图相关函数
 '''
 from typing import Dict, List, Tuple, Union
@@ -21,6 +21,7 @@ from matplotlib.ticker import MultipleLocator
 from plotly.graph_objs import Figure
 
 from .timeseries import get_drawdown_table
+from .utils import trans2strftime
 
 # 设置字体 用来正常显示中文标签
 mpl.rcParams['font.sans-serif'] = ['SimHei']
@@ -293,7 +294,7 @@ def plot_algorithm_nav(result: List,
         mpl.axes: 图
     """
     # 净值表现
-    rets:pd.Series = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
+    rets: pd.Series = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
     align_rest, align_price = rets.align(price, join='left')
 
@@ -485,9 +486,10 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
                                          ['dateout', 'ref', 'pnl', 'pnl%']]
     b_df: pd.DataFrame = trade_stats.loc[~cond,
                                          ['dateout', 'ref', 'pnl', 'pnl%']]
+
     fig.add_trace(
         go.Scatter(
-            x=a_df['dateout'],
+            x=trans2strftime(a_df['dateout']),
             y=a_df['pnl%'],
             mode='markers',
             name='Close - Profit',
@@ -507,7 +509,7 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
 
     fig.add_trace(
         go.Scatter(
-            x=b_df['dateout'],
+            x=trans2strftime(b_df['dateout']),
             y=b_df['pnl%'],
             mode='markers',
             name='Close - Loss',
@@ -659,7 +661,7 @@ def plot_cumulative_returns(returns: pd.Series,
     return fig
 
 
-def plot_orders_on_price(trade_df: pd.DataFrame, price: pd.Series) -> Figure:
+def plot_orders_on_price(price: pd.Series, trade_df: pd.DataFrame) -> Figure:
     """交易点标记
 
     Args:
@@ -668,7 +670,7 @@ def plot_orders_on_price(trade_df: pd.DataFrame, price: pd.Series) -> Figure:
     """
     fig = go.Figure()
     fig.add_trace(
-        go.Scatter(x=price.index,
+        go.Scatter(x=price.index.strftime('%Y-%m-%d'),
                    y=price.tolist(),
                    mode='lines',
                    name='Close',
@@ -676,7 +678,7 @@ def plot_orders_on_price(trade_df: pd.DataFrame, price: pd.Series) -> Figure:
 
     fig.add_trace(
         go.Scatter(mode="markers",
-                   x=trade_df['datein'],
+                   x=trans2strftime(trade_df['datein']),
                    y=price.loc[pd.to_datetime(trade_df['datein'])],
                    marker_symbol='triangle-up',
                    marker_line_color="#c92d1f",
@@ -687,7 +689,7 @@ def plot_orders_on_price(trade_df: pd.DataFrame, price: pd.Series) -> Figure:
 
     fig.add_trace(
         go.Scatter(mode="markers",
-                   x=trade_df['dateout'],
+                   x=trans2strftime(trade_df['dateout']),
                    y=price.loc[pd.to_datetime(trade_df['dateout'])],
                    marker_symbol='triangle-down',
                    marker_line_color="#3db345",
@@ -713,12 +715,12 @@ def plot_orders_on_price(trade_df: pd.DataFrame, price: pd.Series) -> Figure:
 
 
 def plotl_order_on_ohlc(ohlc: pd.DataFrame,
-                      trade_list: pd.DataFrame,
-                      *,
-                      showlegend: bool = False,
-                      title: str = '',
-                      rows: int = None,
-                      cols: int = None)->Figure:
+                        trade_list: pd.DataFrame,
+                        *,
+                        showlegend: bool = False,
+                        title: str = '',
+                        rows: int = None,
+                        cols: int = None) -> Figure:
     """画k线并标记
 
     Args:
@@ -736,8 +738,6 @@ def plotl_order_on_ohlc(ohlc: pd.DataFrame,
 
         return [i.strftime('%Y-%m-%d') for i in set(days).difference(idx)]
 
-    
-    
     fig = go.Figure()
 
     fig.add_trace(go.Candlestick(x=ohlc.index,
@@ -755,7 +755,7 @@ def plotl_order_on_ohlc(ohlc: pd.DataFrame,
     ## Buy
     fig.add_trace(
         go.Scatter(
-            x=pd.to_datetime(trade_list['datetin']),
+            x=trans2strftime(trade_list['datetin']),
             y=list(trade_list['pricein'].values * (1 - 0.05)),
             name='Buy',
             mode='markers',
@@ -771,7 +771,7 @@ def plotl_order_on_ohlc(ohlc: pd.DataFrame,
     ## Sell
     fig.add_trace(
         go.Scatter(
-            x=pd.to_datetime(trade_list['datetout']),
+            x=trans2strftime(trade_list['datetout']),
             y=list(trade_list['priceout'].values * (1 + 0.03)),
             name='Sell',
             mode='markers',
@@ -862,7 +862,6 @@ def plot_monthly_returns_heatmap(returns: pd.Series) -> Figure:
         texttemplate="%{text:.2%}",
     ))
     fig.update_layout(
-        hovermode="x unified",
         title={
             'text': 'Monthly returns (%)',
             "x": 0.5,

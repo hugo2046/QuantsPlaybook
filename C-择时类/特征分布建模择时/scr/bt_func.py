@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-30 10:15:45
+LastEditTime: 2022-06-30 10:38:42
 Description: 回测相关函数
 '''
 import datetime as dt
@@ -330,6 +330,7 @@ def analysis_trade(price: pd.DataFrame, result: List):
     # buy_flag, sell_flag = get_flag(trade_list)
     # plot_trade_flag(price, buy_flag, sell_flag)
     f1 = plotly_table(trade_res)
+    f1 = f1.update_layout(width=1100, height=300)
     f2 = plot_orders_on_price(price, trade_list)
     f3 = plot_trade_pnl(trade_list)
     subplots = [go.FigureWidget(fig) for fig in [f1, f2, f3]]
