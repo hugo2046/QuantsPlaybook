@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-04-17 00:54:11
- * @LastEditTime: 2022-06-09 11:31:07
+ * @LastEditTime: 2022-06-30 12:45:16
  * @LastEditors: hugo2046 shen.lan123@gmail.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \undefinedd:\WrokSpace\Quantitative-analysis\README.md
@@ -85,6 +85,7 @@
     ├─老版本
     │  └─中国版VIV.ipynb
     ```
+16. [特征分布建模择时](https://www.joinquant.com/view/community/detail/17e97079ece6d76c85fb5f3aa62acdc0)
 
 **因子**
 
