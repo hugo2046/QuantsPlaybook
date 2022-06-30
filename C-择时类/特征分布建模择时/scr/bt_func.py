@@ -2,12 +2,12 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-29 23:52:15
+LastEditTime: 2022-06-30 10:15:45
 Description: 回测相关函数
 '''
 import datetime as dt
 from collections import namedtuple
-from typing import Tuple
+from typing import List, Tuple
 
 import backtrader as bt
 import empyrical as ep
@@ -18,15 +18,17 @@ import plotly.graph_objects as go
 from backtrader.feeds import PandasData
 
 from .plotting import (
-    get_strat_ret,
     plot_algorithm_nav,
     plot_annual_returns,
     plot_cumulative_returns,
     plot_drawdowns,
     plot_monthly_returns_dist,
     plot_monthly_returns_heatmap,
+    plot_orders_on_price,
     plot_trade_flag,
+    plot_trade_pnl,
     plot_underwater,
+    plotl_order_on_ohlc,
     plotly_table,
 )
 from .utils import print_table
@@ -38,7 +40,6 @@ class netbuy_cross(bt.Strategy):
     1.大幅相对净流入:IS_NetBuy_S_S>IS_NetBuy_S_L(短期均线大于长期均线)且短期均 线 IS_NetBuy_S_S>0 且长期均线 IS_NetBuy_S_L>0 做多
     2.大幅相对净流出:IS_NetBuy_S_S<IS_NetBuy_S_L(短期均线小于长期均线) 且短期 均线 IS_NetBuy_S_S<0 且长期均线 IS_NetBuy_S_L<0 做多
     """
-
     def log(self, txt: str, current_dt: dt.datetime = None) -> None:
 
         current_dt = current_dt or self.datas[0].datetime.date(0)
@@ -133,7 +134,6 @@ class add_quantile_data(PandasData):
 
 class trade_list(bt.Analyzer):
     """获取交易明细"""
-
     def __init__(self):
 
         self.trades = []
@@ -261,14 +261,14 @@ def get_backtesting(data: pd.DataFrame,
     return res(result, cerebro)
 
 
-def analysis_rets(price: pd.Series, result):
+def analysis_rets(price: pd.Series, result: List):
     """净值表现情况
 
     Args:
         price (pd.Series): idnex-date values
-        result (_type_): _description_
+        result (List): 回测结果
     """
-    ret: pd.Series = get_strat_ret(result)
+    ret: pd.Series = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
     benchmark = price.pct_change()
 
     returns: pd.DataFrame = pd.concat((ret, benchmark), axis=1, join='inner')
@@ -303,15 +303,17 @@ def analysis_rets(price: pd.Series, result):
     f6 = plot_monthly_returns_heatmap(ret)
     f7 = plot_monthly_returns_dist(ret)
 
-    f1, f2, f3, f4, f5, f6, f7 = [go.FigureWidget(
-        fig) for fig in [f1, f2, f3, f4, f5, f6, f7]]
+    f1, f2, f3, f4, f5, f6, f7 = [
+        go.FigureWidget(fig) for fig in [f1, f2, f3, f4, f5, f6, f7]
+    ]
     suplots = [f1, f2, ipw.HBox([f3, f4]), f6, ipw.HBox([f5, f7])]
     box_layout = ipw.Layout(display='space-between',
-                            border='3px solid black', align_items='inherit')
+                            border='3px solid black',
+                            align_items='inherit')
     return ipw.VBox(suplots, layout=box_layout)
 
 
-def analysis_trade(price: pd.DataFrame, result):
+def analysis_trade(price: pd.DataFrame, result: List):
     """交易情况
 
     Args:
@@ -320,13 +322,22 @@ def analysis_trade(price: pd.DataFrame, result):
     """
     trade_list: pd.DataFrame = pd.DataFrame(
         result[0].analyzers.tradelist.get_analysis())
-
+    trade_list['pnl%'] /= 100
     trade_res: pd.DataFrame = get_trade_res(trade_list)
 
-    print_table(trade_res)
+    # print_table(trade_res)
 
-    buy_flag, sell_flag = get_flag(trade_list)
-    plot_trade_flag(price, buy_flag, sell_flag)
+    # buy_flag, sell_flag = get_flag(trade_list)
+    # plot_trade_flag(price, buy_flag, sell_flag)
+    f1 = plotly_table(trade_res)
+    f2 = plot_orders_on_price(price, trade_list)
+    f3 = plot_trade_pnl(trade_list)
+    subplots = [go.FigureWidget(fig) for fig in [f1, f2, f3]]
+
+    box_layout = ipw.Layout(display='space-between',
+                            border='3px solid black',
+                            align_items='inherit')
+    return ipw.VBox(subplots, layout=box_layout)
 
 
 def get_flag(trade_list: pd.DataFrame) -> Tuple:

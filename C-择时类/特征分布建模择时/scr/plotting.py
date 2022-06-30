@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-29 23:50:47
+LastEditTime: 2022-06-30 09:59:57
 Description: 画图相关函数
 '''
 from typing import Dict, List, Tuple, Union
@@ -202,6 +202,24 @@ def plot_distribution(signal: pd.Series,
     ax1 = fig.add_subplot(gs[0, :3])
     ax2 = fig.add_subplot(gs[0, 3:])
 
+    # 计算统计指标
+    avg, std, kur, skew = distribution_df['signal'].mean(
+    ), distribution_df['signal'].std(), distribution_df['signal'].kurt(
+    ), distribution_df['signal'].skew()
+    # 显示统计指标
+    ax2.text(.05,
+             .95,
+             " Mean %.3f \n Std. %.3f \n kurtosis %.3f \n Skew %.3f" %
+             (avg, std, kur, skew),
+             fontsize=16,
+             bbox={
+                 'facecolor': 'white',
+                 'alpha': 1,
+                 'pad': 5
+             },
+             transform=ax2.transAxes,
+             verticalalignment='top')
+
     # 分组收益滚动累加
     ax1.set_title('信号期望收益分布')
     group_returns.plot(kind='bar', ax=ax1)
@@ -261,7 +279,9 @@ def plot_trade_flag(price: pd.DataFrame, buy_flag: pd.Series,
     return ax
 
 
-def plot_algorithm_nav(result, price: pd.Series, title: str = '') -> mpl.axes:
+def plot_algorithm_nav(result: List,
+                       price: pd.Series,
+                       title: str = '') -> mpl.axes:
     """画净值表现
 
     Args:
@@ -273,7 +293,7 @@ def plot_algorithm_nav(result, price: pd.Series, title: str = '') -> mpl.axes:
         mpl.axes: 图
     """
     # 净值表现
-    rets = get_strat_ret(result)
+    rets:pd.Series = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
     align_rest, align_price = rets.align(price, join='left')
 
@@ -287,11 +307,6 @@ def plot_algorithm_nav(result, price: pd.Series, title: str = '') -> mpl.axes:
     plt.legend()
 
     return ax
-
-
-def get_strat_ret(result) -> pd.Series:
-
-    return pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
 
 """plotly画图"""
@@ -330,8 +345,8 @@ def plot_drawdowns(returns: pd.Series) -> Figure:
     # 获取点位
     drawdown_table: pd.DataFrame = get_drawdown_table(returns, 5)
 
-    drawdown_table: pd.DataFrame = drawdown_table.pipe(
-        pd.DataFrame.astype, dtype_mapping)
+    drawdown_table: pd.DataFrame = drawdown_table.pipe(pd.DataFrame.astype,
+                                                       dtype_mapping)
     # 判断近期是否处于回撤状态
     cond: pd.Series = drawdown_table['回撤恢复日'].isna()
 
@@ -466,10 +481,10 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
     cond: pd.Series = trade_stats['pnl%'] > 0
     fig = go.Figure()
 
-    a_df: pd.DataFrame = trade_stats.loc[cond, [
-        'dateout', 'ref', 'pnl', 'pnl%']]
-    b_df: pd.DataFrame = trade_stats.loc[~cond, [
-        'dateout', 'ref', 'pnl', 'pnl%']]
+    a_df: pd.DataFrame = trade_stats.loc[cond,
+                                         ['dateout', 'ref', 'pnl', 'pnl%']]
+    b_df: pd.DataFrame = trade_stats.loc[~cond,
+                                         ['dateout', 'ref', 'pnl', 'pnl%']]
     fig.add_trace(
         go.Scatter(
             x=a_df['dateout'],
@@ -477,7 +492,8 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
             mode='markers',
             name='Close - Profit',
             customdata=a_df[['ref', 'pnl', 'pnl%']],
-            hovertemplate='Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
+            hovertemplate=
+            'Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
             marker=dict(size=a_df['pnl%'].abs(),
                         sizemode='area',
                         color='rgb(181,31,18)',
@@ -485,9 +501,9 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
                         line={
                             'color': 'rgb(181,31,18)',
                             'width': 1
-            },
-                symbol='circle',
-                sizemin=4)))
+                        },
+                        symbol='circle',
+                        sizemin=4)))
 
     fig.add_trace(
         go.Scatter(
@@ -496,7 +512,8 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
             mode='markers',
             name='Close - Loss',
             customdata=b_df[['ref', 'pnl', 'pnl%']],
-            hovertemplate='Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
+            hovertemplate=
+            'Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
             marker=dict(
                 size=b_df['pnl%'].abs(),
                 sizemode='area',
@@ -523,7 +540,7 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
                           'text': 'Trade PnL',
                           'x': 0.5,
                           'y': 0.9
-    })
+                      })
 
     return fig
 
@@ -578,7 +595,8 @@ def plot_underwater(returns: pd.Series) -> Figure:
     return fig
 
 
-def plot_cumulative_returns(returns: pd.Series, benchmark: pd.Series) -> Figure:
+def plot_cumulative_returns(returns: pd.Series,
+                            benchmark: pd.Series) -> Figure:
     """画累计收益率
 
     Parameters
@@ -641,7 +659,7 @@ def plot_cumulative_returns(returns: pd.Series, benchmark: pd.Series) -> Figure:
     return fig
 
 
-def plot_orders(trade_df: pd.DataFrame, price: pd.Series) -> Figure:
+def plot_orders_on_price(trade_df: pd.DataFrame, price: pd.Series) -> Figure:
     """交易点标记
 
     Args:
@@ -683,13 +701,101 @@ def plot_orders(trade_df: pd.DataFrame, price: pd.Series) -> Figure:
         'x': 0.5,
         'y': 0.9
     },
-        yaxis_title="Price",
-        hovermode="x unified",
-        legend=dict(orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="center",
-                    x=0.5))
+                      yaxis_title="Price",
+                      hovermode="x unified",
+                      legend=dict(orientation="h",
+                                  yanchor="bottom",
+                                  y=1.02,
+                                  xanchor="center",
+                                  x=0.5))
+
+    return fig
+
+
+def plotl_order_on_ohlc(ohlc: pd.DataFrame,
+                      trade_list: pd.DataFrame,
+                      *,
+                      showlegend: bool = False,
+                      title: str = '',
+                      rows: int = None,
+                      cols: int = None)->Figure:
+    """画k线并标记
+
+    Args:
+        ohlc (pd.DataFrame): _description_
+        res (namedtuple): _description_
+        title (str, optional): _description_. Defaults to ''.
+    """
+    def get_holidays(ohlc: pd.DataFrame) -> List:
+        """用于过滤非交易日"""
+        idx = pd.to_datetime(ohlc.index)
+        begin = idx.min()
+        end = idx.max()
+
+        days = pd.date_range(begin, end)
+
+        return [i.strftime('%Y-%m-%d') for i in set(days).difference(idx)]
+
+    
+    
+    fig = go.Figure()
+
+    fig.add_trace(go.Candlestick(x=ohlc.index,
+                                 open=ohlc['open'],
+                                 high=ohlc['high'],
+                                 low=ohlc['low'],
+                                 close=ohlc['close'],
+                                 increasing_line_color='red',
+                                 decreasing_line_color='green',
+                                 showlegend=False),
+                  row=rows,
+                  col=cols)
+
+    # 添加买卖点
+    ## Buy
+    fig.add_trace(
+        go.Scatter(
+            x=pd.to_datetime(trade_list['datetin']),
+            y=list(trade_list['pricein'].values * (1 - 0.05)),
+            name='Buy',
+            mode='markers',
+            marker_size=15,
+            marker_symbol='triangle-up',
+            showlegend=False,
+            marker_color='red',
+            #line=dict(color='royalblue', width=7,dash='solid')
+        ),
+        row=rows,
+        col=cols)
+
+    ## Sell
+    fig.add_trace(
+        go.Scatter(
+            x=pd.to_datetime(trade_list['datetout']),
+            y=list(trade_list['priceout'].values * (1 + 0.03)),
+            name='Sell',
+            mode='markers',
+            marker_size=15,
+            marker_symbol='triangle-down',
+            marker_color='green',
+            showlegend=False,
+            #line=dict(color='royalblue', width=7,dash='solid')
+        ),
+        row=rows,
+        col=cols)
+
+    holidays = get_holidays(ohlc)
+    fig.update_xaxes(
+        rangeslider_visible=False,
+        rangebreaks=[
+            #dict(bounds=["sat", "mon"]), # 隐藏周六、周日
+            dict(values=holidays)  # 隐藏特定假期
+        ])
+    fig.update_layout(hovermode='x unified')
+    # showlegend=False)
+    fig.update_layout(title=title,
+                      xaxis_tickformat='%Y-%m-%d',
+                      showlegend=True)
 
     return fig
 
@@ -718,14 +824,14 @@ def plot_annual_returns(returns: pd.Series) -> Figure:
         'x': 0.5,
         'y': 0.9
     },
-        yaxis_title="Year",
-        xaxis_tickformat='.2%',
-        hovermode="x unified",
-        legend=dict(orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="center",
-                    x=0.5))
+                      yaxis_title="Year",
+                      xaxis_tickformat='.2%',
+                      hovermode="x unified",
+                      legend=dict(orientation="h",
+                                  yanchor="bottom",
+                                  y=1.02,
+                                  xanchor="center",
+                                  x=0.5))
 
     fig.add_vline(x=ann_ret_df.mean(), line_dash='dash')
 
@@ -748,22 +854,23 @@ def plot_monthly_returns_heatmap(returns: pd.Series) -> Figure:
     monthly_ret_table: pd.Series = ep.aggregate_returns(returns, 'monthly')
     monthly_ret_table: pd.Series = monthly_ret_table.unstack().round(3)
 
-    fig = go.Figure(data=go.Heatmap(z=monthly_ret_table.values,
-
-                    x=monthly_ret_table.columns.map(str),
-                    y=monthly_ret_table.index.map(str),
-                    text=monthly_ret_table.values,
-                    texttemplate="%{text:.2%}",
-                                    ))
-    fig.update_layout(hovermode="x unified",
-                      title={
-                          'text': 'Monthly returns (%)',
-                          "x": 0.5,
-                          "y": 0.9
-                      },
-                      yaxis_title="Year",
-                      xaxis_title='Month',
-                      )
+    fig = go.Figure(data=go.Heatmap(
+        z=monthly_ret_table.values,
+        x=monthly_ret_table.columns.map(str),
+        y=monthly_ret_table.index.map(str),
+        text=monthly_ret_table.values,
+        texttemplate="%{text:.2%}",
+    ))
+    fig.update_layout(
+        hovermode="x unified",
+        title={
+            'text': 'Monthly returns (%)',
+            "x": 0.5,
+            "y": 0.9
+        },
+        yaxis_title="Year",
+        xaxis_title='Month',
+    )
     return fig
 
 
@@ -780,22 +887,24 @@ def plot_monthly_returns_dist(returns: pd.Series) -> Figure:
     _type_
         _description_
     """
-    monthly_ret_table = pd.DataFrame(ep.aggregate_returns(
-        returns, 'monthly'), columns=['Returns'])
+    monthly_ret_table = pd.DataFrame(ep.aggregate_returns(returns, 'monthly'),
+                                     columns=['Returns'])
     fig = px.histogram(monthly_ret_table, x='Returns')
     mean_returns = monthly_ret_table['Returns'].mean()
-    fig.add_vline(x=mean_returns, line_dash='dash',
+    fig.add_vline(x=mean_returns,
+                  line_dash='dash',
                   annotation_text='Mean:{:.2f}'.format(mean_returns))
-    fig.update_layout(hovermode="x unified",
-                      title={
-                                'text': 'Distribution of monthly returns',
-                                "x": 0.5,
-                                "y": 0.9
-                      },
-                      yaxis_title="Number of months",
-                      xaxis_tickformat='.2%',
-                      xaxis_title='Returns',
-                      )
+    fig.update_layout(
+        hovermode="x unified",
+        title={
+            'text': 'Distribution of monthly returns',
+            "x": 0.5,
+            "y": 0.9
+        },
+        yaxis_title="Number of months",
+        xaxis_tickformat='.2%',
+        xaxis_title='Returns',
+    )
     return fig
 
 
@@ -808,22 +917,20 @@ def plotly_table(df: pd.DataFrame, index_name: str = '') -> Figure:
     rowEvenColor = 'lightgrey'
     rowOddColor = 'white'
 
-    fig = go.Figure(data=[go.Table(
-        header=dict(
-            values=df.columns,
-            line_color='darkslategray',
-            fill_color=headerColor,
-            align=['left', 'center'],
-            font=dict(color='white', size=12)
-        ),
-        cells=dict(
-            values=df.T.values,
-            line_color='darkslategray',
-            # 2-D list of colors for alternating rows
-            #fill_color = [[rowOddColor,rowEvenColor,rowOddColor, rowEvenColor,rowOddColor]*5],
-            align=['left', 'center'],
-            font=dict(color='darkslategray', size=11)
-        ))
+    fig = go.Figure(data=[
+        go.Table(
+            header=dict(values=df.columns,
+                        line_color='darkslategray',
+                        fill_color=headerColor,
+                        align=['left', 'center'],
+                        font=dict(color='white', size=12)),
+            cells=dict(
+                values=df.T.values,
+                line_color='darkslategray',
+                # 2-D list of colors for alternating rows
+                #fill_color = [[rowOddColor,rowEvenColor,rowOddColor, rowEvenColor,rowOddColor]*5],
+                align=['left', 'center'],
+                font=dict(color='darkslategray', size=11)))
     ])
 
     return fig
