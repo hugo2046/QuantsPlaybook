@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-30 10:40:50
+LastEditTime: 2022-07-01 08:59:33
 Description: 画图相关函数
 '''
 from typing import Dict, List, Tuple, Union
@@ -560,7 +560,7 @@ def plot_underwater(returns: pd.Series) -> Figure:
     _type_
         _description_
     """
-    cum_ser: pd.Series = ep.cum_returns(returns)
+    cum_ser: pd.Series = ep.cum_returns(returns,1)
     maxdrawdown: pd.Series = cum_ser / cum_ser.cummax() - 1
 
     idx: pd.DatetimeIndex = maxdrawdown.index
