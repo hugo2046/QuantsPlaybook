@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-06-30 10:38:42
+LastEditTime: 2022-07-11 20:13:40
 Description: 回测相关函数
 '''
 import datetime as dt
@@ -40,10 +40,11 @@ class netbuy_cross(bt.Strategy):
     1.大幅相对净流入:IS_NetBuy_S_S>IS_NetBuy_S_L(短期均线大于长期均线)且短期均 线 IS_NetBuy_S_S>0 且长期均线 IS_NetBuy_S_L>0 做多
     2.大幅相对净流出:IS_NetBuy_S_S<IS_NetBuy_S_L(短期均线小于长期均线) 且短期 均线 IS_NetBuy_S_S<0 且长期均线 IS_NetBuy_S_L<0 做多
     """
+
     def log(self, txt: str, current_dt: dt.datetime = None) -> None:
 
         current_dt = current_dt or self.datas[0].datetime.date(0)
-        print('%s,%s' % (current_dt.isoformat(), txt))
+        print(f'{current_dt.isoformat()},{txt}')
 
     def __init__(self) -> None:
 
@@ -66,7 +67,7 @@ class netbuy_cross(bt.Strategy):
         # 检查是否有持仓
 
         if self.entries:
-            
+
             if not self.position:
 
                 # 全仓买入
@@ -135,6 +136,7 @@ class add_quantile_data(PandasData):
 
 class trade_list(bt.Analyzer):
     """获取交易明细"""
+
     def __init__(self):
 
         self.trades = []
