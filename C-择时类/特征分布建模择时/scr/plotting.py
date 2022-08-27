@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-07-01 08:59:33
+LastEditTime: 2022-07-11 20:09:12
 Description: 画图相关函数
 '''
 from typing import Dict, List, Tuple, Union
@@ -826,7 +826,6 @@ def plot_annual_returns(returns: pd.Series) -> Figure:
     },
                       yaxis_title="Year",
                       xaxis_tickformat='.2%',
-                      hovermode="x unified",
                       legend=dict(orientation="h",
                                   yanchor="bottom",
                                   y=1.02,

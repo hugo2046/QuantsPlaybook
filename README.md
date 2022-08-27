@@ -22,12 +22,13 @@
     - [原始](https://www.joinquant.com/view/community/detail/1f0faa953856129e5826979ff9b68095)
     - [修正](https://www.joinquant.com/view/community/detail/32b60d05f16c7d719d7fb836687504d6)
     - [本土改造](https://www.joinquant.com/view/community/detail/e855e5b3cf6a3f9219583c2281e4d048)
-  
+    
+    
     参考:
     > 《择时-20170501-光大证券-择时系列报告之一：基于阻力支撑相对强度（RSRS）的市场择时》
     >
     > 《20191117-光大证券-技术指标系列报告之六：RSRS择时~回顾与改进》
-
+    
     <br>最新文章如下,光大金工团队转入中信,将RSRS更名为QRS:</br>
     > 《20210121-量化择时系列（1）：金融工程视角下的技术择时艺术》
     
@@ -110,10 +111,19 @@
     <br>参考:</br>
     >《2022-06-17_华创证券_金融工程_特征分布建模择时系列之一：物极必反，龙虎榜机构模型》
 
+17. Trader-Company集成算法交易策略
+
+    参考:
+
+    > 《Trader-Company Method A Metaheuristic for Interpretable Stock Price Prediction》
+    >
+    > 《20220517_浙商证券_金融工程_一种自适应寻找市场alpha的方法：“trader-company”集成算法交易策略》
+
 **因子**
 
 1. [基于量价关系度量股票的买卖压力](https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980)
    <br>参考:</br>
+   
    >《20191029-东方证券- 因子选股系列研究六十：基于量价关系度量股票的买卖压力》
 2. [来自优秀基金经理的超额收益](https://www.joinquant.com/view/community/detail/51d97afb8d619ffb5219d2e166414d70)
    <br>参考:</br>
