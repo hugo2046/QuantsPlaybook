@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-08-15 09:13:32
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-08-27 16:09:24
+LastEditTime: 2022-08-27 17:28:03
 Description:
 
 Company aggregate函数待优化
@@ -349,6 +349,7 @@ class Company(object):
                    l=l) for _ in range(trader_num)
         ]
 
+    # # 未使用多进程
     # def fit(self, X: np.ndarray, y: np.ndarray) -> None:
 
     #     roll_data: np.ndarray = rolling_window(X, self.time_window)
