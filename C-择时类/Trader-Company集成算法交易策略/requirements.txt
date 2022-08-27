@@ -1,0 +1,5 @@
+empyrical==0.5.5
+numpy==1.20.3
+pandas==1.4.1
+scikit_learn==1.1.2
+tqdm==4.63.0
