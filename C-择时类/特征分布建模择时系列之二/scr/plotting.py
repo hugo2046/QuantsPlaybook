@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-08-31 08:41:03
+LastEditTime: 2022-08-31 20:37:19
 Description: 画图相关函数
 '''
 from typing import Dict, List, Tuple
@@ -330,12 +330,7 @@ def plot_hist_signal_with_cum(aggregation_frame: pd.DataFrame, is_categories_ind
     return ax
 
 
-def plot_distribution(signal_ser: pd.Series,
-                      forward_ret_ser: pd.Series,
-                      forward_window: int = 5,
-                      q: int = 50,
-                      group: bool = True,
-                      title: str = '') -> mpl.axes:
+def plot_distribution(signal_ser: pd.Series, forward_ret_ser: pd.Series, forward_window: int = 5, q: int = 50, group: bool = True, title: str = '', ax: mpl.axes = None) -> mpl.axes:
     """画信号对应的N日涨幅与信号分布图
 
     Args:
@@ -349,48 +344,31 @@ def plot_distribution(signal_ser: pd.Series,
     Returns:
         mpl.axes
     """
-
-    fig = plt.figure(figsize=(22, 6))
+    fig = plt.gcf() if ax is not None else plt.figure(figsize=(22, 6))
     gs = GridSpec(1, 5)
     ax1 = fig.add_subplot(gs[0, :3])
     ax2 = fig.add_subplot(gs[0, 3:])
-
     aggregation_frame = get_distribution_data(
         signal_ser, forward_ret_ser, q=q, window=forward_window, group=group)
 
     is_categories_index: bool = not group
-
     ax1 = plot_hist_signal_with_cum(
         aggregation_frame, is_categories_index, '信号期望与累计收益分布', ax1)
 
-    # 计算统计指标
-    avg, std, kur, skew = signal_ser.mean(
-    ), signal_ser.std(), signal_ser.kurt(
-    ), signal_ser.skew()
-    # 显示统计指标
-    ax2.text(.65,
-             .95,
-             " Mean %.3f \n Std. %.3f \n kurtosis %.3f \n Skew %.3f" %
-             (avg, std, kur, skew),
-             fontsize=16,
-             bbox={
-                 'facecolor': 'white',
-                 'alpha': 1,
-                 'pad': 5
-             },
-             transform=ax2.transAxes,
-             verticalalignment='top')
+    avg, std, kur, skew = signal_ser.mean(), signal_ser.std(
+    ), signal_ser.kurt(), signal_ser.skew()
+
+    ax2.text(0.65, 0.95, (" Mean %.3f \n Std. %.3f \n kurtosis %.3f \n Skew %.3f" % (avg, std, kur, skew)), fontsize=16, bbox={
+             'facecolor': 'white', 'alpha': 1, 'pad': 5}, transform=ax2.transAxes, verticalalignment='top')
 
     ax2.set_title('信号分布')
     sns.histplot(signal_ser, ax=ax2)
     plt.subplots_adjust(wspace=0.6)
     plt.suptitle(title)
-
     return gs
 
 
-def plot_trade_flag(price: pd.DataFrame, buy_flag: pd.Series,
-                    sell_flag: pd.Series):
+def plot_trade_flag(price: pd.DataFrame, buy_flag: pd.Series, sell_flag: pd.Series):
     """买卖点标记
 
     Args:
@@ -403,32 +381,15 @@ def plot_trade_flag(price: pd.DataFrame, buy_flag: pd.Series,
     """
     buy_flag = buy_flag.reindex(price.index)
     sell_flag = sell_flag.reindex(price.index)
-
-    # 设置蜡烛图风格
     mc = mpf.make_marketcolors(up='r', down='g', wick='i', edge='i', ohlc='i')
-
     s = mpf.make_mpf_style(marketcolors=mc)
+    buy_apd = mpf.make_addplot(
+        buy_flag, type='scatter', markersize=100, marker='^', color='r')
 
-    buy_apd = mpf.make_addplot(buy_flag,
-                               type='scatter',
-                               markersize=100,
-                               marker='^',
-                               color='r')
-    sell_apd = mpf.make_addplot(sell_flag,
-                                type='scatter',
-                                markersize=100,
-                                marker='v',
-                                color='g')
-    ax = mpf.plot(price,
-                  type='candle',
-                  style=s,
-                  datetime_format='%Y-%m-%d',
-                  volume=True,
-                  figsize=(18, 6),
-                  addplot=[buy_apd, sell_apd],
-                  warn_too_much_data=2000)
+    sell_apd = mpf.make_addplot(
+        sell_flag, type='scatter', markersize=100, marker='v', color='g')
 
-    return ax
+    return mpf.plot(price, type='candle', style=s, datetime_format='%Y-%m-%d', volume=True, figsize=(18, 6), addplot=[buy_apd, sell_apd], warn_too_much_data=2000)
 
 
 def plot_algorithm_nav(result: List,
