@@ -1,3 +1,4 @@
+alphalens==0.4.0
 backtrader==1.9.76.123
 empyrical==0.5.5
 ipython==8.4.0
@@ -9,3 +10,4 @@ pandas==1.4.1
 plotly==5.5.0
 python_dateutil==2.8.2
 seaborn==0.11.2
+TA_Lib==0.4.19

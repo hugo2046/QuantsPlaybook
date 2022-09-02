@@ -2,11 +2,12 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-05-27 17:54:06
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-08-31 12:52:00
+LastEditTime: 2022-09-02 16:26:42
 Description: 回测相关函数
 '''
 import datetime as dt
 from collections import namedtuple
+from multiprocessing import cpu_count
 from typing import Dict, List, Tuple
 
 import backtrader as bt
@@ -29,6 +30,9 @@ from .plotting import (
     plot_underwater,
     plotly_table,
 )
+from .utils import get_value_frome_traderanalyzerdict
+
+MAX_CPU: int = int(cpu_count() * 0.8)
 
 
 class bimodal_distribution_strategy(bt.Strategy):
@@ -38,10 +42,11 @@ class bimodal_distribution_strategy(bt.Strategy):
     - 当量能指标小于$threshold^{-a}$，市场处于地量反弹的区域，后市做多
     """
     params = dict(threshold=1.15,  # 阈值
-                  window=45,  # 量能指标AMA的计算窗口
+                  fast_window=5,
+                  slow_window=45,  # 量能指标AMA的计算窗口
                   a=1.5,  # 机制参数
                   trade_long=False,  # True为 仅多头；False为多空
-                  )
+                  print_log=True)
 
     def log(self, txt: str, current_dt: dt.datetime = None) -> None:
 
@@ -54,12 +59,13 @@ class bimodal_distribution_strategy(bt.Strategy):
         self.threshold_short = 1
         self.threshold_long_to_buy = np.power(self.params.threshold, -self.p.a)
 
-        if self.params.window:
-            AMA = btind.SMA(self.data.volume, period=self.params.window)
-        else:
-            AMA = self.data.volume
+        # if self.params.window:
+        #     AMA = btind.HMA(self.data.volume, period=self.params.window)
+        # else:
+        #     AMA = self.data.volume
 
-        volume_index = btind.SMA(AMA, period=5) / btind.SMA(AMA, period=100)
+        volume_index = btind.HMA(
+            self.data.volume, period=self.params.fast_window) / btind.HMA(self.data.volume, period=self.params.slow_window)
         self.trade_long = not self.params.trade_long
 
         self.to_long: pd.Series = bt.Or(
@@ -104,7 +110,8 @@ class bimodal_distribution_strategy(bt.Strategy):
             return
 
         if order.status in [order.Completed, order.Canceled, order.Margin]:
-            if order.isbuy():
+            if order.isbuy() and self.params.print_log:
+
                 # buy
                 self.log(
                     'BUY EXECUTED,ref:%.0f,Price:%.4f,Size:%.2f,Cost:%.4f,Comm %.4f,Stock:%s'
@@ -113,12 +120,13 @@ class bimodal_distribution_strategy(bt.Strategy):
                        order.data._name))
 
             else:
-                # sell
-                self.log(
-                    'SELL EXECUTED,ref:%.0f,Price:%.4f,Size:%.2f,Cost:%.4f,Comm %.4f,Stock:%s'
-                    % (order.ref, order.executed.price, order.executed.size,
-                       order.executed.value, order.executed.comm,
-                       order.data._name))
+                if self.params.print_log:
+                    # sell
+                    self.log(
+                        'SELL EXECUTED,ref:%.0f,Price:%.4f,Size:%.2f,Cost:%.4f,Comm %.4f,Stock:%s'
+                        % (order.ref, order.executed.price, order.executed.size,
+                           order.executed.value, order.executed.comm,
+                           order.data._name))
 
 
 class trade_list(bt.Analyzer):
@@ -227,15 +235,17 @@ def get_backtesting(data: pd.DataFrame,
         is_opt (bool): True-策略优化寻参 False-普通回测
 
     Returns:
-        _type_: _description_
+        namedtuple: result,cerebro
     """
 
     res = namedtuple('Res', 'result,cerebro')
-    cerebro = bt.Cerebro()
+
+    cerebro = bt.Cerebro(tradehistory=True, maxcpus=MAX_CPU)
+
     func_dic: Dict = {True: getattr(
         cerebro, 'optstrategy'), False: getattr(cerebro, 'addstrategy')}
 
-    cerebro.broker.setcash(10e4)
+    cerebro.broker.setcash(1e8)
     begin_dt = data.index.min()
     end_dt = data.index.max()
 
@@ -246,13 +256,12 @@ def get_backtesting(data: pd.DataFrame,
     cerebro.broker.set_slippage_perc(perc=0.0001)
 
     # 设置交易费用
-    comminfo = StockCommission(commission=0.0002, stamp_duty=0.001)  # 实例化
+    comminfo = StockCommission(commission=0.0002, stamp_duty=0.001)
     cerebro.broker.addcommissioninfo(comminfo)
 
     # # 当日下单，当日收盘价成交
     # cerebro.broker.set_coc(True)
     # 添加策略
-    #cerebro.addstrategy(strategy, **kw)
     func_dic[is_opt](strategy, **kw)
 
     # 添加分析指标
@@ -269,9 +278,10 @@ def get_backtesting(data: pd.DataFrame,
     # 返回收益率时序
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='_TimeReturn')
     cerebro.addanalyzer(trade_list, _name='tradelist')
-    result = cerebro.run(tradehistory=True)
 
-    return res(result, cerebro)
+    result = cerebro.run()
+
+    return res(result, None) if is_opt else res(result, cerebro)
 
 
 def analysis_rets(price: pd.Series, result: List):
@@ -281,7 +291,7 @@ def analysis_rets(price: pd.Series, result: List):
         price (pd.Series): idnex-date values
         result (List): 回测结果
     """
-    ret: pd.Series = get_time_returns(result)
+    ret: pd.Series = get_time_returns(result[0])
     benchmark = price.pct_change()
 
     returns: pd.DataFrame = pd.concat((ret, benchmark), axis=1, join='inner')
@@ -418,39 +428,42 @@ def get_trade_res(trade_list: pd.DataFrame) -> pd.Series:
 def get_result_back_report(result) -> List:
 
     trader_analyzer = result.analyzers._TradeAnalyzer.get_analysis()
+
     return [result.params.a,
-            result.params.window,
-            round(result.analyzers._Returns.get_analysis()['rnorm100'], 4),
+            f'{result.params.fast_window}_{result.params.slow_window}',
+            round(result.analyzers._Returns.get_analysis()
+                  ['rnorm100'], 4),  # 累计收益率
             -round(result.analyzers._DrawDown.get_analysis()
                    ['max']['drawdown'], 4),
             round(result.analyzers._SharpeRatio_A.get_analysis()
                   ['sharperatio'], 4),
             trader_analyzer['total']['total'],
-            round((trader_analyzer['won']['total'] /
-                   trader_analyzer['total']['total']) * 100, 2),
-            round(abs(trader_analyzer['won']['pnl']['total'] /
-                      trader_analyzer['lost']['pnl']['total']), 2),
-            round((trader_analyzer['long']['won'] /
-                   trader_analyzer['long']['total']) * 100, 2),
-            round(abs(trader_analyzer['long']['pnl']['won']['total'] /
-                      trader_analyzer['long']['pnl']['lost']['total']), 2),
-            round((trader_analyzer['short']['won'] /
-                   trader_analyzer['short']['total']) * 100, 2),
-            round(abs(trader_analyzer['short']['pnl']['won']['total'] / trader_analyzer['short']['pnl']['lost']['total']), 2)]
+            round(np.divide(get_value_frome_traderanalyzerdict(trader_analyzer, 'won', 'total'),
+                            get_value_frome_traderanalyzerdict(trader_analyzer, 'total', 'total')) * 100, 2),
+            round(abs(np.divide(get_value_frome_traderanalyzerdict(trader_analyzer, 'won', 'pnl', 'total'),
+                      get_value_frome_traderanalyzerdict(trader_analyzer, 'lost', 'pnl', 'total'))), 2),
+            round(np.divide(get_value_frome_traderanalyzerdict(trader_analyzer, 'long', 'won'),
+                            get_value_frome_traderanalyzerdict(trader_analyzer, 'long', 'total')) * 100, 2),
+            round(abs(np.divide(get_value_frome_traderanalyzerdict(trader_analyzer, 'long', 'pnl', 'won', 'total'),
+                      get_value_frome_traderanalyzerdict(trader_analyzer, 'long', 'pnl', 'lost', 'total'))), 2),
+            round(np.divide(get_value_frome_traderanalyzerdict(trader_analyzer, 'short', 'won'),
+                            get_value_frome_traderanalyzerdict(trader_analyzer, 'short', 'total')) * 100, 2),
+            round(abs(np.divide(get_value_frome_traderanalyzerdict(trader_analyzer, 'short', 'pnl', 'won', 'total'),
+                                get_value_frome_traderanalyzerdict(trader_analyzer, 'short', 'pnl', 'lost', 'total'))), 2)]
 
 
 def get_opt_stratgey_table(results: List) -> pd.DataFrame:
 
-    columns: List = ['参数a', '窗口期', '累计收益(%)', '最大回撤(%)', '夏普',
+    columns: List = ['参数a', '窗口期', '年化收益率(%)', '最大回撤(%)', '夏普',
                      '交易总数', '胜率(%)', '盈亏比', '多头胜率(%)', '多头盈亏比', '空头胜率(%)', '空头盈亏比']
     par_df = pd.DataFrame([get_result_back_report(res[0])
                           for res in results], columns=columns)
 
-    par_df.set_index(['参数a', '窗口期'], inplace=True)
+    par_df.set_index(['窗口期', '参数a'], inplace=True)
 
-    return par_df
+    return par_df.sort_index()
 
 
 def get_time_returns(result) -> pd.Series:
 
-    return pd.Series(result[0].analyzers._TimeReturn.get_analysis())
+    return pd.Series(result.analyzers._TimeReturn.get_analysis())

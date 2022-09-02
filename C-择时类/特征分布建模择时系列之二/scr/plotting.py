@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-08-31 20:37:19
+LastEditTime: 2022-09-02 17:25:41
 Description: 画图相关函数
 '''
 from typing import Dict, List, Tuple
@@ -16,6 +16,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import seaborn as sns
+from alphalens.tears import GridFigure
 from matplotlib.gridspec import GridSpec
 from matplotlib.ticker import MultipleLocator
 from plotly.graph_objs import Figure
@@ -456,7 +457,7 @@ def plot_drawdowns(returns: pd.Series) -> Figure:
     }
 
     # 获取点位
-    drawdown_table: pd.DataFrame = get_drawdown_table(returns, 5)
+    drawdown_table: pd.DataFrame = get_drawdown_table(returns, 5).dropna(subset=['区间最大回撤 %'])
 
     drawdown_table: pd.DataFrame = drawdown_table.pipe(pd.DataFrame.astype,
                                                        dtype_mapping)
@@ -470,11 +471,12 @@ def plot_drawdowns(returns: pd.Series) -> Figure:
     recovery_values: List = cum_ser.loc[recovery_dates].tolist()
 
     # 获取开始点
-    peak_dates: List = [d for d in drawdown_table['回撤开始日']]
+    peak_dates: List = [d for d in drawdown_table['回撤开始日'] if not pd.isnull(d)]
     peak_values: List = cum_ser.loc[peak_dates].tolist()
 
     # 获取低点
-    valley_dates: List = [d for d in drawdown_table['回撤最低点日']]
+    valley_dates: List = [
+        d for d in drawdown_table['回撤最低点日'] if not pd.isnull(d)]
     valley_values: List = cum_ser.loc[valley_dates].tolist()
 
     # 是否进行中
@@ -1022,8 +1024,8 @@ def plotly_table(df: pd.DataFrame, index_name: str = '') -> Figure:
     df: pd.DataFrame = df.reset_index()
 
     headerColor = 'grey'
-    rowEvenColor = 'lightgrey'
-    rowOddColor = 'white'
+    # rowEvenColor = 'lightgrey'
+    # rowOddColor = 'white'
 
     fig = go.Figure(data=[
         go.Table(
@@ -1042,3 +1044,40 @@ def plotly_table(df: pd.DataFrame, index_name: str = '') -> Figure:
     ])
 
     return fig
+
+
+def plot_params_table_visualization(par_frame: pd.DataFrame, rows: int, size: int = None):
+
+    if (size is not None) and (rows is None):
+        rows = size//2+1 if size % 2 else size
+
+    elif (size is None) and (rows is None):
+        raise ValueError('size和rows不能同时为空!')
+
+    elif size is not None:
+
+        raise ValueError('size和rows不能同时存在!')
+
+    # 可视化遍历参数的结果
+    cols = 2
+
+    g = GridFigure(rows, cols)
+    g.fig = plt.figure(figsize=(14, rows * 3.4))
+
+    for name, df in par_frame.groupby(level='窗口期'):
+
+        ax1 = df.reset_index(level='窗口期', drop=True)["年化收益率(%)"].plot(
+            marker="o", title=f"极端参数与年化收益率(window={name})", ax=g.next_cell()
+        )
+        ax1.axhline(0, ls=':', color='darkgray')
+        ax1.set_ylabel("年化收益率(%)")
+        ax2 = df.reset_index(level='窗口期', drop=True)["夏普"].plot(
+            marker="o", title=f"极端参数与夏普比率(window={name})", ax=g.next_cell()
+        )
+        ax2.set_ylabel("夏普比率")
+
+    plt.subplots_adjust(hspace=0.5)
+
+    plt.show()
+    g.close()
+    return

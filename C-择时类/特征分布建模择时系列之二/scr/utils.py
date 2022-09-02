@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-08 13:30:08
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-08-30 22:10:57
+LastEditTime: 2022-09-02 00:14:31
 Description: 
 '''
 import datetime as dt
@@ -64,3 +64,15 @@ def print_table(table: pd.DataFrame, name: str = None, fmt: str = None):
 
     if fmt is not None:
         pd.set_option('display.float_format', prev_option)
+
+
+def get_value_frome_traderanalyzerdict(dic: Dict, *args) -> float:
+    """获取嵌套字典中的指定key"""
+    if len(args) == 1:
+        return dic.get(args[0], 0)
+    for k in args:
+
+        if res := dic.get(k, None):
+            return get_value_frome_traderanalyzerdict(res, *args[1:])
+
+        return 0
