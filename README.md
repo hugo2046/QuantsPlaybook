@@ -28,7 +28,7 @@
     > 《择时-20170501-光大证券-择时系列报告之一：基于阻力支撑相对强度（RSRS）的市场择时》
     >
     > 《20191117-光大证券-技术指标系列报告之六：RSRS择时~回顾与改进》
-
+    
     <br>最新文章如下,光大金工团队转入中信,将RSRS更名为QRS:</br>
     > 《20210121-量化择时系列（1）：金融工程视角下的技术择时艺术》
 
@@ -142,7 +142,7 @@
 
 1. [基于量价关系度量股票的买卖压力](https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980)
    <br>参考:</br>
-   
+
    >《20191029-东方证券- 因子选股系列研究六十：基于量价关系度量股票的买卖压力》
 2. [来自优秀基金经理的超额收益](https://www.joinquant.com/view/community/detail/51d97afb8d619ffb5219d2e166414d70)
    <br>参考:</br>
@@ -175,9 +175,9 @@
 8. [聪明钱因子模型](https://www.joinquant.com/view/community/detail/fa281cadcbbca005854c7c45c3c9bd58)
    <br>参考:</br>
    >《20200209-开源证券-市场微观结构研究系列（3）：聪明钱因子模型的2.0版本》
-9.  [A股市场中如何构造动量因子？](https://www.joinquant.com/view/community/detail/d709c7c9abbee23149d3d4d07e128357)
-    <br>参考:</br>
-    >《20200721-开源证券-开源量化评论（3）：A股市场中如何构造动量因子？》
+9. [A股市场中如何构造动量因子？](https://www.joinquant.com/view/community/detail/d709c7c9abbee23149d3d4d07e128357)
+   <br>参考:</br>
+   >《20200721-开源证券-开源量化评论（3）：A股市场中如何构造动量因子？》
 10. [振幅因子的隐藏结构](https://www.joinquant.com/view/community/detail/a35fe484e3164893d4e48fafd3e08fd2)
     <br>参考:</br>
     >《20200516-开源证券-市场微观结构研究系列（7）：振幅因子的隐藏结构》
@@ -192,6 +192,11 @@
     1.  composition_factor算法来源于:《20190104-华泰证券-因子合成方法实证分析》
     2.  [IPCA](https://github.com/bkelly-lab/ipca)来源于[《Instrumented Principal Component Analysis》](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2983919)
 15. [因子择时](https://www.joinquant.com/view/community/detail/a873b8ba2b510a228eac411eafb93bea)
+16. [分析师推荐概率增强金股组合策略](https://www.joinquant.com/view/community/detail/39135)
+
+    参考
+
+    > 《20220822_浙商证券_投资策略_金融工程深度：金股数据库及金股组合增强策略（一）》
 
 **量化价值**
 
