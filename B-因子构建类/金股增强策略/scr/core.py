@@ -2,44 +2,21 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-09-13 08:55:05
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-09-13 23:49:32
+LastEditTime: 2022-09-14 09:52:15
 Description: 
 '''
 from typing import Dict, List, Tuple, Union
 
-import empyrical as ep
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from jqdata import *
 from sqlalchemy.sql import func
 
-plt.rcParams["font.sans-serif"] = ["SimHei"]  # 设置字体
-plt.rcParams["axes.unicode_minus"] = False  # 该语句解决图像中的“-”负号的乱码问题
+from .utlis import TradeDays
 
-
-def load_gold_stock_csv() -> pd.DataFrame:
-    """读取金股csv数据文件
-
-    Returns
-    -------
-    pd.DataFrame
-    """
-    dtype_mapping = {'end_date': np.datetime64,
-                     'write_date': np.datetime64}
-
-    col_mapping = {'ticker_symbol_map_sec_type_name': 'sw_l3',
-                   'ticker_symbol_map_sec_id': 'code'}
-
-    gold_stock_frame = pd.read_csv('gold_stock_frame.csv', index_col=[0])
-
-    gold_stock_frame = (gold_stock_frame.pipe(pd.DataFrame.astype, dtype_mapping)
-                                        .pipe(pd.DataFrame.rename, columns=col_mapping)
-                                        .pipe(pd.DataFrame.assign, code=lambda x: x['code'].apply(normalize_code)))
-
-    return gold_stock_frame
+################################################################################################
+#                       用于聚宽数据查询
+################################################################################################
 
 
 def get_stock_industry_name(codes: Union[str, List], date: str, level: str = 'sw_l1') -> Dict:
@@ -143,108 +120,9 @@ def get_sw1_price(code: Union[str, List], start_date: str, end_date: str, fields
 
     return df
 
-
-class TradeDays():
-
-    def __init__(self):
-
-        self.all_trade_days: pd.DatetimeIndex = pd.to_datetime(
-            get_all_trade_days())
-        self._tradedaysofmonth()
-
-    def tradeday_of_month(self, watch_dt: str) -> int:
-        """查询该交易日是当月的第N日"""
-        watch_dt = pd.to_datetime(watch_dt)
-        idx = self.TradedaysOfMonth.index.get_indexer(
-            [watch_dt], method='nearest')[0]
-        return self.TradedaysOfMonth.iloc[idx, 1]
-
-    def get_tradedays_of_month(self, year: Union[str, int] = None, month: Union[str, int] = None, num: int = None) -> pd.DataFrame:
-        """获取月份的第N日"""
-        if num is None:
-            raise ValueError('num参数不能为空!')
-
-        if (year is not None) and (month is None):
-
-            cond = (self.TradedaysOfMonth.index.year == year) & (
-                self.TradedaysOfMonth['dayofmonth'] == num)
-
-        elif (year is None) and (month is not None):
-
-            cond = (self.TradedaysOfMonth.index.month == month) & (
-                self.TradedaysOfMonth['dayofmonth'] == num)
-
-        else:
-
-            cond = (self.TradedaysOfMonth.index.strftime('%Y%m') == f'{year}{month}') & (
-                self.TradedaysOfMonth['dayofmonth'] == num)
-
-        return self.TradedaysOfMonth[cond]
-
-    def get_tradedays_month_end(self, year: Union[str, int] = None, month: Union[str, int] = None) -> pd.DataFrame:
-        """查询每月最后一个交易日"""
-
-        trade_days = self._MonthEndOrMonthBegin('last')
-
-        if (year is None) and (month is None):
-
-            return trade_days
-
-        elif (year is not None) and (month is None):
-
-            cond = (trade_days.index.year == year)
-
-        elif year is None:
-
-            cond = (trade_days.index.month == month)
-
-        else:
-
-            cond = (trade_days.index.strftime('%Y%m') == f'{year}{month}')
-
-        return trade_days[cond]
-
-    def get_tradedays_month_begin(self, year: Union[str, int] = None, month: Union[str, int] = None) -> pd.DataFrame:
-        """查询每月最后一个交易日"""
-        trade_days = self._MonthEndOrMonthBegin('first')
-        if year is None and month is None:
-            return trade_days
-        elif year is not None and month is None:
-            cond = trade_days.index.year == year
-        elif year is None:
-            cond = trade_days.index.month == month
-        else:
-            cond = trade_days.index.strftime('%Y%m') == f'{year}{month}'
-        return trade_days[cond]
-
-    def _MonthEndOrMonthBegin(self, method: str) -> pd.DataFrame:
-
-        cols_dic = {'last': ('MonthEnd(all)', 'MonthEnd'),
-                    'first': ('MonthBegin(all)', 'MonthBegin')}
-        trade_days = self.TradedaysOfMonth.copy()
-
-        func = {'last': trade_days.groupby(pd.Grouper(level=0, freq='M')).last,
-                'first': trade_days.groupby(pd.Grouper(level=0, freq='MS')).first}
-
-        trade_days = func[method]()
-
-        trade_days[cols_dic[method][0]] = trade_days.index
-        trade_days.index = trade_days['trade_days']
-        trade_days.rename(
-            columns={'trade_days': cols_dic[method][1]}, inplace=True)
-        return trade_days.drop(columns=['dayofmonth'])
-
-    def _tradedaysofmonth(self):
-
-        tradedays_frame: pd.DataFrame = self._trans2frame()
-        tradedays_frame['dayofmonth'] = tradedays_frame.groupby(pd.Grouper(
-            level=0, freq='M'))['trade_days'].transform(lambda x: np.arange(1, len(x)+1))
-        self.TradedaysOfMonth = tradedays_frame
-
-    def _trans2frame(self) -> pd.DataFrame:
-        days = self.all_trade_days.to_frame()
-        days.columns = ['trade_days']
-        return days
+################################################################################################
+#                               分析用数据前期处理
+################################################################################################
 
 
 class PrepareData():
@@ -336,6 +214,10 @@ class PrepareData():
         self.gold_stock_frame['monthEnd'] = self.gold_stock_frame['end_date'].map(
             mapping_date)
 
+################################################################################################
+#                               分析师推荐概率的核心计算
+################################################################################################
+
 
 def get_author_proba(all_df: pd.DataFrame, returns_name: str = 'next_ret', window: int = 12, threshold: int = 5, beta_window: int = 12) -> pd.Series:
     """获取分析师概率
@@ -412,54 +294,6 @@ def get_author_proba(all_df: pd.DataFrame, returns_name: str = 'next_ret', windo
     return author_proba
 
 
-def view_author_stock(ser: pd.Series, gold_stock_frame: pd.DataFrame) -> pd.DataFrame:
-    """从gold_stock_frame按ser获取所推荐股票信息
-
-    Parameters
-    ----------
-    ser : pd.Series
-        MultiIndex level0-date level1-code values-proba
-    gold_stock_frame : pd.DataFrame
-        金股数据表
-
-    Returns
-    -------
-    pd.DataFrame
-        标的
-    """
-    months: List = ser.index.get_level_values(0).unique().tolist()
-    author: List = ser.index.get_level_values(1).unique().tolist()
-
-    return gold_stock_frame.query('end_date==@months and author==@author')
-
-
-def _get_group_stock(ser: pd.Series, gold_stock_frame: pd.DataFrame) -> List:
-    """从gold_stock_frame按ser获取所推荐股票信息
-
-    Parameters
-    ----------
-    ser : pd.Series
-        MultiIndex level0-date level1-code values-proba
-    gold_stock_frame : pd.DataFrame
-        金股数据表
-
-    Returns
-    -------
-    List
-        标的
-    """
-    end_date, _ = ser.name
-    # 去重
-    author = ser.index.get_level_values(1).unique().tolist()
-
-    codes = gold_stock_frame.query(
-        'monthEnd == @end_date and author == @author')['code'].unique().tolist()
-    if codes:
-        return codes
-    else:
-        return np.nan
-
-
 def transform2stock_group(author_proba: pd.DataFrame, gold_stock_frame: pd.DataFrame, group_num: int = 5) -> pd.DataFrame:
     """将分析师概率分组并获取分析师当期所推股票
 
@@ -477,6 +311,33 @@ def transform2stock_group(author_proba: pd.DataFrame, gold_stock_frame: pd.DataF
     pd.DataFrame
         columns-MultiIndex level-0 分组编号 level-1股票代码
     """
+
+    def _get_group_stock(ser: pd.Series, gold_stock_frame: pd.DataFrame) -> List:
+        """从gold_stock_frame按ser获取所推荐股票信息
+
+        Parameters
+        ----------
+        ser : pd.Series
+            MultiIndex level0-date level1-code values-proba
+        gold_stock_frame : pd.DataFrame
+            金股数据表
+
+        Returns
+        -------
+        List
+            标的
+        """
+        end_date, _ = ser.name
+        # 去重
+        author = ser.index.get_level_values(1).unique().tolist()
+
+        codes = gold_stock_frame.query(
+            'monthEnd == @end_date and author == @author')['code'].unique().tolist()
+        if codes:
+            return codes
+        else:
+            return np.nan
+
     # 分5组
     author_group: pd.Series = author_proba.groupby(level=0).apply(
         lambda x: pd.qcut(x, group_num, False))+1
