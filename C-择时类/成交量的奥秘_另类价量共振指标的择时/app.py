@@ -1,19 +1,26 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Union
 
 import pandas as pd
 import streamlit as st
+from scr.backtest_engine import get_backtesting
+from scr.create_signal import bulk_signal_fig, get_signal_status
+from scr.load_excel_data import (
+    query_data,
+    query_stock_index_classify,
+    query_sw_classify,
+)
+from scr.tear import analysis_rets, analysis_trade, get_backtest_report
+from scr.utils import BACKTEST_CONFIG
 from st_aggrid import AgGrid, GridOptionsBuilder
 
-from scr.backtest_engine import get_backtesting
-from scr.load_excel_data import (query_data, query_stock_index_classify,
-                                 query_sw_classify)
-from scr.tear import analysis_rets, analysis_trade, get_backtest_report
-
-st.set_page_config(page_title='QRS Indicator BackTesting Report',
+st.set_page_config(page_title='量价共振信号',
                    layout='wide',
                    page_icon=':ambulance:')
 
 st.sidebar.subheader("选择行业或宽基")
+
+
+# 设置基础参数
 
 INDEX_CLASSIFY: Dict = query_stock_index_classify()
 INDEX_SEC2CODE: Dict = {v: k for k, v in INDEX_CLASSIFY.items()}
@@ -23,6 +30,8 @@ SW_SEC2CODE: Dict = {v: k for k, v in SW_CLASSIFY.items()}
 SELECTIONS: Dict = {'申万一级行业': 'sw', '宽基指数': 'index'}
 STOCK_POOL: Dict = {'sw': SW_CLASSIFY, 'index': INDEX_CLASSIFY}
 SEC2CODE: Dict = {'sw': SW_SEC2CODE, 'index': INDEX_SEC2CODE}
+
+
 selections: Union[str, List] = st.sidebar.selectbox("选择申万一级行业或宽基指数",
                                                     options=['申万一级行业', '宽基指数'],
                                                     index=1)
@@ -115,8 +124,28 @@ def block_trade_report():
         go = builder.build()
         AgGrid(trade_record, gridOptions=go)
     
-tab1, tab2 = st.tabs(
-    ["📈Backtesting Risk Report", "📌Backtesting Trading Report"])
+def block_status():
+    
+
+    stocks_pool:List = list(SEC2CODE[level].values())
+    price: pd.DataFrame = query_data(
+    stocks_pool, "2010-01-01", "2022-10-11", fields=["close",'low','high','open', "volume"], method=level
+    )
+    
+
+    price.set_index("trade_date", inplace=True)
+    flag_ser:pd.Series = bulk_signal_fig(price,**BACKTEST_CONFIG,method=level)
+    status_frame:pd.DataFrame = flag_ser.groupby(level=0).apply(get_signal_status).to_frame('Status')
+    status_frame.index.names = ['Sec_name']
+    status_frame.reset_index(inplace=True)
+    builder = GridOptionsBuilder.from_dataframe(status_frame)
+    builder.configure_pagination()
+    go = builder.build()
+    AgGrid(status_frame, gridOptions=go)
+    
+    
+tab1, tab2,tab3 = st.tabs(
+    ["📈Backtesting Risk Report", "📌Backtesting Trading Report","😉View Signal Status"])
 
 with tab1:
 
@@ -127,4 +156,7 @@ with tab2:
 
     block_trade_report()
     
+with tab3:
+    
+    block_status()
    

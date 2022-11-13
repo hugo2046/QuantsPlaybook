@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-10-27 20:34:02
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-11-11 15:44:47
+LastEditTime: 2022-11-13 19:08:20
 Description: 回测所需配件
 '''
 import datetime
@@ -38,7 +38,8 @@ class trade_list(bt.Analyzer):
             brokervalue = self.strategy.broker.getvalue()
 
             dir = 'short'
-            if trade.history[0].event.size > 0: dir = 'long'
+            if trade.history[0].event.size > 0:
+                dir = 'long'
 
             pricein = trade.history[len(trade.history) - 1].status.price
             priceout = trade.history[len(trade.history) - 1].event.price
@@ -142,7 +143,9 @@ def get_backtesting(data: pd.DataFrame,
     if (begin_dt is None) or (end_dt is None):
         begin_dt = data.index.min()
         end_dt = data.index.max()
-
+    else:
+        begin_dt = pd.to_datetime(begin_dt)
+        end_dt = pd.to_datetime(end_dt)
     # datafeed = load_backtest_data(dataname=data,
     #                               fromdate=begin_dt,
     #                               todate=end_dt)
@@ -165,15 +168,17 @@ def get_backtesting(data: pd.DataFrame,
 
     # 添加分析指标
     # 返回年初至年末的年度收益率
-    cerebro.addanalyzer(bt.analyzers.AnnualReturn, _name='_AnnualReturn')
+    # cerebro.addanalyzer(bt.analyzers.AnnualReturn, _name='_AnnualReturn')
     # 计算最大回撤相关指标
-    cerebro.addanalyzer(bt.analyzers.DrawDown, _name='_DrawDown')
+    # cerebro.addanalyzer(bt.analyzers.DrawDown, _name='_DrawDown')
     # 计算年化收益
-    cerebro.addanalyzer(bt.analyzers.Returns, _name='_Returns', tann=252)
+    # cerebro.addanalyzer(bt.analyzers.Returns, _name='_Returns', tann=252)
     # 交易分析添加
-    cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='_TradeAnalyzer')
+    # cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='_TradeAnalyzer')
+    # 交易分析
+    cerebro.addanalyzer(bt.analyzers.Transactions, _name='_Transactions')
     # 计算夏普比率
-    cerebro.addanalyzer(bt.analyzers.SharpeRatio_A, _name='_SharpeRatio_A')
+    # cerebro.addanalyzer(bt.analyzers.SharpeRatio_A, _name='_SharpeRatio_A')
     # 返回收益率时序
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='_TimeReturn')
     cerebro.addanalyzer(trade_list, _name='tradelist')

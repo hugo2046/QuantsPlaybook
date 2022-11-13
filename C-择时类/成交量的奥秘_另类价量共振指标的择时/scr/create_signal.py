@@ -2,18 +2,22 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-11-10 14:45:07
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-11-11 23:04:55
-Description: 
+LastEditTime: 2022-11-13 20:40:42
+Description: 使用pandas创建信号
 '''
 from collections import namedtuple
-from typing import Tuple
+from typing import Dict, Tuple, Union
 
 import numpy as np
 import pandas as pd
 import talib
 
+from .load_excel_data import query_stock_index_classify, query_sw_classify
 
+DICT = {'sw': query_sw_classify(), 'index': query_stock_index_classify()}
 # 构造HMA
+
+
 def HMA(price: pd.Series, window: int) -> pd.Series:
     """HMA均线
 
@@ -128,3 +132,87 @@ def get_signal(close: pd.Series, volume: pd.Series, signal_window: Tuple, lag_wi
     flag: pd.Series = (price_vol > threshold_ser).astype(int)
 
     return res(price_vol, threshold_ser, flag)
+
+
+def bulk_signal_fig(price: pd.DataFrame, bma_window: int, ama_window: int, fast_window: int, slow_window: int, threshold: Tuple, n: int, method: str) -> pd.Series:
+    """批量获取信号标记
+
+    Parameters
+    ----------
+    price : pd.DataFrame
+        index-date columns-OHLCV 及code
+    bma_window:int
+        bma窗口
+    ama_window:int
+        ama计算窗口
+    fast_window:int
+        信号过滤的短周期计算窗口
+    slow_window:int
+        信号过滤的长周期计算窗口
+    threshold:Tuple
+        0-threshold1 1-threshold2
+    n:int
+        bma的滞后期
+    method:str
+        sw-行业 index-宽基
+    Returns
+    -------
+    pd.Series
+        MuliIndex level-0 code level-1 date 
+        code - sec_name+code
+    """
+
+    classify: Dict = DICT[method]
+
+    dic: Dict = {}
+    for code, df in price.groupby('code'):
+        signal_res: namedtuple = get_signal(df['close'],
+                                            df['volume'],
+                                            (bma_window, ama_window),
+                                            n,
+                                            (fast_window, slow_window),
+                                            threshold)
+        sec_name: str = classify[code].replace('(申万)', '')
+        dic[f'{sec_name}({code})'] = signal_res.flag
+
+    return pd.concat(dic)
+
+
+def get_signal_status(flag_ser: pd.DataFrame) -> Tuple:
+    """根据持仓标记返回当前信号情况
+
+    Parameters
+    ----------
+    ser : pd.DataFrame
+        MuliIndex level0-sec_name+code level1-date
+
+    Returns
+    -------
+    Tuple
+        信息描述
+    """
+    # code: str = flag_ser.name
+    last_date: Union[pd.Timestamp, Tuple] = flag_ser.index[-1]
+
+    last_date: pd.Timestamp = _check_muliindex(last_date)
+    diff_ser: pd.Series = (flag_ser != flag_ser.shift(1))
+    diff_id: pd.Series = diff_ser.cumsum()
+    # 最近一一期的开仓日期
+    last_open_date: Union[pd.Timestamp,
+                          Tuple] = diff_id[flag_ser == 1].idxmax()
+    last_open_date: pd.Timestamp = _check_muliindex(last_open_date)
+    if flag_ser.iloc[-1] != 1:
+        return f'{last_date} 无开仓信号'
+    # 如果有信号
+    if last_date == last_open_date:
+        # 且持仓日等于当前日期
+        return f'{last_date} 有开仓信号'
+
+    else:
+        # 持仓日不等于当前日期
+        return f'{last_date} 当期有持仓(开仓日:{last_open_date})'
+
+
+def _check_muliindex(idx: Tuple) -> pd.Timestamp:
+
+    return idx[1] if isinstance(idx, tuple) else idx
