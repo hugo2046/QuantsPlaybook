@@ -2,14 +2,12 @@ from typing import Dict, List, Tuple, Union
 
 import pandas as pd
 import streamlit as st
-from scr.backtest_engine import get_backtesting
-from scr.load_excel_data import (
-    query_data,
-    query_stock_index_classify,
-    query_sw_classify,
-)
-from scr.tear import analysis_rets, analysis_trade, get_backtest_report
 from st_aggrid import AgGrid, GridOptionsBuilder
+
+from scr.backtest_engine import get_backtesting
+from scr.load_excel_data import (query_data, query_stock_index_classify,
+                                 query_sw_classify)
+from scr.tear import analysis_rets, analysis_trade, get_backtest_report
 
 st.set_page_config(page_title='QRS Indicator BackTesting Report',
                    layout='wide',
@@ -44,7 +42,6 @@ price.set_index("trade_date", inplace=True)
 bt_result = get_backtesting(price,stock_selection)
 
 
-
 # 计算回测相关风险信息
 # Backtesting Risk Report
 bt_risk_table, cumulative_chart, maxdrawdowns_chart, underwater_chart, annual_returns_chart, monthly_return_heatmap_chart, monthly_return_dist_chart = analysis_rets(price['close'],bt_result.result)
@@ -55,11 +52,10 @@ report_df: pd.DataFrame = get_backtest_report(price['close'], bt_result.result)
 # trade_report,orders_chart,pnl_chart
 trade_report, orders_chart, pnl_chart = analysis_trade(price[['open','high','low','close']], bt_result.result)
 
-tab1, tab2 = st.tabs(
-    ["📈Backtesting Risk Report", "📌Backtesting Trading Report"])
 
-with tab1:
 
+def block_risk_report():
+    
     st.header('Backtesting Risk Report')
 
     col1, col2, col3 = st.columns(3)
@@ -94,9 +90,10 @@ with tab1:
     st.subheader('monthly returns')
     st.plotly_chart(monthly_return_heatmap_chart, use_container_width=True)
     st.plotly_chart(monthly_return_dist_chart, use_container_width=True)
+    
 
-with tab2:
-
+def block_trade_report():
+    
     st.header('Backtesting Trading Report')
 
     st.subheader('trade report')
@@ -117,5 +114,17 @@ with tab2:
         builder.configure_pagination()
         go = builder.build()
         AgGrid(trade_record, gridOptions=go)
+    
+tab1, tab2 = st.tabs(
+    ["📈Backtesting Risk Report", "📌Backtesting Trading Report"])
+
+with tab1:
+
+    block_risk_report()
+    
+
+with tab2:
+
+    block_trade_report()
     
    
