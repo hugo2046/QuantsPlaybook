@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-11-10 14:42:37
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-11-10 15:53:05
+LastEditTime: 2022-11-14 19:46:46
 Description: 读取data中的excel文件
 '''
 import functools
@@ -29,7 +29,7 @@ def query_data(codes: Union[str, List],
     # 标准化日期
     data['trade_date'] = pd.to_datetime(data['trade_date'])
     sel_codes: pd.Series = data['code'].isin(codes)
-
+    
     return data[sel_codes].query(
         'trade_date>=@start_date & trade_date<=@end_date')
 

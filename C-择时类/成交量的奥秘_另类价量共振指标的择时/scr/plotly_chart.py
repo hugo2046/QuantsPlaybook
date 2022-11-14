@@ -10,6 +10,7 @@ from plotly.subplots import make_subplots
 
 from .timeseries import gen_drawdown_table
 from .utils import trans2strftime
+
 """plotly画图"""
 
 
@@ -363,8 +364,7 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
             mode='markers',
             name='Close - Profit',
             customdata=a_df[['ref', 'pnl', 'pnl%']],
-            hovertemplate=
-            'Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
+            hovertemplate='Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
             marker=dict(size=a_df['pnl%'].abs(),
                         sizemode='area',
                         color='rgb(181,31,18)',
@@ -372,9 +372,9 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
                         line={
                             'color': 'rgb(181,31,18)',
                             'width': 1
-                        },
-                        symbol='circle',
-                        sizemin=4)))
+            },
+                symbol='circle',
+                sizemin=4)))
 
     fig.add_trace(
         go.Scatter(
@@ -383,8 +383,7 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
             mode='markers',
             name='Close - Loss',
             customdata=b_df[['ref', 'pnl', 'pnl%']],
-            hovertemplate=
-            'Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
+            hovertemplate='Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
             marker=dict(
                 size=b_df['pnl%'].abs(),
                 sizemode='area',
@@ -411,7 +410,7 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
                           'text': 'Trade PnL',
                           'x': 0.5,
                           'y': 0.9
-                      })
+    })
 
     return fig
 
@@ -485,7 +484,7 @@ def plot_cumulative_returns(returns: pd.Series,
     Figure
         _description_
     """
-
+    returns, benchmark = returns.align(benchmark, axis=0, join='left')
     returns = ep.cum_returns(returns)
     benchmark = ep.cum_returns(benchmark)
 
@@ -574,13 +573,13 @@ def plot_orders_on_price(price: pd.Series, trade_df: pd.DataFrame) -> Figure:
         'x': 0.5,
         'y': 0.9
     },
-                      yaxis_title="Price",
-                      hovermode="x unified",
-                      legend=dict(orientation="h",
-                                  yanchor="bottom",
-                                  y=1.02,
-                                  xanchor="center",
-                                  x=0.5))
+        yaxis_title="Price",
+        hovermode="x unified",
+        legend=dict(orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5))
 
     return fig
 
@@ -659,14 +658,14 @@ def plotl_order_on_ohlc(ohlc: pd.DataFrame,
         'x': 0.5,
         'y': 0.9
     },
-                      yaxis_title="Price",
-                      hovermode="x unified",
-                      xaxis_tickformat='%Y-%m-%d',
-                      legend=dict(orientation="h",
-                                  yanchor="bottom",
-                                  y=1.02,
-                                  xanchor="center",
-                                  x=0.5))
+        yaxis_title="Price",
+        hovermode="x unified",
+        xaxis_tickformat='%Y-%m-%d',
+        legend=dict(orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5))
 
     return fig
 
@@ -695,13 +694,13 @@ def plot_annual_returns(returns: pd.Series) -> Figure:
         'x': 0.5,
         'y': 0.9
     },
-                      yaxis_title="Year",
-                      xaxis_tickformat='.2%',
-                      legend=dict(orientation="h",
-                                  yanchor="bottom",
-                                  y=1.02,
-                                  xanchor="center",
-                                  x=0.5))
+        yaxis_title="Year",
+        xaxis_tickformat='.2%',
+        legend=dict(orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5))
 
     fig.add_vline(x=ann_ret_df.mean(), line_dash='dash')
 

@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-11-10 14:45:07
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-11-14 13:04:17
+LastEditTime: 2022-11-14 20:30:55
 Description: 使用pandas创建信号
 '''
 from collections import namedtuple
@@ -208,19 +208,23 @@ def get_signal_status(flag_ser: pd.DataFrame) -> Tuple:
     diff_ser: pd.Series = (flag_ser != flag_ser.shift(1))
     diff_id: pd.Series = diff_ser.cumsum()
     # 最近一一期的开仓日期
+    hold_ser: pd.Series = diff_id[flag_ser == 1]
+    # 表示期间没有开仓记录
+    if hold_ser.empty:
+        return f"{last_date.strftime('%Y-%m-%d')} 无开仓信号", None
     last_open_date: Union[pd.Timestamp,
-                          Tuple] = diff_id[flag_ser == 1].idxmax()
+                          Tuple] = hold_ser.idxmax()
     last_open_date: pd.Timestamp = _check_muliindex(last_open_date)
     if flag_ser.iloc[-1] != 1:
-        return f'{last_date} 无开仓信号',None
+        return f"{last_date.strftime('%Y-%m-%d')} 无开仓信号", None
     # 如果有信号
     if last_date == last_open_date:
         # 且持仓日等于当前日期
-        return f'{last_date} 有开仓信号',last_date
+        return f"{last_date.strftime('%Y-%m-%d')} 有开仓信号", last_date
 
     else:
         # 持仓日不等于当前日期
-        return f'{last_date} 当期有持仓(开仓日:{last_open_date})', last_open_date
+        return f"{last_date.strftime('%Y-%m-%d')} 当期有持仓(开仓日:{last_open_date.strftime('%Y-%m-%d')})", last_open_date
 
 
 def _check_muliindex(idx: Tuple) -> pd.Timestamp:

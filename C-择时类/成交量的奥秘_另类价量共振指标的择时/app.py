@@ -1,24 +1,20 @@
+from collections import namedtuple
 from typing import Dict, List, Union
 
 import empyrical as ep
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
+from st_aggrid import AgGrid, GridOptionsBuilder
+
 from scr.backtest_engine import get_backtesting
 from scr.create_signal import bulk_signal, get_signal_status
-from scr.load_excel_data import (
-    query_data,
-    query_stock_index_classify,
-    query_sw_classify,
-)
-from scr.plotly_chart import GridPlotly, plot_candlestick, add_shape_to_ohlc
+from scr.load_excel_data import (query_data, query_stock_index_classify,
+                                 query_sw_classify)
+from scr.plotly_chart import GridPlotly, add_shape_to_ohlc, plot_candlestick
 from scr.tear import analysis_rets, analysis_trade, get_backtest_report
 from scr.utils import BACKTEST_CONFIG, transform_status_table
-from st_aggrid import AgGrid, GridOptionsBuilder
-import plotly.graph_objects as go
 
-st.set_page_config(page_title='量价共振信号', layout='wide', page_icon=':ambulance:')
-
-st.sidebar.subheader("选择行业或宽基")
 
 # 设置基础参数
 
@@ -31,41 +27,41 @@ SELECTIONS: Dict = {'申万一级行业': 'sw', '宽基指数': 'index'}
 STOCK_POOL: Dict = {'sw': SW_CLASSIFY, 'index': INDEX_CLASSIFY}
 SEC2CODE: Dict = {'sw': SW_SEC2CODE, 'index': INDEX_SEC2CODE}
 
-selections: Union[str, List] = st.sidebar.selectbox("选择申万一级行业或宽基指数",
-                                                    options=['申万一级行业', '宽基指数'],
-                                                    index=1)
 
-level: str = SELECTIONS[selections]  # 选择的sw或者index
-stocks_pool: List = list(STOCK_POOL[level].values())
-# 标的的名称
-stock_selection = st.sidebar.selectbox("选择标的", options=stocks_pool, index=0)
-# 获取需要回测的标的
-code: str = SEC2CODE[level][stock_selection]
+@st.cache()
+def query_data2st(classify: Dict, *arg, **kw) -> pd.DataFrame:
 
-price: pd.DataFrame = query_data(
-    code,
-    "2010-01-01",
-    "2022-10-11",
-    fields=["close", 'low', 'high', 'open', "volume"],
-    method=level)
-price.set_index("trade_date", inplace=True)
+    # 获取所有标的数据
+    price: pd.DataFrame = query_data(*arg, **kw)
 
-bt_result = get_backtesting(price, stock_selection)
+    price.set_index("trade_date", inplace=True)
 
-# 计算回测相关风险信息
-# Backtesting Risk Report
-bt_risk_table, cumulative_chart, maxdrawdowns_chart, underwater_chart, annual_returns_chart, monthly_return_heatmap_chart, monthly_return_dist_chart = analysis_rets(
-    price['close'], bt_result.result)
+    # 添加sec_name
+    if level == 'sw':
+        price['sec_name'] = price['code'].apply(
+            lambda x: f"{classify[x].replace('(申万)', '')}({x})")
+    else:
 
-report_df: pd.DataFrame = get_backtest_report(price['close'], bt_result.result)
+        price['sec_name'] = price['code'].apply(
+            lambda x: f"{classify[x]}({x})")
 
-# 计算交易相关信息
-# trade_report,orders_chart,pnl_chart
-trade_report, orders_chart, pnl_chart = analysis_trade(
-    price[['open', 'high', 'low', 'close']], bt_result.result)
+    return price
 
 
-def block_risk_report():
+@st.experimental_memo
+def transform_status_table2st(*arg, **kw):
+    return transform_status_table(*arg, **kw)
+
+
+def block_risk_report(price: pd.DataFrame, bt_result: namedtuple) -> None:
+
+    # 计算回测相关风险信息
+    # Backtesting Risk Report
+    bt_risk_table, cumulative_chart, maxdrawdowns_chart, underwater_chart, annual_returns_chart, monthly_return_heatmap_chart, monthly_return_dist_chart = analysis_rets(
+        price['close'], bt_result.result)
+
+    report_df: pd.DataFrame = get_backtest_report(
+        price['close'], bt_result.result)
 
     st.header('回测风险指标一览')
 
@@ -103,18 +99,35 @@ def block_risk_report():
     st.plotly_chart(monthly_return_dist_chart, use_container_width=True)
 
 
-def block_trade_report():
+def block_trade_report(price: pd.DataFrame, bt_result: namedtuple) -> None:
+
+    # 计算交易相关信息
+    # trade_report,orders_chart,pnl_chart
+    trade_report, orders_chart, pnl_chart = analysis_trade(
+        price[['open', 'high', 'low', 'close']], bt_result.result)
 
     st.header('交易分析')
 
-    st.subheader('trade report')
+    st.subheader('交易情况汇总')
     st.plotly_chart(trade_report, use_container_width=True)
 
-    st.subheader('order flag')
+    st.subheader('分笔交易情况')
     st.plotly_chart(orders_chart, use_container_width=True)
+    st.markdown("""
+            **说明**:
+            
+            1. 🔺为买入;🔻为卖出
+            """)
 
-    st.subheader('PnL statis')
+    st.subheader('盈亏统')
     st.plotly_chart(pnl_chart, use_container_width=True)
+
+    st.markdown("""
+                **说明**:
+                1. 🔴表示该笔交易为正收益;
+                2. 🟢表示该笔交易为负收益;
+                3. 圆圈大小表示收益/亏损大小
+                """)
 
     st.subheader('交易明细')
     with st.expander("See explanation"):
@@ -127,26 +140,7 @@ def block_trade_report():
         AgGrid(trade_record, gridOptions=table)
 
 
-def block_status():
-
-    # 获取所有标的的数据
-    classify: Dict = STOCK_POOL[level]
-    stocks_pool: List = list(classify.keys())
-    price: pd.DataFrame = query_data(
-        stocks_pool,
-        "2010-01-01",
-        "2022-10-11",
-        fields=["close", 'low', 'high', 'open', "volume"],
-        method=level)
-    price.set_index("trade_date", inplace=True)
-    ## 添加sec_name
-    if level == 'sw':
-        price['sec_name'] = price['code'].apply(
-            lambda x: f"{classify[x].replace('(申万)', '')}({x})")
-    else:
-
-        price['sec_name'] = price['code'].apply(
-            lambda x: f"{classify[x]}({x})")
+def block_status(price: pd.DataFrame) -> None:
 
     # 批量获取持仓标记
     flag_ser: pd.Series = bulk_signal(price,
@@ -161,15 +155,16 @@ def block_status():
     # 获取当期信号情况
     status_ser: pd.Series = flag_ser.groupby(level=0).apply(get_signal_status)
 
-    status_frame: pd.DataFrame = transform_status_table(status_ser)
+    status_frame: pd.DataFrame = transform_status_table2st(status_ser)
 
     st.title('信号状态情况')
 
     st.subheader('当日信号汇总')
+
     # 标记有开仓信号及持仓部分
     target: pd.Series = status_ser.apply(lambda x: x[1]).dropna()
 
-    ## 构建表格
+    # 构建表格
     builder = GridOptionsBuilder.from_dataframe(status_frame)
     builder.configure_pagination()
     table = builder.build()
@@ -188,12 +183,8 @@ def block_status():
     benchmark_cum: pd.DataFrame = ep.cum_returns(benchmark)
 
     st.subheader('收益及动量情况')
-    if len(classify) <= 4:
-        cols = 1
-    else:
-        cols = 4
-
-    tab1, tab2, tab3 = st.tabs(['量价因子排名情况', '择时信号累计收益一览', '信号标记'])
+    cols = 1 if len(classify) <= 4 else 4
+    tab1, tab2, tab3 = st.tabs(['🚀量价因子排名情况', '🛰️择时信号累计收益一览', '🚦信号标记'])
 
     with tab1:
         score = vol_mom.unstack(level=0).iloc[-1].sort_values(ascending=False)
@@ -215,16 +206,47 @@ def block_status():
             st.plotly_chart(fig, use_container_width=True)
 
 
-tab1, tab2, tab3 = st.tabs(["📈风险收益情况", "📌交易分析", "😉板块下标的信号状态"])
+if __name__ == "__main__":
 
-with tab1:
+    st.set_page_config(page_title='量价共振信号', layout='wide', page_icon=':ox:')
 
-    block_risk_report()
+    st.sidebar.subheader("选择行业或宽基")
 
-with tab2:
+    selections: Union[str, List] = st.sidebar.selectbox("选择申万一级行业或宽基指数",
+                                                        options=[
+                                                            '申万一级行业', '宽基指数'],
+                                                        index=1)
 
-    block_trade_report()
+    level: str = SELECTIONS[selections]  # 选择的sw或者index
+    stocks_pool: List = list(STOCK_POOL[level].values())
+    # 标的的名称
+    stock_selection = st.sidebar.selectbox(
+        "选择标的", options=stocks_pool, index=0)
+    # 获取需要回测的标的
+    selection_code: str = SEC2CODE[level][stock_selection]
 
-with tab3:
+    # 获取所有标的的数据
+    classify: Dict = STOCK_POOL[level]
+    stocks_pool: List = list(classify.keys())
 
-    block_status()
+    price: pd.DataFrame = query_data2st(codes=stocks_pool, start_date='2010-01-01', end_date='2022-10-11',
+                                        method=level, fields=['close', 'open', 'low', 'high', 'volume'], classify=classify)
+
+    slice_price: pd.DataFrame = price.query('code==@selection_code')
+
+    # 回测
+    bt_result = get_backtesting(slice_price, stock_selection)
+
+    tab1, tab2, tab3 = st.tabs(["🧭板块下标的信号状态", "📈风险收益情况", "💹交易分析", ])
+
+    with tab1:
+
+        block_status(price)
+
+    with tab2:
+
+        block_risk_report(slice_price, bt_result)
+
+    with tab3:
+
+        block_trade_report(slice_price, bt_result)
