@@ -10,7 +10,6 @@ from plotly.subplots import make_subplots
 
 from .timeseries import gen_drawdown_table
 from .utils import trans2strftime
-
 """plotly画图"""
 
 
@@ -803,4 +802,50 @@ def plotly_table(df: pd.DataFrame, index_name: str = '') -> Figure:
                 font=dict(color='darkslategray', size=11)))
     ])
 
+    return fig
+
+
+def GridPlotly(df1: pd.Series, df2: pd.DataFrame, cols: int = 4):
+
+    size = df1.shape[1]
+    rows = size // cols + 1 if size % 2 else size // cols
+
+    fig = make_subplots(rows=rows,
+                        cols=cols,
+                        subplot_titles=df1.columns.tolist())
+
+    row = 1
+    col = 1
+
+    def _plotly_add_nav(ser, benchmark, fig, row, col):
+
+        fig.append_trace(go.Scatter(x=ser.index,
+                                    y=ser.values,
+                                    line=dict(color='red'),
+                                    name=ser.name),
+                         row=row,
+                         col=col)
+        fig.append_trace(go.Scatter(x=benchmark.index,
+                                    y=benchmark.values,
+                                    line=dict(color='darkgray'),
+                                    name='benchmark'),
+                         row=row,
+                         col=col)
+        # fig.update_layout(showlegend=False,hovermode="x unified",yaxis_title='累计收益率',xaxis_title='日期',yaxis_tickformat='.2%')
+
+        return fig
+
+    for current_col, (name, ser) in enumerate(df1.items()):
+
+        if current_col > (size - 1):
+            break
+        if current_col % cols == 0 and current_col != 0:
+            row += 1
+            if col >= cols:
+                col = 1
+        fig = _plotly_add_nav(ser, df2[name], fig, row, col)
+        col += 1
+
+    height = rows * 450 if cols == 1 else cols * 450
+    fig.update_layout(height=height, showlegend=False, hovermode="x unified")
     return fig

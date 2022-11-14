@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-11-10 14:45:07
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-11-13 20:40:42
+LastEditTime: 2022-11-14 13:04:17
 Description: 使用pandas创建信号
 '''
 from collections import namedtuple
@@ -92,7 +92,9 @@ def get_trendshake_filter(close: pd.Series, fast_window: int, slow_window: int,
     return filter_shake.apply(lambda x: np.where(x, threshold1, threshold2))
 
 
-def get_signal(close: pd.Series, volume: pd.Series, signal_window: Tuple, lag_window: int, shake_window: Tuple, threshold: Tuple) -> namedtuple:
+def get_signal(close: pd.Series, volume: pd.Series, signal_window: Tuple,
+               lag_window: int, shake_window: Tuple,
+               threshold: Tuple) -> namedtuple:
     """获取持仓标记、信号、市场过滤信号等
 
     Parameters
@@ -122,11 +124,11 @@ def get_signal(close: pd.Series, volume: pd.Series, signal_window: Tuple, lag_wi
     bma_window, ama_window = signal_window
     fast_window, slow_window = shake_window
     # 价量共振指标
-    price_vol: pd.Series = calc_volume_momentum(
-        close, volume, bma_window, ama_window, lag_window)
+    price_vol: pd.Series = calc_volume_momentum(close, volume, bma_window,
+                                                ama_window, lag_window)
     # 市场划分
-    threshold_ser: pd.Series = get_trendshake_filter(
-        close, fast_window, slow_window, threshold)
+    threshold_ser: pd.Series = get_trendshake_filter(close, fast_window,
+                                                     slow_window, threshold)
 
     # 持仓标记 0-空仓 1-持仓
     flag: pd.Series = (price_vol > threshold_ser).astype(int)
@@ -134,7 +136,15 @@ def get_signal(close: pd.Series, volume: pd.Series, signal_window: Tuple, lag_wi
     return res(price_vol, threshold_ser, flag)
 
 
-def bulk_signal_fig(price: pd.DataFrame, bma_window: int, ama_window: int, fast_window: int, slow_window: int, threshold: Tuple, n: int, method: str) -> pd.Series:
+def bulk_signal(price: pd.DataFrame,
+                bma_window: int,
+                ama_window: int,
+                fast_window: int,
+                slow_window: int,
+                threshold: Tuple,
+                n: int,
+                level: str,
+                method: str = 'flag') -> pd.Series:
     """批量获取信号标记
 
     Parameters
@@ -153,8 +163,10 @@ def bulk_signal_fig(price: pd.DataFrame, bma_window: int, ama_window: int, fast_
         0-threshold1 1-threshold2
     n:int
         bma的滞后期
-    method:str
+    level:str
         sw-行业 index-宽基
+    method:str
+        获取vol_mom,shake_filter,flag
     Returns
     -------
     pd.Series
@@ -162,18 +174,16 @@ def bulk_signal_fig(price: pd.DataFrame, bma_window: int, ama_window: int, fast_
         code - sec_name+code
     """
 
-    classify: Dict = DICT[method]
+    classify: Dict = DICT[level]
 
     dic: Dict = {}
     for code, df in price.groupby('code'):
-        signal_res: namedtuple = get_signal(df['close'],
-                                            df['volume'],
-                                            (bma_window, ama_window),
-                                            n,
+        signal_res: namedtuple = get_signal(df['close'], df['volume'],
+                                            (bma_window, ama_window), n,
                                             (fast_window, slow_window),
                                             threshold)
         sec_name: str = classify[code].replace('(申万)', '')
-        dic[f'{sec_name}({code})'] = signal_res.flag
+        dic[f'{sec_name}({code})'] = getattr(signal_res, method)
 
     return pd.concat(dic)
 
@@ -189,7 +199,7 @@ def get_signal_status(flag_ser: pd.DataFrame) -> Tuple:
     Returns
     -------
     Tuple
-        信息描述
+        信息描述,最近的开仓日期
     """
     # code: str = flag_ser.name
     last_date: Union[pd.Timestamp, Tuple] = flag_ser.index[-1]
@@ -202,15 +212,15 @@ def get_signal_status(flag_ser: pd.DataFrame) -> Tuple:
                           Tuple] = diff_id[flag_ser == 1].idxmax()
     last_open_date: pd.Timestamp = _check_muliindex(last_open_date)
     if flag_ser.iloc[-1] != 1:
-        return f'{last_date} 无开仓信号'
+        return f'{last_date} 无开仓信号',None
     # 如果有信号
     if last_date == last_open_date:
         # 且持仓日等于当前日期
-        return f'{last_date} 有开仓信号'
+        return f'{last_date} 有开仓信号',last_date
 
     else:
         # 持仓日不等于当前日期
-        return f'{last_date} 当期有持仓(开仓日:{last_open_date})'
+        return f'{last_date} 当期有持仓(开仓日:{last_open_date})', last_open_date
 
 
 def _check_muliindex(idx: Tuple) -> pd.Timestamp:
