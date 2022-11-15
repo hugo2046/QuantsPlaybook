@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-11-10 14:45:07
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-11-14 20:30:55
+LastEditTime: 2022-11-15 13:51:47
 Description: 使用pandas创建信号
 '''
 from collections import namedtuple
@@ -188,7 +188,7 @@ def bulk_signal(price: pd.DataFrame,
     return pd.concat(dic)
 
 
-def get_signal_status(flag_ser: pd.DataFrame) -> Tuple:
+def get_signal_status(flag_ser: pd.Series) -> Tuple:
     """根据持仓标记返回当前信号情况
 
     Parameters
@@ -199,7 +199,7 @@ def get_signal_status(flag_ser: pd.DataFrame) -> Tuple:
     Returns
     -------
     Tuple
-        信息描述,最近的开仓日期
+        信息描述,最近的开仓日期,emoji标志
     """
     # code: str = flag_ser.name
     last_date: Union[pd.Timestamp, Tuple] = flag_ser.index[-1]
@@ -208,23 +208,28 @@ def get_signal_status(flag_ser: pd.DataFrame) -> Tuple:
     diff_ser: pd.Series = (flag_ser != flag_ser.shift(1))
     diff_id: pd.Series = diff_ser.cumsum()
     # 最近一一期的开仓日期
-    hold_ser: pd.Series = diff_id[flag_ser == 1]
-    # 表示期间没有开仓记录
-    if hold_ser.empty:
-        return f"{last_date.strftime('%Y-%m-%d')} 无开仓信号", None
-    last_open_date: Union[pd.Timestamp,
-                          Tuple] = hold_ser.idxmax()
+    hold_flag: pd.Series = diff_id[flag_ser == 1]
+    # 表示区间内没有开仓信号
+    if hold_flag.empty:
+        return f"{last_date.strftime('%Y-%m-%d')} 无开仓信号", None, ':white_circle:'
+    last_open_date: Union[pd.Timestamp, Tuple] = hold_flag.idxmax()
     last_open_date: pd.Timestamp = _check_muliindex(last_open_date)
-    if flag_ser.iloc[-1] != 1:
-        return f"{last_date.strftime('%Y-%m-%d')} 无开仓信号", None
-    # 如果有信号
-    if last_date == last_open_date:
-        # 且持仓日等于当前日期
-        return f"{last_date.strftime('%Y-%m-%d')} 有开仓信号", last_date
+
+    if flag_ser.iloc[-1]:
+        # 如果有信号
+        return (
+            f"{last_date.strftime('%Y-%m-%d')} 有开仓信号", last_date,
+            ':red_circle:'
+        ) if last_date == last_open_date else (
+            f"{last_date.strftime('%Y-%m-%d')} 当期有持仓(开仓日:{last_open_date.strftime('%Y-%m-%d')})",
+            last_open_date, ':o:')
+
+    if flag_ser.iloc[-2]:
+        return f"{last_date.strftime('%Y-%m-%d')} 平仓", last_date, ':x:'
 
     else:
-        # 持仓日不等于当前日期
-        return f"{last_date.strftime('%Y-%m-%d')} 当期有持仓(开仓日:{last_open_date.strftime('%Y-%m-%d')})", last_open_date
+
+        return f"{last_date.strftime('%Y-%m-%d')} 无开仓信号", None, ':white_circle:'
 
 
 def _check_muliindex(idx: Tuple) -> pd.Timestamp:

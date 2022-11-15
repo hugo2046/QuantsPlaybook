@@ -7,6 +7,7 @@ Description:
 '''
 from typing import Dict
 
+import emoji
 import pandas as pd
 
 
@@ -18,6 +19,7 @@ def transform_status_table(status:pd.Series)->pd.DataFrame:
     
     status:pd.DataFrame = status.to_frame('Status')
     status.index.names = ['Sec_name']
+    status['Flag'] = status['Status'].apply(lambda x: emoji.emojize(x[2],language='alias'))
     status['Status'] = status['Status'].apply(lambda x:x[0])
     
     return status.reset_index()
