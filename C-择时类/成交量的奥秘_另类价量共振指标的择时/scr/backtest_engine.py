@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-10-27 20:34:02
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-11-13 19:08:20
+LastEditTime: 2022-12-06 15:31:31
 Description: 回测所需配件
 '''
 import datetime
@@ -25,74 +25,102 @@ MAX_CPU: int = int(cpu_count() * 0.8)
 #     params = (('indicator', -1), )
 
 
-class trade_list(bt.Analyzer):
+class TradeRecord(bt.Analyzer):
     def __init__(self):
-
+        self.history = []
         self.trades = []
         self.cumprofit = 0.0
 
     def notify_trade(self, trade):
 
-        if trade.isclosed:
+        self.current_trade = trade
+        if not trade.isclosed:
+            return
+        print(1)
+        record: Dict = self.get_trade_record(trade)
+        self.trades.append(record)
 
-            brokervalue = self.strategy.broker.getvalue()
+    def stop(self):
+        """统计最后一笔开仓未平仓的交易"""
+        trade = self.current_trade
 
-            dir = 'short'
-            if trade.history[0].event.size > 0:
-                dir = 'long'
+        if not trade.isopen:
+            return
 
-            pricein = trade.history[len(trade.history) - 1].status.price
-            priceout = trade.history[len(trade.history) - 1].event.price
-            datein = bt.num2date(trade.history[0].status.dt)
-            dateout = bt.num2date(trade.history[len(trade.history) -
-                                                1].status.dt)
-            if trade.data._timeframe >= bt.TimeFrame.Days:
-                datein = datein.date()
-                dateout = dateout.date()
+        record: Dict = self.get_trade_record(trade)
+        self.trades.append(record)
 
-            pcntchange = 100 * priceout / pricein - 100
-            pnl = trade.history[len(trade.history) - 1].status.pnlcomm
-            pnlpcnt = 100 * pnl / brokervalue
-            barlen = trade.history[len(trade.history) - 1].status.barlen
-            pbar = pnl / barlen
-            self.cumprofit += pnl
+    def get_trade_record(self, trade) -> Dict:
 
-            size = value = 0.0
-            for record in trade.history:
-                if abs(size) < abs(record.status.size):
-                    size = record.status.size
-                    value = record.status.value
+        brokervalue = self.strategy.broker.getvalue()
+        dir = "long" if trade.history[0].event.size > 0 else "short"
+        size = len(trade.history)
+        barlen = trade.history[size - 1].status.barlen
+        pricein = trade.history[size - 1].status.price
+        datein = bt.num2date(trade.history[0].status.dt)
 
+        if size == 1:
+            # 交易没有闭合
+            dateout = pd.to_datetime(trade.data.datetime.date(0))
+            priceout = trade.data.close[0]
+            hp = np.nan
+            lp = np.nan
+            barlen = np.nan
+
+        elif size == 2:
+            # 交易闭合
+            dateout = bt.num2date(trade.history[size - 1].status.dt)
+            priceout = trade.history[size - 1].event.price
             highest_in_trade = max(trade.data.high.get(ago=0, size=barlen + 1))
             lowest_in_trade = min(trade.data.low.get(ago=0, size=barlen + 1))
             hp = 100 * (highest_in_trade - pricein) / pricein
             lp = 100 * (lowest_in_trade - pricein) / pricein
-            if dir == 'long':
-                mfe = hp
-                mae = lp
-            if dir == 'short':
-                mfe = -lp
-                mae = -hp
 
-            self.trades.append({
-                'ref': trade.ref,
-                'ticker': trade.data._name,
-                'dir': dir,
-                'datein': datein,
-                'pricein': pricein,
-                'dateout': dateout,
-                'priceout': priceout,
-                'chng%': round(pcntchange, 2),
-                'pnl': pnl,
-                'pnl%': round(pnlpcnt, 2),
-                'size': size,
-                'value': value,
-                'cumpnl': self.cumprofit,
-                'nbars': barlen,
-                'pnl/bar': round(pbar, 2),
-                'mfe%': round(mfe, 2),
-                'mae%': round(mae, 2)
-            })
+        if trade.data._timeframe >= bt.TimeFrame.Days:
+            datein = datein.date()
+            dateout = dateout.date()
+
+        pcntchange = 100 * priceout / pricein - 100
+        pnl = trade.history[size - 1].status.pnlcomm
+        pnlpcnt = 100 * pnl / brokervalue
+
+        pbar = pnl / barlen if barlen else np.nan
+        self.cumprofit += pnl
+        size = value = 0.0
+
+        for record in trade.history:
+
+            if abs(size) < abs(record.status.size):
+                size = record.status.size
+                value = record.status.value
+
+        if dir == "long":
+            mfe = hp
+            mae = lp
+        elif dir == "short":
+            mfe = -lp
+            mae = -hp
+
+        return {
+            "status": trade.status,  # 1-open,2-closed
+            "ref": trade.ref,
+            "ticker": trade.data._name,
+            "dir": dir,
+            "datein": datein,
+            "pricein": pricein,
+            "dateout": dateout,
+            "priceout": priceout,
+            "chng%": round(pcntchange, 2),
+            "pnl": pnl,
+            "pnl%": round(pnlpcnt, 2),
+            "size": size,
+            "value": value,
+            "cumpnl": self.cumprofit,
+            "nbars": barlen,
+            "pnl/bar": round(pbar, 2),
+            "mfe%": round(mfe, 2),
+            "mae%": round(mae, 2),
+        }
 
     def get_analysis(self):
         return self.trades
@@ -168,20 +196,17 @@ def get_backtesting(data: pd.DataFrame,
 
     # 添加分析指标
     # 返回年初至年末的年度收益率
-    # cerebro.addanalyzer(bt.analyzers.AnnualReturn, _name='_AnnualReturn')
-    # 计算最大回撤相关指标
-    # cerebro.addanalyzer(bt.analyzers.DrawDown, _name='_DrawDown')
-    # 计算年化收益
-    # cerebro.addanalyzer(bt.analyzers.Returns, _name='_Returns', tann=252)
+    cerebro.addanalyzer(bt.analyzers.AnnualReturn, _name="_AnnualReturn")
     # 交易分析添加
-    # cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='_TradeAnalyzer')
-    # 交易分析
-    cerebro.addanalyzer(bt.analyzers.Transactions, _name='_Transactions')
-    # 计算夏普比率
-    # cerebro.addanalyzer(bt.analyzers.SharpeRatio_A, _name='_SharpeRatio_A')
+    cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name="_TradeAnalyzer")
+    # 获取交易成本
+    cerebro.addanalyzer(bt.analyzers.Transactions, _name="_Transactions")
+    # 计算交易统计
+    cerebro.addanalyzer(bt.analyzers.PeriodStats, _name="_PeriodStats")
     # 返回收益率时序
-    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='_TimeReturn')
-    cerebro.addanalyzer(trade_list, _name='tradelist')
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
+    # 这个需要在run开启tradehistory=True
+    cerebro.addanalyzer(TradeRecord, _name="_TradeRecord")
 
     result = cerebro.run(tradehistory=True)
 

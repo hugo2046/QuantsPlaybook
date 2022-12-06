@@ -1,7 +1,7 @@
 '''
 Author: Hugo
 Date: 2021-06-18 09:42:35
-LastEditTime: 2022-11-11 16:52:36
+LastEditTime: 2022-12-06 15:34:00
 LastEditors: hugo2046 shen.lan123@gmail.com
 Description: 时间序列最大回撤相关计算
 '''
@@ -109,46 +109,56 @@ def gen_drawdown_table(returns: pd.Series, top: int = 10) -> pd.DataFrame:
         Information about top drawdowns.
     """
 
-    df_cum = ep.cum_returns(returns, 1.0)
-    drawdown_periods = get_top_drawdowns(returns, top=top)
-    df_drawdowns = pd.DataFrame(index=list(range(top)),
-                                columns=[
-                                    '区间最大回撤(%)', '回撤开始日', '回撤最低点日', '回撤恢复日',
-                                    '开始日至最低点天数', '最低点至恢复点天数', '总天数'
-                                ])
+    df_cum: pd.Series = ep.cum_returns(returns, 1.0)
+    drawdown_periods: List = get_top_drawdowns(returns, top=top)
+    df_drawdowns = pd.DataFrame(
+        index=list(range(top)),
+        columns=[
+            "Net drawdown in %",
+            "Peak date",
+            "Valley date",
+            "Recovery date",
+            "Valley Duration",
+            "End Duration",
+            "Duration",
+        ],
+    )
 
     for i, (peak, valley, recovery) in enumerate(drawdown_periods):
 
+        df_drawdowns.loc[i, "Valley Duration"] = len(
+            pd.date_range(peak, valley, freq="B")
+        )
         if pd.isnull(recovery):
 
-            df_drawdowns.loc[i, '开始日至最低点天数'] = np.nan
-            df_drawdowns.loc[i, '最低点至恢复点天数'] = np.nan
-            df_drawdowns.loc[i, '总天数'] = np.nan
+            df_drawdowns.loc[i, "End Duration"] = np.nan
+            df_drawdowns.loc[i, "Duration"] = np.nan
 
         else:
+            df_drawdowns.loc[i, "End Duration"] = len(
+                pd.date_range(valley, recovery, freq="B")
+            )
 
-            df_drawdowns.loc[i, '开始日至最低点天数'] = len(
-                pd.date_range(peak, valley, freq='B'))
-            df_drawdowns.loc[i, '最低点至恢复点天数'] = len(
-                pd.date_range(valley, recovery, freq='B')) - 1
-
-            df_drawdowns.loc[i, '总天数'] = len(
-                pd.date_range(peak, recovery, freq='B'))
-
-        df_drawdowns.loc[i,
-                         '回撤开始日'] = (peak.to_pydatetime().strftime('%Y-%m-%d'))
-        df_drawdowns.loc[i, '回撤最低点日'] = (
-            valley.to_pydatetime().strftime('%Y-%m-%d'))
+            df_drawdowns.loc[i, "Duration"] = len(
+                pd.date_range(peak, recovery, freq="B")
+            )
+        df_drawdowns.loc[i, "Peak date"] = peak.to_pydatetime().strftime(
+            "%Y-%m-%d")
+        df_drawdowns.loc[i, "Valley date"] = valley.to_pydatetime().strftime(
+            "%Y-%m-%d")
         if isinstance(recovery, float):
-            df_drawdowns.loc[i, '回撤恢复日'] = recovery
+            df_drawdowns.loc[i, "Recovery date"] = recovery
         else:
-            df_drawdowns.loc[i, '回撤恢复日'] = (
-                recovery.to_pydatetime().strftime('%Y-%m-%d'))
-        df_drawdowns.loc[i, '区间最大回撤(%)'] = (
-            (df_cum.loc[peak] - df_cum.loc[valley]) / df_cum.loc[peak]) * 100
+            df_drawdowns.loc[i, "Recovery date"] = recovery.to_pydatetime().strftime(
+                "%Y-%m-%d"
+            )
+        df_drawdowns.loc[i, "Net drawdown in %"] = (
+            (df_cum.loc[peak] - df_cum.loc[valley]) / df_cum.loc[peak]
+        ) * 100
 
-    df_drawdowns['回撤开始日'] = pd.to_datetime(df_drawdowns['回撤开始日'])
-    df_drawdowns['回撤最低点日'] = pd.to_datetime(df_drawdowns['回撤最低点日'])
-    df_drawdowns['回撤恢复日'] = pd.to_datetime(df_drawdowns['回撤恢复日'])
+    df_drawdowns["Peak date"] = pd.to_datetime(df_drawdowns["Peak date"])
+    df_drawdowns["Valley date"] = pd.to_datetime(df_drawdowns["Valley date"])
+    df_drawdowns["Recovery date"] = pd.to_datetime(
+        df_drawdowns["Recovery date"])
 
     return df_drawdowns

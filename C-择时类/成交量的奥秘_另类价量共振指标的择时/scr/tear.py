@@ -2,143 +2,235 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-10-28 18:08:47
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-11-11 16:59:41
+LastEditTime: 2022-12-06 15:40:52
 Description: 
 '''
-from typing import List, Tuple
+from collections import namedtuple
+from typing import Dict, List, Union
 
+import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 
-from .performance import Strategy_performance
-from .plotly_chart import (
+from .vectorbt_style_plotting import (
     plot_annual_returns,
-    plot_cumulative_returns,
+    plot_cumulative,
     plot_drawdowns,
-    plot_monthly_returns_dist,
-    plot_monthly_returns_heatmap,
-    plot_trade_pnl,
+    plot_monthly_dist,
+    plot_monthly_heatmap,
+    plot_orders,
+    plot_pnl,
+    plot_position,
+    plot_table,
     plot_underwater,
-    plotl_order_on_ohlc,
-    plotly_table,
 )
+from .performance import strategy_performance
+from .utils import get_value_from_traderanalyzerdict
 
 
-def get_flag(trade_list: pd.DataFrame) -> Tuple:
-    """获取买卖点
-
-    Args:
-        trade_list (pd.DataFrame): _description_
-
-    Returns:
-        Tuple: buy_flag,sell_flag
-    """
-    buy_flag: pd.Series = trade_list[['datein', 'pricein']].set_index('datein')
-    sell_flag: pd.Series = trade_list[['dateout',
-                                       'priceout']].set_index('dateout')
-
-    buy_flag.index = pd.to_datetime(buy_flag.index)
-    sell_flag.index = pd.to_datetime(sell_flag.index)
-
-    return buy_flag, sell_flag
-
-
-def calc_win_ratio(ser: pd.Series) -> pd.Series:
-    """计算盈利
+def get_transactions_frame(result: List) -> pd.DataFrame:
+    """将transactions构建为df
 
     Args:
-        ser (pd.Series): _description_
+        result (List): 回测结果
 
     Returns:
-        pd.Series: _description_
+        pd.DataFrame: index-date
     """
-    return len(ser[ser > 0]) / len(ser)
+    transaction: Dict = result[0].analyzers._Transactions.get_analysis()
+    df: pd.DataFrame = pd.DataFrame(
+        index=list(transaction.keys()),
+        data=np.squeeze(list(transaction.values())),
+        columns=["amount", "price", "sid", "symbol", "value"],
+    )
+    df.index.names = ["date"]
+    df.index = pd.to_datetime(df.index)
+    return df
 
 
-def calc_profit_coss(ser: pd.Series) -> pd.Series:
-    """盈亏比
+def get_trade_flag(result: List) -> pd.DataFrame:
+    """买卖标记
 
     Args:
-        ser (pd.Series): _description_
+        result (List): 回测结果
 
     Returns:
-        pd.Series: _description_
+        pd.DataFrame: indexz-number columns-datein|dateout|pricein|priceout
+
+    如果priceout/dateout为np.nan则表示尚未平仓
     """
-    return ser[ser > 0].sum() / ser[ser < 0].abs().sum()
+    transactions = get_transactions_frame(result)
+    transactions = transactions.astype(
+        {"amount": np.int32, "price": np.float32, "value": np.float32}
+    )
+
+    size = len(transactions)
+    trade_date = transactions.index.tolist()
+    price = transactions["price"].tolist()
+    trade_date = trade_date + [np.nan] if size % 2 else trade_date
+    price = price + [np.nan] if size % 2 else price
+
+    size = size + 1 if size % 2 else size
+
+    date_flag = np.array([(trade_date[i - 2: i])
+                         for i in np.arange(2, size + 1, 2)])
+    price_flag = np.array([(price[i - 2: i])
+                          for i in np.arange(2, size + 1, 2)])
+
+    return pd.DataFrame(
+        data=np.hstack((date_flag, price_flag)),
+        columns=["datein", "dateout", "pricein", "priceout"],
+    )
 
 
+# report
 def get_backtest_report(price: pd.Series, result: List) -> pd.DataFrame:
 
     ret: pd.Series = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
     benchmark = price.pct_change()
 
     returns: pd.DataFrame = pd.concat((ret, benchmark), axis=1)
-    returns.columns = ['策略', 'benchmark']
+    returns.columns = ["策略", "benchmark"]
 
-    return Strategy_performance(returns)
+    return strategy_performance(returns)
 
 
-def get_trade_res(trade_list: pd.DataFrame) -> pd.Series:
+def create_trade_report_table(trader_analyzer: Dict) -> pd.DataFrame:
 
-    # 获取交易明细
+    won = get_value_from_traderanalyzerdict(trader_analyzer, "won", "total")
+    won_money = get_value_from_traderanalyzerdict(
+        trader_analyzer, "won", "pnl", "total"
+    )
+    lost_money = get_value_from_traderanalyzerdict(
+        trader_analyzer, "lost", "pnl", "total"
+    )
+    total = get_value_from_traderanalyzerdict(
+        trader_analyzer, "total", "total")
+    streakWonLongest = get_value_from_traderanalyzerdict(
+        trader_analyzer, "streak", "won", "longest"
+    )
+    streakLostLongest = get_value_from_traderanalyzerdict(
+        trader_analyzer, "streak", "lost", "longest"
+    )
 
-    days = (trade_list['dateout'] - trade_list['datein']).dt.days
+    res: Dict = {
+        "交易总笔数": total,
+        "完结的交易笔数": get_value_from_traderanalyzerdict(
+            trader_analyzer, "total", "closed"
+        ),
+        "未交易完结笔数": get_value_from_traderanalyzerdict(trader_analyzer, "total", "open"),
+        "连续获利次数": streakWonLongest if streakWonLongest else np.nan,
+        "连续亏损次数": streakLostLongest if streakLostLongest else np.nan,
+        "胜率(%)": round(won / total, 4),
+        "盈亏比": round(won_money / abs(lost_money), 4),
+        "平均持仓天数": round(
+            get_value_from_traderanalyzerdict(
+                trader_analyzer, "len", "average"), 2
+        ),
+        "最大持仓天数": get_value_from_traderanalyzerdict(trader_analyzer, "len", "max"),
+        "最短持仓天数": get_value_from_traderanalyzerdict(trader_analyzer, "len", "min"),
+    }
 
-    return pd.DataFrame(
-        {
-            '总交易次数': len(trade_list),
-            '持仓最长时间(自然天)': days.max(),
-            '持仓最短时间(自然天)': days.min(),
-            '平均持仓天数(自然天)': days.mean(),
-            '胜率(%)': '{:.2%}'.format(calc_win_ratio(trade_list['pnl'])),
-            '盈亏比': '{:.2}'.format(calc_profit_coss(trade_list['pnl']))
-        },
-        index=['交易指标'])
+    return pd.DataFrame(res, index=["交易统计"]).T
 
 
 # tear
-def analysis_rets(price: pd.Series, result: List) -> List:
+def analysis_rets(
+    price: pd.Series,
+    result: List,
+    benchmark_rets: pd.Series = None,
+    use_widgets: bool = False,
+) -> namedtuple:
     """净值表现情况
 
     Args:
         price (pd.Series): idnex-date values
         result (List): 回测结果
     """
-    ret: pd.Series = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
-    benchmark = price.pct_change()
-    benchmark, ret = benchmark.align(ret, join='left', axis=0)
+    report: namedtuple = namedtuple(
+        "report",
+        "risk_table,cumulative_chart,maxdrawdowns_chart,underwater_chart,annual_returns_chart,monthly_heatmap_chart,monthly_dist_chart",
+    )
+    rets: pd.Series = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
+    if benchmark_rets is None:
+        benchmark_rets: pd.Series = price.pct_change()
 
-    returns: pd.DataFrame = pd.concat((ret, benchmark), axis=1)
-    returns.columns = ['策略', '基准']
+    rets, benchmark_rets = rets.align(benchmark_rets, join="right", axis=0)
 
-    report_df: pd.DataFrame = Strategy_performance(returns)
+    returns: pd.DataFrame = pd.concat((rets, benchmark_rets), axis=1)
+    returns.columns = ["Strategy", "Benchmark"]
 
-    bt_risk_table = plotly_table(
-        report_df.T.applymap(lambda x: '{:.2%}'.format(x)), '指标')
+    report_table: pd.DataFrame = strategy_performance(returns)
 
-    cumulative_chart = plot_cumulative_returns(ret, benchmark)
-    maxdrawdowns_chart = plot_drawdowns(ret)
-    underwater_chart = plot_underwater(ret)
-    annual_returns_chart = plot_annual_returns(ret)
-    monthly_return_heatmap_chart = plot_monthly_returns_heatmap(ret)
-    monthly_return_dist_chart = plot_monthly_returns_dist(ret)
+    risk_table: go.Figure = plot_table(
+        report_table.T.applymap(lambda x: "{:.2%}".format(x)),
+        index_name="指标",
+        use_widgets=use_widgets,
+    )
 
-    return bt_risk_table, cumulative_chart, maxdrawdowns_chart, underwater_chart, annual_returns_chart, monthly_return_heatmap_chart, monthly_return_dist_chart
+    cumulative_chart: go.Figure = plot_cumulative(
+        rets,
+        benchmark_rets,
+        main_kwargs=dict(name="Close"),
+        yaxis_tickformat=".2%",
+        title="Cumulative",
+        use_widgets=use_widgets,
+    )
+    maxdrawdowns_chart: go.Figure = plot_drawdowns(
+        rets, use_widgets=use_widgets, title="Drawdowns"
+    )
+    underwater_chart: go.Figure = plot_underwater(
+        rets, use_widgets=use_widgets, title="Underwater"
+    )
+    annual_returns_chart: go.Figure = plot_annual_returns(
+        rets, use_widgets=use_widgets)
+    monthly_heatmap_chart: go.Figure = plot_monthly_heatmap(
+        rets, use_widgets=use_widgets
+    )
+    monthly_dist_chart: go.Figure = plot_monthly_dist(
+        rets, use_widgets=use_widgets)
+
+    return report(
+        risk_table,
+        cumulative_chart,
+        maxdrawdowns_chart,
+        underwater_chart,
+        annual_returns_chart,
+        monthly_heatmap_chart,
+        monthly_dist_chart,
+    )
 
 
-def analysis_trade(price: pd.DataFrame, result: List) -> List:
-    """交易情况
+def analysis_trade(
+    price: Union[pd.Series, pd.DataFrame], result: List, use_widgets: bool = False
+) -> namedtuple:
 
-    Args:
-        price (pd.DataFrame): index-date OHLCV数据
-        result (_type_): _description_
-    """
+    report: namedtuple = namedtuple(
+        "report", "trade_report,pnl_chart,orders_chart,position_chart"
+    )
+    trader_analyzer: Dict = result[0].analyzers._TradeAnalyzer.get_analysis()
+    trade_res: pd.DataFrame = create_trade_report_table(trader_analyzer)
     trade_list: pd.DataFrame = pd.DataFrame(
-        result[0].analyzers.tradelist.get_analysis())
-    trade_list['pnl%'] /= 100
-    trade_res: pd.DataFrame = get_trade_res(trade_list)
+        result[0].analyzers._TradeRecord.get_analysis()
+    )
+    trade_list: pd.DataFrame = trade_list.astype(
+        {"datein": np.datetime64, "dateout": np.datetime64}
+    )
+    trade_report: go.Figure = plot_table(trade_res, use_widgets=use_widgets)
 
-    trade_report = plotly_table(trade_res)
-    orders_chart = plotl_order_on_ohlc(price, trade_list)
-    pnl_chart = plot_trade_pnl(trade_list)
+    pnl_chart: go.Figure = plot_pnl(
+        trade_list, use_widgets=use_widgets, title="PnL")
 
-    return trade_report, orders_chart, pnl_chart
+    if isinstance(price, pd.Series):
+        orders_chart: go.Figure = plot_orders(
+            price, trade_list, use_widgets=use_widgets, title="Orders"
+        )
+        position_chart: go.Figure = plot_position(
+            price, trade_list, use_widgets=use_widgets, title="Position"
+        )
+
+    elif isinstance(price, pd.DataFrame):
+
+        print("TODO:尚未完工")
+
+    return report(trade_report, pnl_chart, orders_chart, position_chart)

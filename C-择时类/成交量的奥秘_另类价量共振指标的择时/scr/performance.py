@@ -1,7 +1,7 @@
 '''
 Author: Hugo
 Date: 2021-06-16 14:45:53
-LastEditTime: 2022-11-11 16:58:02
+LastEditTime: 2022-12-06 15:34:15
 LastEditors: hugo2046 shen.lan123@gmail.com
 Description: 组合评价相关函数
 '''
@@ -64,7 +64,7 @@ def information_ratio(returns, factor_returns):
 
 
 # 风险指标
-def Strategy_performance(returns: pd.DataFrame,
+def strategy_performance(returns: pd.DataFrame,
                          mark_benchmark: str = 'benchmark',
                          periods: str = 'daily') -> pd.DataFrame:
     '''
