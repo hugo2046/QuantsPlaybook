@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-06-07 10:09:17
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-09-02 17:25:41
+LastEditTime: 2022-10-20 15:04:42
 Description: 画图相关函数
 '''
 from typing import Dict, List, Tuple
@@ -31,8 +31,7 @@ mpl.rcParams['font.sans-serif'] = ['SimHei']
 mpl.rcParams['axes.unicode_minus'] = False
 
 
-def plot_indicator(data: pd.DataFrame,
-                   title: str = '') -> mpl.axes:
+def plot_indicator(data: pd.DataFrame, title: str = '') -> mpl.axes:
     """画信号与k线的关系图标
 
     Returns
@@ -43,16 +42,26 @@ def plot_indicator(data: pd.DataFrame,
     s = mpf.make_mpf_style(marketcolors=mc)
     size = len(data)
 
-    config: Dict = {'style': s, 'type': 'candle', 'volume': True, 'figsize': (
-        18, 6), 'datetime_format': '%Y-%m-%d', 'warn_too_much_data': size}
+    config: Dict = {
+        'style': s,
+        'type': 'candle',
+        'volume': True,
+        'figsize': (18, 6),
+        'datetime_format': '%Y-%m-%d',
+        'warn_too_much_data': size
+    }
 
-    addplot = [mpf.make_addplot(data['threshold_to_long_a'], color='r', panel=2, linestyle='dashdot'),
-               mpf.make_addplot(data['volume_index'],
-                                color='#3785bc', panel=2),
-               mpf.make_addplot(
-        data['threshold_to_short'], color='g', panel=2),
+    addplot = [
+        mpf.make_addplot(data['threshold_to_long_a'],
+                         color='r',
+                         panel=2,
+                         linestyle='dashdot'),
+        mpf.make_addplot(data['volume_index'], color='#3785bc', panel=2),
+        mpf.make_addplot(data['threshold_to_short'], color='g', panel=2),
         mpf.make_addplot(data['threshold_to_long_b'],
-                         color='r', panel=2, linestyle='dashdot'),
+                         color='r',
+                         panel=2,
+                         linestyle='dashdot'),
     ]
 
     col: List = 'open,high,low,close,volume'.split(',')
@@ -237,7 +246,12 @@ def plot_quantile_group_ret(endog: pd.Series,
 
 #     return gs
 
-def get_distribution_data(signal_ser: pd.Series, forward_returns: pd.Series, q: int = 50, window: int = 5, group: bool = False) -> pd.DataFrame:
+
+def get_distribution_data(signal_ser: pd.Series,
+                          forward_returns: pd.Series,
+                          q: int = 50,
+                          window: int = 5,
+                          group: bool = False) -> pd.DataFrame:
     """构建用于画信号于累计收益分布的数据
 
     Parameters
@@ -256,7 +270,8 @@ def get_distribution_data(signal_ser: pd.Series, forward_returns: pd.Series, q: 
     pd.DataFrame
         index columns-forward_ret_avg|roll_ret
     """
-    if not (isinstance(signal_ser, pd.Series) and isinstance(forward_returns, pd.Series)):
+    if not (isinstance(signal_ser, pd.Series)
+            and isinstance(forward_returns, pd.Series)):
 
         raise ValueError('signal_ser和forward_returns数据类型必须为pd.Series')
 
@@ -270,12 +285,12 @@ def get_distribution_data(signal_ser: pd.Series, forward_returns: pd.Series, q: 
     if group:
         combine_df['group'] += 1
 
-    aggregation_frame: pd.Series = combine_df.groupby('group')[
-        'forward_ret'].mean()
+    aggregation_frame: pd.Series = combine_df.groupby(
+        'group')['forward_ret'].mean()
     aggregation_frame: pd.DataFrame = aggregation_frame.to_frame(
         'forward_ret_avg')
-    aggregation_frame['roll_ret'] = aggregation_frame['forward_ret_avg'].rolling(
-        window).sum()
+    aggregation_frame['roll_ret'] = aggregation_frame[
+        'forward_ret_avg'].rolling(window).sum()
 
     return aggregation_frame
 
@@ -288,7 +303,10 @@ def get_ticks_from_index(ser_index: pd.Series) -> np.ndarray:
     return np.sort(np.unique(np.append(left, right)))
 
 
-def plot_hist_signal_with_cum(aggregation_frame: pd.DataFrame, is_categories_index: bool = True, title: str = '', ax: mpl.axes = None) -> mpl.axes:
+def plot_hist_signal_with_cum(aggregation_frame: pd.DataFrame,
+                              is_categories_index: bool = True,
+                              title: str = '',
+                              ax: mpl.axes = None) -> mpl.axes:
     """画信号分布于累计收益的分布图
 
     Parameters
@@ -309,7 +327,7 @@ def plot_hist_signal_with_cum(aggregation_frame: pd.DataFrame, is_categories_ind
 
     if is_categories_index:
 
-        idx: np.ndarray = np.arange(len(aggregation_frame)+1)
+        idx: np.ndarray = np.arange(len(aggregation_frame) + 1)
         slice_idx: np.ndarray = idx[:-1]
         ticks_arr = get_ticks_from_index(aggregation_frame.index)
 
@@ -322,7 +340,7 @@ def plot_hist_signal_with_cum(aggregation_frame: pd.DataFrame, is_categories_ind
     ax.bar(slice_idx, aggregation_frame['forward_ret_avg'], align='edge')
     ax.plot(slice_idx, aggregation_frame['roll_ret'], color='r')
     ax.axhline(0, color='darkgray')
-    ax.set_xticks(idx, ticks_arr, rotation=90)
+    ax.set_xticks(idx, labels=ticks_arr, rotation=90)
     ax.yaxis.set_major_formatter('{x:.2%}')
     ax.set_title(title)
     ax.set_ylabel('收益率(%)')
@@ -331,7 +349,13 @@ def plot_hist_signal_with_cum(aggregation_frame: pd.DataFrame, is_categories_ind
     return ax
 
 
-def plot_distribution(signal_ser: pd.Series, forward_ret_ser: pd.Series, forward_window: int = 5, q: int = 50, group: bool = True, title: str = '', ax: mpl.axes = None) -> mpl.axes:
+def plot_distribution(signal_ser: pd.Series,
+                      forward_ret_ser: pd.Series,
+                      forward_window: int = 5,
+                      q: int = 50,
+                      group: bool = True,
+                      title: str = '',
+                      ax: mpl.axes = None) -> mpl.axes:
     """画信号对应的N日涨幅与信号分布图
 
     Args:
@@ -349,27 +373,40 @@ def plot_distribution(signal_ser: pd.Series, forward_ret_ser: pd.Series, forward
     gs = GridSpec(1, 5)
     ax1 = fig.add_subplot(gs[0, :3])
     ax2 = fig.add_subplot(gs[0, 3:])
-    aggregation_frame = get_distribution_data(
-        signal_ser, forward_ret_ser, q=q, window=forward_window, group=group)
+    aggregation_frame = get_distribution_data(signal_ser,
+                                              forward_ret_ser,
+                                              q=q,
+                                              window=forward_window,
+                                              group=group)
 
     is_categories_index: bool = not group
-    ax1 = plot_hist_signal_with_cum(
-        aggregation_frame, is_categories_index, '信号期望与累计收益分布', ax1)
+    ax1 = plot_hist_signal_with_cum(aggregation_frame, is_categories_index,
+                                    '信号期望与累计收益分布', ax1)
 
-    avg, std, kur, skew = signal_ser.mean(), signal_ser.std(
-    ), signal_ser.kurt(), signal_ser.skew()
+    avg, std, kur, skew = signal_ser.mean(), signal_ser.std(), signal_ser.kurt(
+    ), signal_ser.skew()
 
-    ax2.text(0.65, 0.95, (" Mean %.3f \n Std. %.3f \n kurtosis %.3f \n Skew %.3f" % (avg, std, kur, skew)), fontsize=16, bbox={
-             'facecolor': 'white', 'alpha': 1, 'pad': 5}, transform=ax2.transAxes, verticalalignment='top')
+    ax2.text(0.65,
+             0.95, (" Mean %.3f \n Std. %.3f \n kurtosis %.3f \n Skew %.3f" %
+                    (avg, std, kur, skew)),
+             fontsize=16,
+             bbox={
+                 'facecolor': 'white',
+                 'alpha': 1,
+                 'pad': 5
+             },
+             transform=ax2.transAxes,
+             verticalalignment='top')
 
     ax2.set_title('信号分布')
-    sns.histplot(signal_ser, ax=ax2)
+    sns.histplot(signal_ser.dropna(), ax=ax2)
     plt.subplots_adjust(wspace=0.6)
     plt.suptitle(title)
     return gs
 
 
-def plot_trade_flag(price: pd.DataFrame, buy_flag: pd.Series, sell_flag: pd.Series):
+def plot_trade_flag(price: pd.DataFrame, buy_flag: pd.Series,
+                    sell_flag: pd.Series):
     """买卖点标记
 
     Args:
@@ -384,13 +421,26 @@ def plot_trade_flag(price: pd.DataFrame, buy_flag: pd.Series, sell_flag: pd.Seri
     sell_flag = sell_flag.reindex(price.index)
     mc = mpf.make_marketcolors(up='r', down='g', wick='i', edge='i', ohlc='i')
     s = mpf.make_mpf_style(marketcolors=mc)
-    buy_apd = mpf.make_addplot(
-        buy_flag, type='scatter', markersize=100, marker='^', color='r')
+    buy_apd = mpf.make_addplot(buy_flag,
+                               type='scatter',
+                               markersize=100,
+                               marker='^',
+                               color='r')
 
-    sell_apd = mpf.make_addplot(
-        sell_flag, type='scatter', markersize=100, marker='v', color='g')
+    sell_apd = mpf.make_addplot(sell_flag,
+                                type='scatter',
+                                markersize=100,
+                                marker='v',
+                                color='g')
 
-    return mpf.plot(price, type='candle', style=s, datetime_format='%Y-%m-%d', volume=True, figsize=(18, 6), addplot=[buy_apd, sell_apd], warn_too_much_data=2000)
+    return mpf.plot(price,
+                    type='candle',
+                    style=s,
+                    datetime_format='%Y-%m-%d',
+                    volume=True,
+                    figsize=(18, 6),
+                    addplot=[buy_apd, sell_apd],
+                    warn_too_much_data=2000)
 
 
 def plot_algorithm_nav(result: List,
@@ -457,7 +507,8 @@ def plot_drawdowns(returns: pd.Series) -> Figure:
     }
 
     # 获取点位
-    drawdown_table: pd.DataFrame = get_drawdown_table(returns, 5).dropna(subset=['区间最大回撤 %'])
+    drawdown_table: pd.DataFrame = get_drawdown_table(
+        returns, 5).dropna(subset=['区间最大回撤 %'])
 
     drawdown_table: pd.DataFrame = drawdown_table.pipe(pd.DataFrame.astype,
                                                        dtype_mapping)
@@ -476,7 +527,8 @@ def plot_drawdowns(returns: pd.Series) -> Figure:
 
     # 获取低点
     valley_dates: List = [
-        d for d in drawdown_table['回撤最低点日'] if not pd.isnull(d)]
+        d for d in drawdown_table['回撤最低点日'] if not pd.isnull(d)
+    ]
     valley_values: List = cum_ser.loc[valley_dates].tolist()
 
     # 是否进行中
@@ -608,7 +660,8 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
             mode='markers',
             name='Close - Profit',
             customdata=a_df[['ref', 'pnl', 'pnl%']],
-            hovertemplate='Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
+            hovertemplate=
+            'Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
             marker=dict(size=a_df['pnl%'].abs(),
                         sizemode='area',
                         color='rgb(181,31,18)',
@@ -616,9 +669,9 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
                         line={
                             'color': 'rgb(181,31,18)',
                             'width': 1
-            },
-                symbol='circle',
-                sizemin=4)))
+                        },
+                        symbol='circle',
+                        sizemin=4)))
 
     fig.add_trace(
         go.Scatter(
@@ -627,7 +680,8 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
             mode='markers',
             name='Close - Loss',
             customdata=b_df[['ref', 'pnl', 'pnl%']],
-            hovertemplate='Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
+            hovertemplate=
+            'Position Id: %{customdata[0]}<br>Exit Timestamp: %{x}<br>PnL: %{customdata[1]:.6f}<br>Return: %{customdata[2]:.2%}',
             marker=dict(
                 size=b_df['pnl%'].abs(),
                 sizemode='area',
@@ -654,7 +708,7 @@ def plot_trade_pnl(trade_stats: pd.DataFrame) -> Figure:
                           'text': 'Trade PnL',
                           'x': 0.5,
                           'y': 0.9
-    })
+                      })
 
     return fig
 
@@ -815,13 +869,13 @@ def plot_orders_on_price(price: pd.Series, trade_df: pd.DataFrame) -> Figure:
         'x': 0.5,
         'y': 0.9
     },
-        yaxis_title="Price",
-        hovermode="x unified",
-        legend=dict(orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="center",
-                    x=0.5))
+                      yaxis_title="Price",
+                      hovermode="x unified",
+                      legend=dict(orientation="h",
+                                  yanchor="bottom",
+                                  y=1.02,
+                                  xanchor="center",
+                                  x=0.5))
 
     return fig
 
@@ -936,13 +990,13 @@ def plot_annual_returns(returns: pd.Series) -> Figure:
         'x': 0.5,
         'y': 0.9
     },
-        yaxis_title="Year",
-        xaxis_tickformat='.2%',
-        legend=dict(orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="center",
-                    x=0.5))
+                      yaxis_title="Year",
+                      xaxis_tickformat='.2%',
+                      legend=dict(orientation="h",
+                                  yanchor="bottom",
+                                  y=1.02,
+                                  xanchor="center",
+                                  x=0.5))
 
     fig.add_vline(x=ann_ret_df.mean(), line_dash='dash')
 
@@ -1046,10 +1100,12 @@ def plotly_table(df: pd.DataFrame, index_name: str = '') -> Figure:
     return fig
 
 
-def plot_params_table_visualization(par_frame: pd.DataFrame, rows: int, size: int = None):
+def plot_params_table_visualization(par_frame: pd.DataFrame,
+                                    rows: int,
+                                    size: int = None):
 
     if (size is not None) and (rows is None):
-        rows = size//2+1 if size % 2 else size
+        rows = size // 2 + 1 if size % 2 else size
 
     elif (size is None) and (rows is None):
         raise ValueError('size和rows不能同时为空!')
@@ -1067,13 +1123,11 @@ def plot_params_table_visualization(par_frame: pd.DataFrame, rows: int, size: in
     for name, df in par_frame.groupby(level='窗口期'):
 
         ax1 = df.reset_index(level='窗口期', drop=True)["年化收益率(%)"].plot(
-            marker="o", title=f"极端参数与年化收益率(window={name})", ax=g.next_cell()
-        )
+            marker="o", title=f"极端参数与年化收益率(window={name})", ax=g.next_cell())
         ax1.axhline(0, ls=':', color='darkgray')
         ax1.set_ylabel("年化收益率(%)")
         ax2 = df.reset_index(level='窗口期', drop=True)["夏普"].plot(
-            marker="o", title=f"极端参数与夏普比率(window={name})", ax=g.next_cell()
-        )
+            marker="o", title=f"极端参数与夏普比率(window={name})", ax=g.next_cell())
         ax2.set_ylabel("夏普比率")
 
     plt.subplots_adjust(hspace=0.5)
