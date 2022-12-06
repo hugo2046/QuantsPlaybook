@@ -74,7 +74,8 @@ def _plot_orders(trade_record: pd.DataFrame, fig: go.Figure = None) -> go.Figure
     closed_mask: pd.DataFrame = trade_record.query("status==2")
 
     buy_mask: pd.DataFrame = closed_mask[["ref", "datein", "pricein", "size"]]
-    sell_mask: pd.DataFrame = closed_mask[["ref", "dateout", "priceout", "size"]]
+    sell_mask: pd.DataFrame = closed_mask[[
+        "ref", "dateout", "priceout", "size"]]
     if not buy_mask.empty:
         buy_scatter = go.Scatter(
             x=buy_mask["datein"],
@@ -412,7 +413,8 @@ def plot_against(
             showlegend=False,
             name=None,
         )
-    fig.add_trace(go.Scatter(x=other_.index, y=other_.values, **other_trace_kwargs))
+    fig.add_trace(go.Scatter(x=other_.index,
+                  y=other_.values, **other_trace_kwargs))
 
     return fig
 
@@ -524,8 +526,10 @@ def plot_cumulative(
         rets, benchmark_rets_ = rets.align(benchmark_rets, axis=0, join="left")
         if benchmark_kwargs is None:
             benchmark_kwargs: Dict = {}
-        benchmark_kwargs.update(dict(line=dict(color=COLORS["gray"]), name="Benchmark"))
-        benchmark_cumrets: pd.Series = ep.cum_returns(benchmark_rets_, start_value)
+        benchmark_kwargs.update(
+            dict(line=dict(color=COLORS["gray"]), name="Benchmark"))
+        benchmark_cumrets: pd.Series = ep.cum_returns(
+            benchmark_rets_, start_value)
         fig.add_trace(
             go.Scatter(
                 x=benchmark_cumrets.index,
@@ -597,8 +601,9 @@ def plot_underwater(
                 fillcolor="rgba(220,57,18,0.3000)",
                 line=dict(color=COLORS["red"]),
                 fill="tozeroy",
-                name="Drawdown",
-                hovertemplate=(f"<br>Drawdown:%{{y:.2%}}" f"<br>Date:%{{x:%Y-%m-%d}}"),
+                name="UnderWater",
+                hovertemplate=(
+                    f"<br>Drawdown:%{{y:.2%}}" f"<br>Date:%{{x:%Y-%m-%d}}"),
             )
         ],
     )
@@ -655,7 +660,8 @@ def plot_pnl(
     marker_size: pd.Series = min_rel_rescale(
         trade_record["pnl%"].abs(), marker_size_range
     )
-    opacity: pd.Series = max_rel_rescale(trade_record["pnl%"].abs(), opacity_range)
+    opacity: pd.Series = max_rel_rescale(
+        trade_record["pnl%"].abs(), opacity_range)
 
     open_mask: pd.Series = trade_record["status"] == 1
     closed_frame: pd.Series = trade_record["status"] == 2
@@ -670,7 +676,8 @@ def plot_pnl(
             f"<br>PnL: %{{customdata[1]:.2f}}"
             f"<br>Return: %{{customdata[2]:.2%}}"
         )
-        customdata: pd.DataFrame = trade_record.loc[mask, ["ref", "pnl", "pnl%"]]
+        customdata: pd.DataFrame = trade_record.loc[mask, [
+            "ref", "pnl", "pnl%"]]
         if not mask.empty:
 
             scatter = go.Scatter(
@@ -749,7 +756,8 @@ def plot_drawdowns(
     drawdown_table: pd.DataFrame = gen_drawdown_table(rets, top_n)
     drawdown_table["id"] = np.arange(top_n) + 1
     drawdown_table["peak value"] = drawdown_table["Peak date"].map(line_ser)
-    drawdown_table["valley value"] = drawdown_table["Valley date"].map(line_ser)
+    drawdown_table["valley value"] = drawdown_table["Valley date"].map(
+        line_ser)
     drawdown_table["recovery value"] = drawdown_table["Recovery date"].map(
         lambda x: line_ser.to_dict().get(x, line_ser[-1])
     )
@@ -767,7 +775,8 @@ def plot_drawdowns(
 
         fig = make_figure(use_widgets=use_widgets)
 
-    fig.add_trace(go.Scatter(x=line_ser.index, y=line_ser.values, **ts_trace_kwargs))
+    fig.add_trace(go.Scatter(x=line_ser.index,
+                  y=line_ser.values, **ts_trace_kwargs))
     fig.update_layout(**layout_kwargs)
 
     # Plot peak markers
@@ -842,7 +851,8 @@ def plot_drawdowns(
 
         # Plot recovery markers
         recovery_customdata: np.ndarray = drawdown_table.loc[
-            recovered_mask, ["id", "Net drawdown in %", "End Duration", "Duration"]
+            recovered_mask, ["id", "Net drawdown in %",
+                             "End Duration", "Duration"]
         ]
         recovery_scatter = go.Scatter(
             x=drawdown_table.loc[recovered_mask, "Recovery date"],
@@ -959,6 +969,7 @@ def plot_annual_returns(
     else:
         raise ValueError("returns类型必须为pd.Series或bt_result.result")
 
+    ann_ret_df.index = ann_ret_df.index.map(str)
     colors: List = ["crimson" if v > 0 else "#7a9e9f" for v in ann_ret_df]
 
     fig = make_figure(
@@ -968,6 +979,9 @@ def plot_annual_returns(
             y=ann_ret_df.index,
             orientation="h",
             marker_color=colors,
+            name='年度收益情况',
+            hovertemplate=(f'<br>Year:%{{y}}'
+                           f'<br>Return:%{{x:.2%}}')
         ),
     )
 
@@ -975,6 +989,7 @@ def plot_annual_returns(
         title={"text": "Annual returns", "x": 0.5, "y": 0.9},
         yaxis_title="Year",
         xaxis_tickformat=".2%",
+        yaxis_tickformat='%Y',
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
     )
 
@@ -1007,6 +1022,9 @@ def plot_monthly_heatmap(returns: pd.Series, use_widgets: bool = False) -> go.Fi
             y=monthly_ret_table.index.map(str),
             text=monthly_ret_table.values,
             texttemplate="%{text:.2%}",
+            hovertemplate=(f'<br>Year:%{{y}}年'
+                f'<br>Month:%{{x}}月'
+                f'<br>Return:%{{z:.2%}}')
         ),
     )
     fig.update_layout(
