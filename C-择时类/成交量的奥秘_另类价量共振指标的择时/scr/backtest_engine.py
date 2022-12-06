@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2022-10-27 20:34:02
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2022-12-06 15:31:31
+LastEditTime: 2022-12-06 16:01:11
 Description: 回测所需配件
 '''
 import datetime
@@ -12,6 +12,7 @@ from typing import Dict
 
 import backtrader as bt
 import backtrader.feeds as btfeeds
+import numpy as np
 import pandas as pd
 
 from .bt_strategy import VM_Strategy
