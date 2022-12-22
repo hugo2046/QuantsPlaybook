@@ -1,4 +1,5 @@
 <!--
+
  * @Author: your name
  * @Date: 2022-04-17 00:54:11
  * @LastEditTime: 2022-12-09 16:08:37
@@ -166,11 +167,18 @@
                 </ur>
             </td>
         </tr>
-        <tr>
+		<tr>
             <td><strong>择时</strong></td>
             <td>成交量的奥秘：另类价量共振指标的择时</td>
             <td>《2019-02-22_华创证券_金融工程_成交量的奥秘：另类价量共振指标的择时》</td>
         </tr>
+        <tr>
+            <td><strong>择时</strong></td>
+            <td><a href="https://www.joinquant.com/view/community/detail/42bd804bcf72f0a086b442f6769fd3ad">均线交叉结合通道突破择时研究</a></td>
+            <td>《20180410-申万宏源-均线交叉结合通道突破择时研究》</td>
+        </tr>
+        <tr>
+		
         <tr>
             <td><strong>因子构建</strong></td>
             <td><a href="https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980">基于量价关系度量股票的买卖压力</a></td>
@@ -316,6 +324,7 @@
     </tboday>
 </table>
 
+
 **指数择时类**
 
 1. RSRS择时指标
@@ -437,6 +446,14 @@
      参考:
 
      > 《20220805*华创证券*宏观研究_特征分布建模择时系列之二：物极必反，巧妙做空，特征成交量，模型终完备》
+
+19. 均线交叉结合通道突破择时研究
+
+    总结了个性均线的优劣和均线的本质
+
+    参考：
+
+    > 《20180410-申万宏源-均线交叉结合通道突破择时研究》
 
 **因子**
 
