@@ -177,153 +177,150 @@
             <td><a href="https://www.joinquant.com/view/community/detail/42bd804bcf72f0a086b442f6769fd3ad">均线交叉结合通道突破择时研究</a></td>
             <td>《20180410-申万宏源-均线交叉结合通道突破择时研究》</td>
         </tr>
-        <tr>
-		
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980">基于量价关系度量股票的买卖压力</a></td>
-            <td>
-                《20191029-东方证券- 因子选股系列研究六十：基于量价关系度量股票的买卖压力》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/51d97afb8d619ffb5219d2e166414d70">来自优秀基金经理的超额收益</a></td>
-            <td>
-                <li>《20190115-东方证券-因子选股系列之五十：A股行业内选股分析总结》</li>
-                <li>《20191127-东方证券-《因子选股系列研究之六十二》：来自优秀基金经理的超额收益》</li>
-                <li>《20200528-东方证券-金融工程专题报告：东方A股因子风险模型（DFQ~2020）》</li>
-                <li>《20200707-海通证券-选股因子系列研究（六十八）：基金重仓超配因子及其对指数增强组合的影响》</li>
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/521e854c0accab11c0bac2a9d8dac484">市场微观结构研究系列（1）：A股反转之力的微观来源</a></td>
-            <td>
-                《20191223-开源证券-市场微观结构研究系列（1）：A股反转之力的微观来源》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/8c60c343407d41b09def615c52c8693d">多因子指数增强的思路</a></td>
-            <td>
-                <li>《【华泰金工】指数增强方法汇总及实例20180531》</li>
-                <li>《20180705-天风证券-金工专题报告：基于自适应风险控制的指数增强策略》</li>
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/6e4ddf0a1cf3bb17367b463cefe3b5e4?type=1">特质波动率因子</a></td>
-            <td>
-                20200528-东吴证券-“波动率选股因子”系列研究（一）：寻找特质波动率中的纯真信息，剔除跨期截面相关性的纯真波动率因子》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/1c3aa95d7485065d977f9ba17cc014fd">处置效应因子</a></td>
-            <td>
-                <li>《20170707-广发证券-行为金融因子研究之一：资本利得突出量CGO与风险偏好》</li>
-                <li>《20190531-国信证券-行为金融学系列之二：处置效应与新增信息参与定价的反应迟滞》</li>
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/92d2ccab2d412dbfa7df366369e6373b">技术因子-上下影线因子</a></td>
-            <td>
-                《20200619-东吴证券-“技术分析拥抱选股因子”系列研究（二）：上下影线，蜡烛好还是威廉好》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/fa281cadcbbca005854c7c45c3c9bd58">聪明钱因子模型</a></td>
-            <td>
-                《20200209-开源证券-市场微观结构研究系列（3）：聪明钱因子模型的2.0版本》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/d709c7c9abbee23149d3d4d07e128357">A股市场中如何构造动量因子?</a></td>
-            <td>
-                《20200721-开源证券-开源量化评论（3）：A股市场中如何构造动量因子？》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/a35fe484e3164893d4e48fafd3e08fd2">振幅因子的隐藏结构</a></td>
-            <td>
-                《20200516-开源证券-市场微观结构研究系列（7）：振幅因子的隐藏结构》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/f72c599da7d4ca155b25bff4b281e2e6">高质量动量因子选股</a></td>
-            <td>
-                图书《构建量化动量选股系统的实用指南》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/992fe40cc06c0bde50aa4aaf93fa042c">APM因子改进模型</a></td>
-            <td>
-                《20200307-开源证券-市场微观结构研究系列（5）：APM因子模型的进阶版》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/539e74507dbf571f2be21d8fa4ebb8e6">高频价量相关性，意想不到的选股因子</a></td>
-            <td>
-                《20200223_东吴证券_“技术分析拥抱选股因子”系列研究（一）：高频价量相关性，意想不到的选股因子》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/6740756eee3287ae66cbb239a9c53479">"因时制宜"系列研究之二：基于企业生命周期的因子有效性分析</a></td>
-            <td>
-                <strong>composition_factor算法来源于</strong>
-                <li>《20190104-华泰证券-因子合成方法实证分析》</li>
-                <strong><a href="https://github.com/bkelly-lab/ipca">IPCA</a></strong>源于
-                <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2983919">《Instrumented Principal Component Analysis》</a></li>
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/a873b8ba2b510a228eac411eafb93bea">因子择时</a></td>
-            <td>
-                来自于:光大证券路演
-            </td>
-        </tr>
-        <tr>
-            <td><strong>因子构建</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/39135">分析师推荐概率增强金股组合策略</a></td>
-            <td>
-                《20220822_浙商证券_投资策略_金融工程深度：金股数据库及金股组合增强策略（一）》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>量化价值</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/30543ad72454c7648b03bae542af55c9">罗伯·瑞克超额现金流选股法则</a></td>
-            <td>
-                《20151019-申万宏源-申万大师系列.价值投资篇之十三：罗伯.瑞克超额现金流选股法则》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>量化价值</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/c4bb321a8124ed575a66a88caf100b9f">华泰FFScore</a></td>
-            <td>
-                《20170209-华泰证券-华泰价值选股之FFScore模型：比乔斯基选股模型A股实证研究》
-            </td>
-        </tr>
-        <tr>
-            <td><strong>组合优化</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/2044ade4baf51132d257f2d3c0e56597">DE进化算法下的组合优化</a></td>
-            <td>
-                <li>《20191101-浙商证券-FOF组合系列（一）：回撤最小目标下的偏债FOF组合构建以，一家公募产品为例》</li>
-                <li>《20191018-浙商证券-人工智能系列（二）：人工智能再出发，次优理论下的组合配置与策略构建》</li>
-            </td>
-        </tr>
-    </tboday>
+		<tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980">基于量价关系度量股票的买卖压力</a></td>
+        <td>
+            《20191029-东方证券- 因子选股系列研究六十：基于量价关系度量股票的买卖压力》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/51d97afb8d619ffb5219d2e166414d70">来自优秀基金经理的超额收益</a></td>
+        <td>
+            <li>《20190115-东方证券-因子选股系列之五十：A股行业内选股分析总结》</li>
+            <li>《20191127-东方证券-《因子选股系列研究之六十二》：来自优秀基金经理的超额收益》</li>
+            <li>《20200528-东方证券-金融工程专题报告：东方A股因子风险模型（DFQ~2020）》</li>
+            <li>《20200707-海通证券-选股因子系列研究（六十八）：基金重仓超配因子及其对指数增强组合的影响》</li>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/521e854c0accab11c0bac2a9d8dac484">市场微观结构研究系列（1）：A股反转之力的微观来源</a></td>
+        <td>
+            《20191223-开源证券-市场微观结构研究系列（1）：A股反转之力的微观来源》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/8c60c343407d41b09def615c52c8693d">多因子指数增强的思路</a></td>
+        <td>
+            <li>《【华泰金工】指数增强方法汇总及实例20180531》</li>
+            <li>《20180705-天风证券-金工专题报告：基于自适应风险控制的指数增强策略》</li>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/6e4ddf0a1cf3bb17367b463cefe3b5e4?type=1">特质波动率因子</a></td>
+        <td>
+            20200528-东吴证券-“波动率选股因子”系列研究（一）：寻找特质波动率中的纯真信息，剔除跨期截面相关性的纯真波动率因子》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/1c3aa95d7485065d977f9ba17cc014fd">处置效应因子</a></td>
+        <td>
+            <li>《20170707-广发证券-行为金融因子研究之一：资本利得突出量CGO与风险偏好》</li>
+            <li>《20190531-国信证券-行为金融学系列之二：处置效应与新增信息参与定价的反应迟滞》</li>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/92d2ccab2d412dbfa7df366369e6373b">技术因子-上下影线因子</a></td>
+        <td>
+            《20200619-东吴证券-“技术分析拥抱选股因子”系列研究（二）：上下影线，蜡烛好还是威廉好》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/fa281cadcbbca005854c7c45c3c9bd58">聪明钱因子模型</a></td>
+        <td>
+            《20200209-开源证券-市场微观结构研究系列（3）：聪明钱因子模型的2.0版本》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/d709c7c9abbee23149d3d4d07e128357">A股市场中如何构造动量因子?</a></td>
+        <td>
+            《20200721-开源证券-开源量化评论（3）：A股市场中如何构造动量因子？》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/a35fe484e3164893d4e48fafd3e08fd2">振幅因子的隐藏结构</a></td>
+        <td>
+            《20200516-开源证券-市场微观结构研究系列（7）：振幅因子的隐藏结构》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/f72c599da7d4ca155b25bff4b281e2e6">高质量动量因子选股</a></td>
+        <td>
+            图书《构建量化动量选股系统的实用指南》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/992fe40cc06c0bde50aa4aaf93fa042c">APM因子改进模型</a></td>
+        <td>
+            《20200307-开源证券-市场微观结构研究系列（5）：APM因子模型的进阶版》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/539e74507dbf571f2be21d8fa4ebb8e6">高频价量相关性，意想不到的选股因子</a></td>
+        <td>
+            《20200223_东吴证券_“技术分析拥抱选股因子”系列研究（一）：高频价量相关性，意想不到的选股因子》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/6740756eee3287ae66cbb239a9c53479">"因时制宜"系列研究之二：基于企业生命周期的因子有效性分析</a></td>
+        <td>
+            <strong>composition_factor算法来源于</strong>
+            <li>《20190104-华泰证券-因子合成方法实证分析》</li>
+            <strong><a href="https://github.com/bkelly-lab/ipca">IPCA</a></strong>源于
+            <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2983919">《Instrumented Principal Component Analysis》</a></li>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/a873b8ba2b510a228eac411eafb93bea">因子择时</a></td>
+        <td>
+            来自于:光大证券路演
+        </td>
+    </tr>
+    <tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/39135">分析师推荐概率增强金股组合策略</a></td>
+        <td>
+            《20220822_浙商证券_投资策略_金融工程深度：金股数据库及金股组合增强策略（一）》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>量化价值</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/30543ad72454c7648b03bae542af55c9">罗伯·瑞克超额现金流选股法则</a></td>
+        <td>
+            《20151019-申万宏源-申万大师系列.价值投资篇之十三：罗伯.瑞克超额现金流选股法则》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>量化价值</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/c4bb321a8124ed575a66a88caf100b9f">华泰FFScore</a></td>
+        <td>
+            《20170209-华泰证券-华泰价值选股之FFScore模型：比乔斯基选股模型A股实证研究》
+        </td>
+    </tr>
+    <tr>
+        <td><strong>组合优化</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/2044ade4baf51132d257f2d3c0e56597">DE进化算法下的组合优化</a></td>
+        <td>
+            <li>《20191101-浙商证券-FOF组合系列（一）：回撤最小目标下的偏债FOF组合构建以，一家公募产品为例》</li>
+            <li>《20191018-浙商证券-人工智能系列（二）：人工智能再出发，次优理论下的组合配置与策略构建》</li>
+        </td>
+    </tr>
+</tboday>
 </table>
-
 
 **指数择时类**
 
