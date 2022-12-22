@@ -178,7 +178,7 @@
             <td>《20180410-申万宏源-均线交叉结合通道突破择时研究》</td>
         </tr>
         <tr>
-		
+
         <tr>
             <td><strong>因子构建</strong></td>
             <td><a href="https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980">基于量价关系度量股票的买卖压力</a></td>
