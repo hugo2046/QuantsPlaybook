@@ -178,6 +178,12 @@
             <td>《20180410-申万宏源-均线交叉结合通道突破择时研究》</td>
         </tr>
 		<tr>
+         <tr>
+            <td><strong>择时</strong></td>
+            <td><a href="https://nbviewer.org/github/hugo2046/QuantsPlaybook/blob/dev/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E6%8A%95%E8%B5%84%E8%80%85%E6%83%85%E7%BB%AA%E6%8C%87%E6%95%B0%E6%8B%A9%E6%97%B6%E6%A8%A1%E5%9E%8B/%E6%8A%95%E8%B5%84%E8%80%85%E6%83%85%E7%BB%AA%E6%8C%87%E6%95%B0%E6%8B%A9%E6%97%B6%E6%A8%A1%E5%9E%8B.ipynb">投资者情绪指数择时模型</a></td>
+            <td>《20140804_国信证券_量化择时系列报告之二：国信投资者情绪指数择时模型》</td>
+        </tr>
+		<tr>
         <td><strong>因子构建</strong></td>
         <td><a href="https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980">基于量价关系度量股票的买卖压力</a></td>
         <td>
@@ -322,6 +328,7 @@
 </tboday>
 </table>
 
+
 **指数择时类**
 
 1. RSRS择时指标
@@ -378,6 +385,7 @@
 
 9. [时变夏普](https://www.joinquant.com/view/community/detail/634a7a14e79f87d44c980094c5e8d5d1)
     <br>参考:</br>
+    
     >《20101028-国海证券-新量化择时指标之二：时变夏普比率把握长中短趋势》
     >
     >《20120726-国信证券-时变夏普率的择时策略》
@@ -389,7 +397,7 @@
     >《tvsharpe》
     >
     >《varcov jf94-1994》
-
+    
 10. [北向资金交易能力一定强吗](https://www.joinquant.com/view/community/detail/c11731e00f6de8e489ed64cec1621c33)
     <br>参考:</br>
     >《20200624-安信证券-金融工程主题报告：北向资金交易能力一定强吗》
