@@ -303,6 +303,13 @@
             《20220822_浙商证券_投资策略_金融工程深度：金股数据库及金股组合增强策略（一）》
         </td>
     </tr>
+<tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://nbviewer.org/github/hugo2046/QuantsPlaybook/blob/ecb97803a7c1e40bca6555fa41ff093439a81a55/B-%E5%9B%A0%E5%AD%90%E6%9E%84%E5%BB%BA%E7%B1%BB/%E8%A1%8C%E4%B8%9A%E6%9C%89%E6%95%88%E9%87%8F%E4%BB%B7%E5%9B%A0%E5%AD%90%E4%B8%8E%E8%A1%8C%E4%B8%9A%E8%BD%AE%E5%8A%A8%E7%AD%96%E7%95%A5/%E8%A1%8C%E4%B8%9A%E6%9C%89%E6%95%88%E9%87%8F%E4%BB%B7%E5%9B%A0%E5%AD%90%E4%B8%8E%E8%A1%8C%E4%B8%9A%E8%BD%AE%E5%8A%A8%E7%AD%96%E7%95%A5ETF.ipynb">行业有效量价因子与行业轮动策略</a></td>
+        <td>
+            《【华西证券】金融工程研究报告：行业有效量价因子与行业轮动策略》
+        </td>
+    </tr>
     <tr>
         <td><strong>量化价值</strong></td>
         <td><a href="https://www.joinquant.com/view/community/detail/30543ad72454c7648b03bae542af55c9">罗伯·瑞克超额现金流选股法则</a></td>
@@ -327,6 +334,7 @@
     </tr>
 </tboday>
 </table>
+
 
 
 **指数择时类**
