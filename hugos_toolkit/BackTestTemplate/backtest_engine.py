@@ -50,15 +50,9 @@ class TradeRecord(bt.Analyzer):
         pricein = trade.history[size - 1].status.price
         datein = bt.num2date(trade.history[0].status.dt)
 
-        if size == 1:
-            # 交易没有闭合
-            dateout = pd.to_datetime(trade.data.datetime.date(0))
-            priceout = trade.data.close[0]
-            hp = np.nan
-            lp = np.nan
-            barlen = np.nan
+        is_close: int = size % 2  # 0表示偶数闭合 1表示奇数未闭合
+        if is_close:
 
-        elif size == 2:
             # 交易闭合
             dateout = bt.num2date(trade.history[size - 1].status.dt)
             priceout = trade.history[size - 1].event.price
@@ -66,6 +60,14 @@ class TradeRecord(bt.Analyzer):
             lowest_in_trade = min(trade.data.low.get(ago=0, size=barlen + 1))
             hp = 100 * (highest_in_trade - pricein) / pricein
             lp = 100 * (lowest_in_trade - pricein) / pricein
+
+        else:
+            # 交易没有闭合
+            dateout = pd.to_datetime(trade.data.datetime.date(0))
+            priceout = trade.data.close[0]
+            hp = np.nan
+            lp = np.nan
+            barlen = np.nan
 
         if trade.data._timeframe >= bt.TimeFrame.Days:
             datein = datein.date()
