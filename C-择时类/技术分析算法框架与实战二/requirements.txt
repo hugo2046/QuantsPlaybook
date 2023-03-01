@@ -1,0 +1,8 @@
+loguru==0.6.0
+matplotlib==3.6.0
+mplfinance==0.12.9b7
+numpy==1.23.5
+pandas==1.5.2
+scipy==1.10.0
+statsmodels==0.13.2
+TA_Lib==0.4.21
