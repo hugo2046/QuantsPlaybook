@@ -184,6 +184,13 @@
             <td>《20140804_国信证券_量化择时系列报告之二：国信投资者情绪指数择时模型》</td>
         </tr>
 		<tr>
+            <tr>
+         <tr>
+            <td><strong>择时</strong></td>
+            <td><a href="https://nbviewer.org/github/hugo2046/QuantsPlaybook/blob/ea5bf8d7c20587db4a64b34af6c4d89def99747e/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E8%A1%8C%E4%B8%9A%E6%8C%87%E6%95%B0%E9%A1%B6%E9%83%A8%E5%92%8C%E5%BA%95%E9%83%A8%E4%BF%A1%E5%8F%B7/%E8%A1%8C%E4%B8%9A%E6%8C%87%E6%95%B0%E9%A1%B6%E9%83%A8%E5%92%8C%E5%BA%95%E9%83%A8%E4%BF%A1%E5%8F%B7.ipynb">行业指数顶部和底部信号</a></td>
+            <td>《华福证券-市场情绪指标专题（五）：行业指数顶部和底部信号，净新高占比（（NH~NL）%）-230302》</td>
+        </tr>
+		<tr>
         <td><strong>因子构建</strong></td>
         <td><a href="https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980">基于量价关系度量股票的买卖压力</a></td>
         <td>
@@ -334,6 +341,7 @@
     </tr>
 </tboday>
 </table>
+
 
 
 
