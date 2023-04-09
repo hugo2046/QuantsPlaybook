@@ -1,0 +1,77 @@
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json"
+deleted file mode 100644
+index d55f2098b..000000000
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json"
++++ /dev/null
+@@ -1 +0,0 @@
+-{"class": "Recorder", "id": "edf0b5c97b674628b5e8622d03961725", "name": "mlflow_recorder", "experiment_id": "1", "start_time": "2023-04-07 10:23:53", "end_time": null, "status": "RUNNING"}
+\ No newline at end of file
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py"
+index e3ff8ee8e..e53bfe3bd 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py"
+@@ -92,11 +92,21 @@ def get_dataset_config(
+ 
+ ################################### MODEL CONFIG ###################################
+ 
+-transformer_ts_config: Dict = {
+-    "class": "TransformerModel",
+-    "module_path": "qlib.contrib.model.pytorch_transformer_ts",
+-    "kwargs": {"seed": 42, "n_jobs": 20},
+-}
++def get_transformer_config(
++    d_feat: int, seed: int = 42, n_jobs: int = 20, method: str = "ts"
++) -> Dict:
++    if method == "ts":
++        return {
++            "class": "TransformerModel",
++            "module_path": "qlib.contrib.model.pytorch_transformer_ts",
++            "kwargs": {"seed": seed, "n_jobs": n_jobs},
++        }
++    else:
++        return {
++            "class": "TransformerModel",
++            "module_path": "qlib.contrib.model.pytorch_transformer",
++            "kwargs": {"d_feat": d_feat, 'seed': seed},
++        }
+ 
+ 
+ def get_alstm_ts_config(
+@@ -251,8 +261,6 @@ task: Dict = {
+ 
+ 
+ 
+-
+-
+ if __name__ == "__main__":
+ 
+     qlib.init(
+@@ -274,9 +282,9 @@ if __name__ == "__main__":
+         ],
+     )
+ 
+-    if (CURRENT_DIR / "factor_data" / "chip_ts_dataset.pkl").exists:
++    if (CURRENT_DIR / "factor_data" / "turnovercoeff_dataset.pkl").exists:
+         console.log("数据集已存在，开始读取...")
+-        with open(CURRENT_DIR / "factor_data" / "chip_ts_dataset.pkl", "rb") as f:
++        with open(CURRENT_DIR / "factor_data" / "turnovercoeff_dataset.pkl", "rb") as f:
+             dataset = pickle.load(f)
+ 
+     else:
+@@ -285,13 +293,13 @@ if __name__ == "__main__":
+         console.log("开始储存数据集...")
+         # 保存数据方便后续使用
+         dataset.config(dump_all=True, recursive=True)
+-        dataset.to_pickle(path="chip_ts_dataset.pkl", dump_all=True)
++        dataset.to_pickle(path="turnovercoeff_dataset.pkl", dump_all=True)
+         console.log("数据集储存完毕！")
+ 
+     console.log("初始化模型...")
+     # 实例化模型对象
+-    model = init_instance_by_config(task["model"])
+-
++    # model = init_instance_by_config(task["model"])
++    model = init_instance_by_config(get_transformer_config(d_feat=12,method='normal'))
+     # 回测参数配置
+     port_analysis_config = {
+         "executor": {

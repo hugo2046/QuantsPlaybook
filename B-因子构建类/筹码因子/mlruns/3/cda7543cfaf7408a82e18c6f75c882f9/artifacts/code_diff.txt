@@ -1,0 +1,393 @@
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc"
+index 6abb143c7..eff01598f 100644
+Binary files "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc" and "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc" differ
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/qlib_workflow.py" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/qlib_workflow.py"
+index f9d95febb..23a32f165 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/qlib_workflow.py"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/qlib_workflow.py"
+@@ -5,7 +5,7 @@ from qlib.utils import init_instance_by_config
+ from qlib.workflow import R  # 实验记录管理器
+ from qlib.workflow.record_temp import PortAnaRecord, SigAnaRecord, SignalRecord
+ from rich.console import Console
+-
++from pathlib import Path
+ console = Console()
+ 
+ 
+@@ -257,6 +257,12 @@ def run_model(
+     else:
+         model_config: Dict = MODEL_CONFIG[model]()
+         
++    if model != "gbdt":
++        CURRENT_DIR = Path(__file__).parents[0]
++        save_path:str = CURRENT_DIR / "tmp.pth"
++        print(save_path)
++    else:
++        save_path = None
+     model = init_instance_by_config(model_config)
+     # R变量可以理解为实验记录管理器。
+     console.log(f"实验名:{experiment_name},训练模型:{trained_model},开始运行...")
+@@ -265,7 +271,7 @@ def run_model(
+         ############
+         # 训练
+         #############
+-        model.fit(dataset)
++        model.fit(dataset,save_path)
+ 
+         # 训练好的模型以pkl文件形式保存到本次实验运行记录目录下的artifacts子目录
+         R.save_objects(**{trained_model: model})
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb"
+index c10092290..8ba4fbdbf 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb"
+@@ -2,7 +2,7 @@
+  "cells": [
+   {
+    "cell_type": "code",
+-   "execution_count": 17,
++   "execution_count": 1,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -17,7 +17,7 @@
+     "from scr.turnover_coefficient_ops import ARC,VRC,SRC,KRC\n",
+     "from scr.cyq_ops import (CYQK_C_T,CYQK_C_U,CYQK_C_TN,ASR_T,ASR_U,ASR_TN,CKDW_T,CKDW_U,CKDW_TN,PRP_T,PRP_U,PRP_TN)\n",
+     "from scr.factor_analyze import clean_factor_data,get_factor_group_returns\n",
+-    "from scr.qlib_workflow import run_model\n",
++    "from scr.qlib_workflow import run_model,get_dataset_config\n",
+     "from scr.plotting import plot_dist_chips,model_performance_graph\n",
+     "\n",
+     "import matplotlib.pyplot as plt\n",
+@@ -30,16 +30,16 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 18,
++   "execution_count": 2,
+    "metadata": {},
+    "outputs": [
+     {
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[57440:MainThread](2023-04-08 21:58:29,712) INFO - qlib.Initialization - [config.py:416] - default_conf: client.\n",
+-      "[57440:MainThread](2023-04-08 21:58:29,714) INFO - qlib.Initialization - [__init__.py:74] - qlib successfully initialized based on client settings.\n",
+-      "[57440:MainThread](2023-04-08 21:58:29,715) INFO - qlib.Initialization - [__init__.py:76] - data_path={'__DEFAULT_FREQ': WindowsPath('D:/WorkSpace/visualization_stock_market/sqlalchemy_to_data/测试相关/筹码分布算法/qlib_data')}\n"
++      "[75556:MainThread](2023-04-09 13:28:05,554) INFO - qlib.Initialization - [config.py:416] - default_conf: client.\n",
++      "[75556:MainThread](2023-04-09 13:28:05,557) INFO - qlib.Initialization - [__init__.py:74] - qlib successfully initialized based on client settings.\n",
++      "[75556:MainThread](2023-04-09 13:28:05,558) INFO - qlib.Initialization - [__init__.py:76] - data_path={'__DEFAULT_FREQ': WindowsPath('D:/WorkSpace/visualization_stock_market/sqlalchemy_to_data/测试相关/筹码分布算法/qlib_data')}\n"
+      ]
+     }
+    ],
+@@ -135,158 +135,44 @@
+    "execution_count": 4,
+    "metadata": {},
+    "outputs": [
+-    {
+-     "data": {
+-      "text/html": [
+-       "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"color: #7fbfbf; text-decoration-color: #7fbfbf\">[10:31:54] </span>实验名:turncoeffchips,训练模型:trained_model.pkl,开始运行<span style=\"color: #808000; text-decoration-color: #808000\">...</span>                         <a href=\"file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py\" target=\"_blank\"><span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">qlib_workflow.py</span></a><span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">:</span><a href=\"file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py#79\" target=\"_blank\"><span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">79</span></a>\n",
+-       "</pre>\n"
+-      ],
+-      "text/plain": [
+-       "\u001b[2;36m[10:31:54]\u001b[0m\u001b[2;36m \u001b[0m实验名:turncoeffchips,训练模型:trained_model.pkl,开始运行\u001b[33m...\u001b[0m                         \u001b]8;id=471045;file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py\u001b\\\u001b[2mqlib_workflow.py\u001b[0m\u001b]8;;\u001b\\\u001b[2m:\u001b[0m\u001b]8;id=483635;file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py#79\u001b\\\u001b[2m79\u001b[0m\u001b]8;;\u001b\\\n"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "[9668:MainThread](2023-04-07 10:31:54,253) WARNING - qlib.workflow - [expm.py:230] - No valid experiment found. Create a new experiment with name turncoeffchips.\n",
+-      "[9668:MainThread](2023-04-07 10:31:54,256) INFO - qlib.workflow - [exp.py:258] - Experiment 3 starts running ...\n",
+-      "[9668:MainThread](2023-04-07 10:31:54,397) INFO - qlib.workflow - [recorder.py:341] - Recorder 0085ae5575954fe9bea22c0b2fbdd533 starts running under Experiment 3 ...\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "Training until validation scores don't improve for 200 rounds\n",
+-      "[20]\ttrain's l2: 0.942943\tvalid's l2: 0.983223\n",
+-      "[40]\ttrain's l2: 0.942586\tvalid's l2: 0.983427\n",
+-      "[60]\ttrain's l2: 0.942356\tvalid's l2: 0.98355\n",
+-      "[80]\ttrain's l2: 0.942199\tvalid's l2: 0.983656\n",
+-      "[100]\ttrain's l2: 0.942118\tvalid's l2: 0.983728\n",
+-      "[120]\ttrain's l2: 0.942037\tvalid's l2: 0.983778\n",
+-      "[140]\ttrain's l2: 0.941967\tvalid's l2: 0.983819\n",
+-      "[160]\ttrain's l2: 0.941942\tvalid's l2: 0.983842\n",
+-      "[180]\ttrain's l2: 0.941941\tvalid's l2: 0.983847\n",
+-      "[200]\ttrain's l2: 0.941941\tvalid's l2: 0.983847\n",
+-      "Early stopping, best iteration is:\n",
+-      "[2]\ttrain's l2: 0.943548\tvalid's l2: 0.983069\n"
+-     ]
+-    },
+-    {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "[9668:MainThread](2023-04-07 10:31:55,293) INFO - qlib.workflow - [record_temp.py:196] - Signal record 'pred.pkl' has been saved as the artifact of the Experiment 3\n"
+-     ]
+-    },
+     {
+      "name": "stdout",
+      "output_type": "stream",
+      "text": [
+-      "'The following are prediction results of the LGBModel model.'\n",
+-      "                              score\n",
+-      "datetime   instrument              \n",
+-      "2021-01-04 000001.SZ  -4.270476e-04\n",
+-      "           000002.SZ  -6.109023e-04\n",
+-      "           000063.SZ  -4.270476e-04\n",
+-      "           000066.SZ  -3.817103e-04\n",
+-      "           000069.SZ   2.896522e-10\n",
+-      "{'IC': 0.017312552791224636,\n",
+-      " 'ICIR': 0.12389358717512429,\n",
+-      " 'Rank IC': 0.01309949138274128,\n",
+-      " 'Rank ICIR': 0.11230163292659519}\n"
++      "d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\n"
+      ]
+     },
+     {
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[9668:MainThread](2023-04-07 10:31:55,870) INFO - qlib.backtest caller - [__init__.py:93] - Create new exchange\n",
+-      "[9668:MainThread](2023-04-07 10:32:44,059) WARNING - qlib.online operator - [exchange.py:219] - $open field data contains nan.\n",
+-      "[9668:MainThread](2023-04-07 10:32:44,061) WARNING - qlib.online operator - [exchange.py:219] - $open field data contains nan.\n",
+-      "[9668:MainThread](2023-04-07 10:32:46,123) WARNING - qlib.data - [data.py:666] - load calendar error: freq=day, future=True; return current calendar!\n",
+-      "[9668:MainThread](2023-04-07 10:32:46,124) WARNING - qlib.data - [data.py:669] - You can get future calendar by referring to the following document: https://github.com/microsoft/qlib/blob/main/scripts/data_collector/contrib/README.md\n",
+-      "[9668:MainThread](2023-04-07 10:32:46,136) WARNING - qlib.BaseExecutor - [executor.py:121] - `common_infra` is not set for <qlib.backtest.executor.SimulatorExecutor object at 0x0000022610ACDF40>\n"
+-     ]
+-    },
+-    {
+-     "data": {
+-      "application/vnd.jupyter.widget-view+json": {
+-       "model_id": "0b115e26c4ca48b4a54260268ab76c3d",
+-       "version_major": 2,
+-       "version_minor": 0
+-      },
+-      "text/plain": [
+-       "backtest loop:   0%|          | 0/514 [00:00<?, ?it/s]"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "d:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\qlib\\utils\\index_data.py:482: RuntimeWarning: Mean of empty slice\n",
+-      "  return np.nanmean(self.data)\n",
+-      "[9668:MainThread](2023-04-07 10:32:49,527) INFO - qlib.workflow - [record_temp.py:505] - Portfolio analysis record 'port_analysis_1day.pkl' has been saved as the artifact of the Experiment 3\n"
++      "[75556:MainThread](2023-04-09 13:28:25,026) INFO - qlib.TransformerModel - [pytorch_transformer.py:64] - Naive Transformer:\n",
++      "batch_size : 2048\n",
++      "device : cuda:0\n"
+      ]
+     },
+     {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "'The following are analysis results of benchmark return(1day).'\n",
+-      "                       risk\n",
+-      "mean              -0.000424\n",
+-      "std                0.012109\n",
+-      "annualized_return -0.101027\n",
+-      "information_ratio -0.540792\n",
+-      "max_drawdown      -0.473379\n",
+-      "'The following are analysis results of the excess return without cost(1day).'\n",
+-      "                       risk\n",
+-      "mean               0.001193\n",
+-      "std                0.008965\n",
+-      "annualized_return  0.283819\n",
+-      "information_ratio  2.052158\n",
+-      "max_drawdown      -0.104293\n",
+-      "'The following are analysis results of the excess return with cost(1day).'\n",
+-      "                       risk\n",
+-      "mean              -0.000667\n",
+-      "std                0.008951\n",
+-      "annualized_return -0.158663\n",
+-      "information_ratio -1.148936\n",
+-      "max_drawdown      -0.357776\n"
+-     ]
+-    },
+-    {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "[9668:MainThread](2023-04-07 10:32:49,543) INFO - qlib.workflow - [record_temp.py:530] - Indicator analysis record 'indicator_analysis_1day.pkl' has been saved as the artifact of the Experiment 3\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "'The following are analysis results of indicators(1day).'\n",
+-      "     value\n",
+-      "ffr    1.0\n",
+-      "pa     0.0\n",
+-      "pos    0.0\n",
+-      "info {'class': 'Recorder', 'id': '0085ae5575954fe9bea22c0b2fbdd533', 'name': 'mlflow_recorder', 'experiment_id': '3', 'start_time': '2023-04-07 10:31:54', 'end_time': None, 'status': 'RUNNING'}\n"
+-     ]
+-    },
+-    {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "[9668:MainThread](2023-04-07 10:32:49,549) INFO - qlib.timer - [log.py:128] - Time cost: 0.002s | waiting `async_log` Done\n"
++     "ename": "DeferredCudaCallError",
++     "evalue": "CUDA call failed lazily at initialization with error: module 'torch' has no attribute 'version'\n\nCUDA call was originally invoked at:\n\n['  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\runpy.py\", line 194, in _run_module_as_main\\n    return _run_code(code, main_globals, None,\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\runpy.py\", line 87, in _run_code\\n    exec(code, run_globals)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel_launcher.py\", line 17, in <module>\\n    app.launch_new_instance()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\traitlets\\\\config\\\\application.py\", line 1043, in launch_instance\\n    app.start()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelapp.py\", line 725, in start\\n    self.io_loop.start()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\tornado\\\\platform\\\\asyncio.py\", line 215, in start\\n    self.asyncio_loop.run_forever()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\asyncio\\\\base_events.py\", line 570, in run_forever\\n    self._run_once()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\asyncio\\\\base_events.py\", line 1859, in _run_once\\n    handle._run()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\asyncio\\\\events.py\", line 81, in _run\\n    self._context.run(self._callback, *self._args)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelbase.py\", line 513, in dispatch_queue\\n    await self.process_one()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelbase.py\", line 502, in process_one\\n    await dispatch(*args)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelbase.py\", line 409, in dispatch_shell\\n    await result\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelbase.py\", line 729, in execute_request\\n    reply_content = await reply_content\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\ipkernel.py\", line 422, in do_execute\\n    res = shell.run_cell(\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\zmqshell.py\", line 540, in run_cell\\n    return super().run_cell(*args, **kwargs)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 2961, in run_cell\\n    result = self._run_cell(\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 3016, in _run_cell\\n    result = runner(coro)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\async_helpers.py\", line 129, in _pseudo_sync_runner\\n    coro.send(None)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 3221, in run_cell_async\\n    has_raised = await self.run_ast_nodes(code_ast.body, cell_name,\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 3400, in run_ast_nodes\\n    if await self.run_code(code, result, async_=asy):\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 3460, in run_code\\n    exec(code_obj, self.user_global_ns, self.user_ns)\\n', '  File \"C:\\\\Users\\\\华思远\\\\AppData\\\\Local\\\\Temp\\\\ipykernel_75556\\\\2540924473.py\", line 30, in <module>\\n    record_dict: Dict = run_model(\\n', '  File \"d:\\\\WorkSpace\\\\visualization_stock_market\\\\sqlalchemy_to_data\\\\测试相关\\\\筹码分布算法\\\\scr\\\\qlib_workflow.py\", line 266, in run_model\\n    model = init_instance_by_config(model_config)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\utils\\\\__init__.py\", line 435, in init_instance_by_config\\n    klass, cls_kwargs = get_callable_kwargs(config, default_module=default_module)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\utils\\\\__init__.py\", line 365, in get_callable_kwargs\\n    module = get_module_by_module_path(m_path)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\utils\\\\__init__.py\", line 310, in get_module_by_module_path\\n    module = importlib.import_module(module_path)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\importlib\\\\__init__.py\", line 127, in import_module\\n    return _bootstrap._gcd_import(name[level:], package, level)\\n', '  File \"<frozen importlib._bootstrap>\", line 1014, in _gcd_import\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 961, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"<frozen importlib._bootstrap>\", line 1014, in _gcd_import\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 975, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 671, in _load_unlocked\\n', '  File \"<frozen importlib._bootstrap_external>\", line 843, in exec_module\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\contrib\\\\model\\\\__init__.py\", line 28, in <module>\\n    from .pytorch_alstm import ALSTM\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 975, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 671, in _load_unlocked\\n', '  File \"<frozen importlib._bootstrap_external>\", line 843, in exec_module\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\contrib\\\\model\\\\pytorch_alstm.py\", line 15, in <module>\\n    import torch\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 975, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 671, in _load_unlocked\\n', '  File \"<frozen importlib._bootstrap_external>\", line 843, in exec_module\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\torch\\\\__init__.py\", line 1146, in <module>\\n    _C._initExtension(manager_path())\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 975, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 671, in _load_unlocked\\n', '  File \"<frozen importlib._bootstrap_external>\", line 843, in exec_module\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\torch\\\\cuda\\\\__init__.py\", line 197, in <module>\\n    _lazy_call(_check_capability)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\torch\\\\cuda\\\\__init__.py\", line 195, in _lazy_call\\n    _queued_calls.append((callable, traceback.format_stack()))\\n']",
++     "output_type": "error",
++     "traceback": [
++      "\u001b[1;31m---------------------------------------------------------------------------\u001b[0m",
++      "\u001b[1;31mAttributeError\u001b[0m                            Traceback (most recent call last)",
++      "File \u001b[1;32md:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\torch\\cuda\\__init__.py:260\u001b[0m, in \u001b[0;36m_lazy_init\u001b[1;34m()\u001b[0m\n\u001b[0;32m    259\u001b[0m \u001b[39mtry\u001b[39;00m:\n\u001b[1;32m--> 260\u001b[0m     queued_call()\n\u001b[0;32m    261\u001b[0m \u001b[39mexcept\u001b[39;00m \u001b[39mException\u001b[39;00m \u001b[39mas\u001b[39;00m e:\n",
++      "File \u001b[1;32md:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\torch\\cuda\\__init__.py:142\u001b[0m, in \u001b[0;36m_check_capability\u001b[1;34m()\u001b[0m\n\u001b[0;32m    136\u001b[0m old_gpu_warn \u001b[39m=\u001b[39m \u001b[39m\"\"\"\u001b[39m\n\u001b[0;32m    137\u001b[0m \u001b[39mFound GPU\u001b[39m\u001b[39m%d\u001b[39;00m\u001b[39m \u001b[39m\u001b[39m%s\u001b[39;00m\u001b[39m which is of cuda capability \u001b[39m\u001b[39m%d\u001b[39;00m\u001b[39m.\u001b[39m\u001b[39m%d\u001b[39;00m\u001b[39m.\u001b[39m\n\u001b[0;32m    138\u001b[0m \u001b[39mPyTorch no longer supports this GPU because it is too old.\u001b[39m\n\u001b[0;32m    139\u001b[0m \u001b[39mThe minimum cuda capability supported by this library is \u001b[39m\u001b[39m%d\u001b[39;00m\u001b[39m.\u001b[39m\u001b[39m%d\u001b[39;00m\u001b[39m.\u001b[39m\n\u001b[0;32m    140\u001b[0m \u001b[39m\u001b[39m\u001b[39m\"\"\"\u001b[39m\n\u001b[1;32m--> 142\u001b[0m \u001b[39mif\u001b[39;00m torch\u001b[39m.\u001b[39;49mversion\u001b[39m.\u001b[39mcuda \u001b[39mis\u001b[39;00m \u001b[39mnot\u001b[39;00m \u001b[39mNone\u001b[39;00m:  \u001b[39m# on ROCm we don't want this check\u001b[39;00m\n\u001b[0;32m    143\u001b[0m     CUDA_VERSION \u001b[39m=\u001b[39m torch\u001b[39m.\u001b[39m_C\u001b[39m.\u001b[39m_cuda_getCompiledVersion()\n",
++      "\u001b[1;31mAttributeError\u001b[0m: module 'torch' has no attribute 'version'",
++      "\nThe above exception was the direct cause of the following exception:\n",
++      "\u001b[1;31mDeferredCudaCallError\u001b[0m                     Traceback (most recent call last)",
++      "Cell \u001b[1;32mIn[4], line 30\u001b[0m\n\u001b[0;32m     26\u001b[0m     turncoeff_dataset\u001b[39m.\u001b[39mto_pickle(\n\u001b[0;32m     27\u001b[0m         path\u001b[39m=\u001b[39m\u001b[39m\"\u001b[39m\u001b[39m../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\u001b[39m\u001b[39m\"\u001b[39m, dump_all\u001b[39m=\u001b[39m\u001b[39mTrue\u001b[39;00m\n\u001b[0;32m     28\u001b[0m     )\n\u001b[0;32m     29\u001b[0m \u001b[39m# C:\\Users\\华思远\\tmp\\tmpdtktrjma\u001b[39;00m\n\u001b[1;32m---> 30\u001b[0m record_dict: Dict \u001b[39m=\u001b[39m run_model(\n\u001b[0;32m     31\u001b[0m     turncoeff_dataset,\n\u001b[0;32m     32\u001b[0m     \u001b[39m\"\u001b[39;49m\u001b[39mtransformer\u001b[39;49m\u001b[39m\"\u001b[39;49m,\n\u001b[0;32m     33\u001b[0m     start_time\u001b[39m=\u001b[39;49mTEST_PERIODS[\u001b[39m0\u001b[39;49m],\n\u001b[0;32m     34\u001b[0m     end_time\u001b[39m=\u001b[39;49mTEST_PERIODS[\u001b[39m1\u001b[39;49m],\n\u001b[0;32m     35\u001b[0m     model_kw\u001b[39m=\u001b[39;49m{\u001b[39m\"\u001b[39;49m\u001b[39md_feat\u001b[39;49m\u001b[39m\"\u001b[39;49m: \u001b[39m4\u001b[39;49m, \u001b[39m\"\u001b[39;49m\u001b[39mmethod\u001b[39;49m\u001b[39m\"\u001b[39;49m: \u001b[39m\"\u001b[39;49m\u001b[39mnormal\u001b[39;49m\u001b[39m\"\u001b[39;49m},\n\u001b[0;32m     36\u001b[0m     experiment_name\u001b[39m=\u001b[39;49m\u001b[39m\"\u001b[39;49m\u001b[39mturncoeffchips\u001b[39;49m\u001b[39m\"\u001b[39;49m,\n\u001b[0;32m     37\u001b[0m     trained_model\u001b[39m=\u001b[39;49m\u001b[39m\"\u001b[39;49m\u001b[39mtrained_model.pkl\u001b[39;49m\u001b[39m\"\u001b[39;49m,\n\u001b[0;32m     38\u001b[0m )\n",
++      "File \u001b[1;32md:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py:266\u001b[0m, in \u001b[0;36mrun_model\u001b[1;34m(dataset, model, start_time, end_time, model_kw, experiment_name, trained_model)\u001b[0m\n\u001b[0;32m    264\u001b[0m \u001b[39melse\u001b[39;00m:\n\u001b[0;32m    265\u001b[0m     save_path \u001b[39m=\u001b[39m \u001b[39mNone\u001b[39;00m\n\u001b[1;32m--> 266\u001b[0m model \u001b[39m=\u001b[39m init_instance_by_config(model_config)\n\u001b[0;32m    267\u001b[0m \u001b[39m# R变量可以理解为实验记录管理器。\u001b[39;00m\n\u001b[0;32m    268\u001b[0m console\u001b[39m.\u001b[39mlog(\u001b[39mf\u001b[39m\u001b[39m\"\u001b[39m\u001b[39m实验名:\u001b[39m\u001b[39m{\u001b[39;00mexperiment_name\u001b[39m}\u001b[39;00m\u001b[39m,训练模型:\u001b[39m\u001b[39m{\u001b[39;00mtrained_model\u001b[39m}\u001b[39;00m\u001b[39m,开始运行...\u001b[39m\u001b[39m\"\u001b[39m)\n",
++      "File \u001b[1;32md:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\qlib\\utils\\__init__.py:438\u001b[0m, in \u001b[0;36minit_instance_by_config\u001b[1;34m(config, default_module, accept_types, try_kwargs, **kwargs)\u001b[0m\n\u001b[0;32m    435\u001b[0m klass, cls_kwargs \u001b[39m=\u001b[39m get_callable_kwargs(config, default_module\u001b[39m=\u001b[39mdefault_module)\n\u001b[0;32m    437\u001b[0m \u001b[39mtry\u001b[39;00m:\n\u001b[1;32m--> 438\u001b[0m     \u001b[39mreturn\u001b[39;00m klass(\u001b[39m*\u001b[39;49m\u001b[39m*\u001b[39;49mcls_kwargs, \u001b[39m*\u001b[39;49m\u001b[39m*\u001b[39;49mtry_kwargs, \u001b[39m*\u001b[39;49m\u001b[39m*\u001b[39;49mkwargs)\n\u001b[0;32m    439\u001b[0m \u001b[39mexcept\u001b[39;00m (\u001b[39mTypeError\u001b[39;00m,):\n\u001b[0;32m    440\u001b[0m     \u001b[39m# TypeError for handling errors like\u001b[39;00m\n\u001b[0;32m    441\u001b[0m     \u001b[39m# 1: `XXX() got multiple values for keyword argument 'YYY'`\u001b[39;00m\n\u001b[0;32m    442\u001b[0m     \u001b[39m# 2: `XXX() got an unexpected keyword argument 'YYY'\u001b[39;00m\n\u001b[0;32m    443\u001b[0m     \u001b[39mreturn\u001b[39;00m klass(\u001b[39m*\u001b[39m\u001b[39m*\u001b[39mcls_kwargs, \u001b[39m*\u001b[39m\u001b[39m*\u001b[39mkwargs)\n",
++      "File \u001b[1;32md:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\qlib\\contrib\\model\\pytorch_transformer.py:79\u001b[0m, in \u001b[0;36mTransformerModel.__init__\u001b[1;34m(self, d_feat, d_model, batch_size, nhead, num_layers, dropout, n_epochs, lr, metric, early_stop, loss, optimizer, reg, n_jobs, GPU, seed, **kwargs)\u001b[0m\n\u001b[0;32m     76\u001b[0m     \u001b[39mraise\u001b[39;00m \u001b[39mNotImplementedError\u001b[39;00m(\u001b[39m\"\u001b[39m\u001b[39moptimizer \u001b[39m\u001b[39m{}\u001b[39;00m\u001b[39m is not supported!\u001b[39m\u001b[39m\"\u001b[39m\u001b[39m.\u001b[39mformat(optimizer))\n\u001b[0;32m     78\u001b[0m \u001b[39mself\u001b[39m\u001b[39m.\u001b[39mfitted \u001b[39m=\u001b[39m \u001b[39mFalse\u001b[39;00m\n\u001b[1;32m---> 79\u001b[0m \u001b[39mself\u001b[39;49m\u001b[39m.\u001b[39;49mmodel\u001b[39m.\u001b[39;49mto(\u001b[39mself\u001b[39;49m\u001b[39m.\u001b[39;49mdevice)\n",
++      "File \u001b[1;32md:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\torch\\nn\\modules\\module.py:1145\u001b[0m, in \u001b[0;36mModule.to\u001b[1;34m(self, *args, **kwargs)\u001b[0m\n\u001b[0;32m   1141\u001b[0m         \u001b[39mreturn\u001b[39;00m t\u001b[39m.\u001b[39mto(device, dtype \u001b[39mif\u001b[39;00m t\u001b[39m.\u001b[39mis_floating_point() \u001b[39mor\u001b[39;00m t\u001b[39m.\u001b[39mis_complex() \u001b[39melse\u001b[39;00m \u001b[39mNone\u001b[39;00m,\n\u001b[0;32m   1142\u001b[0m                     non_blocking, memory_format\u001b[39m=\u001b[39mconvert_to_format)\n\u001b[0;32m   1143\u001b[0m     \u001b[39mreturn\u001b[39;00m t\u001b[39m.\u001b[39mto(device, dtype \u001b[39mif\u001b[39;00m t\u001b[39m.\u001b[39mis_floating_point() \u001b[39mor\u001b[39;00m t\u001b[39m.\u001b[39mis_complex() \u001b[39melse\u001b[39;00m \u001b[39mNone\u001b[39;00m, non_blocking)\n\u001b[1;32m-> 1145\u001b[0m \u001b[39mreturn\u001b[39;00m \u001b[39mself\u001b[39;49m\u001b[39m.\u001b[39;49m_apply(convert)\n",
++      "File \u001b[1;32md:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\torch\\nn\\modules\\module.py:797\u001b[0m, in \u001b[0;36mModule._apply\u001b[1;34m(self, fn)\u001b[0m\n\u001b[0;32m    795\u001b[0m \u001b[39mdef\u001b[39;00m \u001b[39m_apply\u001b[39m(\u001b[39mself\u001b[39m, fn):\n\u001b[0;32m    796\u001b[0m     \u001b[39mfor\u001b[39;00m module \u001b[39min\u001b[39;00m \u001b[39mself\u001b[39m\u001b[39m.\u001b[39mchildren():\n\u001b[1;32m--> 797\u001b[0m         module\u001b[39m.\u001b[39;49m_apply(fn)\n\u001b[0;32m    799\u001b[0m     \u001b[39mdef\u001b[39;00m \u001b[39mcompute_should_use_set_data\u001b[39m(tensor, tensor_applied):\n\u001b[0;32m    800\u001b[0m         \u001b[39mif\u001b[39;00m torch\u001b[39m.\u001b[39m_has_compatible_shallow_copy_type(tensor, tensor_applied):\n\u001b[0;32m    801\u001b[0m             \u001b[39m# If the new tensor has compatible tensor type as the existing tensor,\u001b[39;00m\n\u001b[0;32m    802\u001b[0m             \u001b[39m# the current behavior is to change the tensor in-place using `.data =`,\u001b[39;00m\n\u001b[1;32m   (...)\u001b[0m\n\u001b[0;32m    807\u001b[0m             \u001b[39m# global flag to let the user control whether they want the future\u001b[39;00m\n\u001b[0;32m    808\u001b[0m             \u001b[39m# behavior of overwriting the existing tensor or not.\u001b[39;00m\n",
++      "File \u001b[1;32md:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\torch\\nn\\modules\\module.py:820\u001b[0m, in \u001b[0;36mModule._apply\u001b[1;34m(self, fn)\u001b[0m\n\u001b[0;32m    816\u001b[0m \u001b[39m# Tensors stored in modules are graph leaves, and we don't want to\u001b[39;00m\n\u001b[0;32m    817\u001b[0m \u001b[39m# track autograd history of `param_applied`, so we have to use\u001b[39;00m\n\u001b[0;32m    818\u001b[0m \u001b[39m# `with torch.no_grad():`\u001b[39;00m\n\u001b[0;32m    819\u001b[0m \u001b[39mwith\u001b[39;00m torch\u001b[39m.\u001b[39mno_grad():\n\u001b[1;32m--> 820\u001b[0m     param_applied \u001b[39m=\u001b[39m fn(param)\n\u001b[0;32m    821\u001b[0m should_use_set_data \u001b[39m=\u001b[39m compute_should_use_set_data(param, param_applied)\n\u001b[0;32m    822\u001b[0m \u001b[39mif\u001b[39;00m should_use_set_data:\n",
++      "File \u001b[1;32md:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\torch\\nn\\modules\\module.py:1143\u001b[0m, in \u001b[0;36mModule.to.<locals>.convert\u001b[1;34m(t)\u001b[0m\n\u001b[0;32m   1140\u001b[0m \u001b[39mif\u001b[39;00m convert_to_format \u001b[39mis\u001b[39;00m \u001b[39mnot\u001b[39;00m \u001b[39mNone\u001b[39;00m \u001b[39mand\u001b[39;00m t\u001b[39m.\u001b[39mdim() \u001b[39min\u001b[39;00m (\u001b[39m4\u001b[39m, \u001b[39m5\u001b[39m):\n\u001b[0;32m   1141\u001b[0m     \u001b[39mreturn\u001b[39;00m t\u001b[39m.\u001b[39mto(device, dtype \u001b[39mif\u001b[39;00m t\u001b[39m.\u001b[39mis_floating_point() \u001b[39mor\u001b[39;00m t\u001b[39m.\u001b[39mis_complex() \u001b[39melse\u001b[39;00m \u001b[39mNone\u001b[39;00m,\n\u001b[0;32m   1142\u001b[0m                 non_blocking, memory_format\u001b[39m=\u001b[39mconvert_to_format)\n\u001b[1;32m-> 1143\u001b[0m \u001b[39mreturn\u001b[39;00m t\u001b[39m.\u001b[39;49mto(device, dtype \u001b[39mif\u001b[39;49;00m t\u001b[39m.\u001b[39;49mis_floating_point() \u001b[39mor\u001b[39;49;00m t\u001b[39m.\u001b[39;49mis_complex() \u001b[39melse\u001b[39;49;00m \u001b[39mNone\u001b[39;49;00m, non_blocking)\n",
++      "File \u001b[1;32md:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\torch\\cuda\\__init__.py:264\u001b[0m, in \u001b[0;36m_lazy_init\u001b[1;34m()\u001b[0m\n\u001b[0;32m    261\u001b[0m         \u001b[39mexcept\u001b[39;00m \u001b[39mException\u001b[39;00m \u001b[39mas\u001b[39;00m e:\n\u001b[0;32m    262\u001b[0m             msg \u001b[39m=\u001b[39m (\u001b[39mf\u001b[39m\u001b[39m\"\u001b[39m\u001b[39mCUDA call failed lazily at initialization with error: \u001b[39m\u001b[39m{\u001b[39;00m\u001b[39mstr\u001b[39m(e)\u001b[39m}\u001b[39;00m\u001b[39m\\n\u001b[39;00m\u001b[39m\\n\u001b[39;00m\u001b[39m\"\u001b[39m\n\u001b[0;32m    263\u001b[0m                    \u001b[39mf\u001b[39m\u001b[39m\"\u001b[39m\u001b[39mCUDA call was originally invoked at:\u001b[39m\u001b[39m\\n\u001b[39;00m\u001b[39m\\n\u001b[39;00m\u001b[39m{\u001b[39;00morig_traceback\u001b[39m}\u001b[39;00m\u001b[39m\"\u001b[39m)\n\u001b[1;32m--> 264\u001b[0m             \u001b[39mraise\u001b[39;00m DeferredCudaCallError(msg) \u001b[39mfrom\u001b[39;00m \u001b[39me\u001b[39;00m\n\u001b[0;32m    265\u001b[0m \u001b[39mfinally\u001b[39;00m:\n\u001b[0;32m    266\u001b[0m     \u001b[39mdelattr\u001b[39m(_tls, \u001b[39m'\u001b[39m\u001b[39mis_initializing\u001b[39m\u001b[39m'\u001b[39m)\n",
++      "\u001b[1;31mDeferredCudaCallError\u001b[0m: CUDA call failed lazily at initialization with error: module 'torch' has no attribute 'version'\n\nCUDA call was originally invoked at:\n\n['  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\runpy.py\", line 194, in _run_module_as_main\\n    return _run_code(code, main_globals, None,\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\runpy.py\", line 87, in _run_code\\n    exec(code, run_globals)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel_launcher.py\", line 17, in <module>\\n    app.launch_new_instance()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\traitlets\\\\config\\\\application.py\", line 1043, in launch_instance\\n    app.start()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelapp.py\", line 725, in start\\n    self.io_loop.start()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\tornado\\\\platform\\\\asyncio.py\", line 215, in start\\n    self.asyncio_loop.run_forever()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\asyncio\\\\base_events.py\", line 570, in run_forever\\n    self._run_once()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\asyncio\\\\base_events.py\", line 1859, in _run_once\\n    handle._run()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\asyncio\\\\events.py\", line 81, in _run\\n    self._context.run(self._callback, *self._args)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelbase.py\", line 513, in dispatch_queue\\n    await self.process_one()\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelbase.py\", line 502, in process_one\\n    await dispatch(*args)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelbase.py\", line 409, in dispatch_shell\\n    await result\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\kernelbase.py\", line 729, in execute_request\\n    reply_content = await reply_content\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\ipkernel.py\", line 422, in do_execute\\n    res = shell.run_cell(\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\ipykernel\\\\zmqshell.py\", line 540, in run_cell\\n    return super().run_cell(*args, **kwargs)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 2961, in run_cell\\n    result = self._run_cell(\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 3016, in _run_cell\\n    result = runner(coro)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\async_helpers.py\", line 129, in _pseudo_sync_runner\\n    coro.send(None)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 3221, in run_cell_async\\n    has_raised = await self.run_ast_nodes(code_ast.body, cell_name,\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 3400, in run_ast_nodes\\n    if await self.run_code(code, result, async_=asy):\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\IPython\\\\core\\\\interactiveshell.py\", line 3460, in run_code\\n    exec(code_obj, self.user_global_ns, self.user_ns)\\n', '  File \"C:\\\\Users\\\\华思远\\\\AppData\\\\Local\\\\Temp\\\\ipykernel_75556\\\\2540924473.py\", line 30, in <module>\\n    record_dict: Dict = run_model(\\n', '  File \"d:\\\\WorkSpace\\\\visualization_stock_market\\\\sqlalchemy_to_data\\\\测试相关\\\\筹码分布算法\\\\scr\\\\qlib_workflow.py\", line 266, in run_model\\n    model = init_instance_by_config(model_config)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\utils\\\\__init__.py\", line 435, in init_instance_by_config\\n    klass, cls_kwargs = get_callable_kwargs(config, default_module=default_module)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\utils\\\\__init__.py\", line 365, in get_callable_kwargs\\n    module = get_module_by_module_path(m_path)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\utils\\\\__init__.py\", line 310, in get_module_by_module_path\\n    module = importlib.import_module(module_path)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\importlib\\\\__init__.py\", line 127, in import_module\\n    return _bootstrap._gcd_import(name[level:], package, level)\\n', '  File \"<frozen importlib._bootstrap>\", line 1014, in _gcd_import\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 961, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"<frozen importlib._bootstrap>\", line 1014, in _gcd_import\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 975, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 671, in _load_unlocked\\n', '  File \"<frozen importlib._bootstrap_external>\", line 843, in exec_module\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\contrib\\\\model\\\\__init__.py\", line 28, in <module>\\n    from .pytorch_alstm import ALSTM\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 975, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 671, in _load_unlocked\\n', '  File \"<frozen importlib._bootstrap_external>\", line 843, in exec_module\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\qlib\\\\contrib\\\\model\\\\pytorch_alstm.py\", line 15, in <module>\\n    import torch\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 975, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 671, in _load_unlocked\\n', '  File \"<frozen importlib._bootstrap_external>\", line 843, in exec_module\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\torch\\\\__init__.py\", line 1146, in <module>\\n    _C._initExtension(manager_path())\\n', '  File \"<frozen importlib._bootstrap>\", line 991, in _find_and_load\\n', '  File \"<frozen importlib._bootstrap>\", line 975, in _find_and_load_unlocked\\n', '  File \"<frozen importlib._bootstrap>\", line 671, in _load_unlocked\\n', '  File \"<frozen importlib._bootstrap_external>\", line 843, in exec_module\\n', '  File \"<frozen importlib._bootstrap>\", line 219, in _call_with_frames_removed\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\torch\\\\cuda\\\\__init__.py\", line 197, in <module>\\n    _lazy_call(_check_capability)\\n', '  File \"d:\\\\anaconda3\\\\envs\\\\qlib_env\\\\lib\\\\site-packages\\\\torch\\\\cuda\\\\__init__.py\", line 195, in _lazy_call\\n    _queued_calls.append((callable, traceback.format_stack()))\\n']"
+      ]
+     }
+    ],
+@@ -299,36 +185,15 @@
+     "VALID_PERIODS: Tuple = (\"2018-01-01\", \"2020-12-31\")\n",
+     "TEST_PERIODS: Tuple = (\"2021-01-01\", \"2023-02-17\")\n",
+     "\n",
+-    "data_handler_config: Dict = {\n",
+-    "    \"start_time\": TARIN_PERIODS[0],\n",
+-    "    \"end_time\": TEST_PERIODS[1],\n",
+-    "    \"fit_start_time\": TARIN_PERIODS[0],\n",
+-    "    \"fit_end_time\": TARIN_PERIODS[1],\n",
+-    "    \"instruments\": \"csi300\",\n",
+-    "}\n",
+     "\n",
+-    "dataset_config: Dict = {  # 　因子数据集参数配置\n",
+-    "    # 数据集类，是Dataset with Data(H)andler的缩写，即带数据处理器的数据集\n",
+-    "    \"class\": \"DatasetH\",\n",
+-    "    # 数据集类所在模块\n",
+-    "    \"module_path\": \"qlib.data.dataset\",\n",
+-    "    # 数据集类的参数配置\n",
+-    "    \"kwargs\": {\n",
+-    "        \"handler\": {  # 数据集使用的数据处理器配置\n",
+-    "            \"class\": \"TurnCoeffChips\",  # 数据处理器类，继承自DataHandlerLP\n",
+-    "            \"module_path\": \"scr.factor_expr\",  # 数据处理器类所在模块\n",
+-    "            \"kwargs\": data_handler_config,  # 数据处理器参数配置\n",
+-    "        },\n",
+-    "        \"segments\": {  # 数据集时段划分\n",
+-    "            \"train\": TARIN_PERIODS,  # 训练集时段\n",
+-    "            \"valid\": VALID_PERIODS,  # 验证集时段\n",
+-    "            \"test\": TEST_PERIODS,  # 测试集时段\n",
+-    "        },\n",
+-    "    },\n",
+-    "}\n",
++    "dataset_config: Dict = get_dataset_config(\n",
++    "    \"csi300\", TARIN_PERIODS, VALID_PERIODS, TEST_PERIODS, \"TurnCoeffChips\"\n",
++    ")\n",
++    "\n",
+     "\n",
+     "if Path(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\").exists():\n",
+     "    import pickle\n",
++    "\n",
+     "    with open(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", \"rb\") as f:\n",
+     "        turncoeff_dataset = pickle.load(f)\n",
+     "else:\n",
+@@ -340,12 +205,13 @@
+     "    turncoeff_dataset.to_pickle(\n",
+     "        path=\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", dump_all=True\n",
+     "    )\n",
+-    "\n",
++    "# C:\\Users\\华思远\\tmp\\tmpdtktrjma\n",
+     "record_dict: Dict = run_model(\n",
+     "    turncoeff_dataset,\n",
+-    "    \"gbdt\",\n",
++    "    \"transformer\",\n",
+     "    start_time=TEST_PERIODS[0],\n",
+     "    end_time=TEST_PERIODS[1],\n",
++    "    model_kw={\"d_feat\": 4, \"method\": \"normal\"},\n",
+     "    experiment_name=\"turncoeffchips\",\n",
+     "    trained_model=\"trained_model.pkl\",\n",
+     ")"
+@@ -441,48 +307,36 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 7,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "recorder = record_dict['recorder']"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 19,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "import pickle\n",
+-    "with open(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", \"rb\") as f:\n",
+-    "    turncoeff_dataset = pickle.load(f)"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 20,
++   "execution_count": 1,
+    "metadata": {},
+    "outputs": [
+     {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "[57440:MainThread](2023-04-08 21:59:14,243) INFO - qlib.workflow - [exp.py:258] - Experiment 2 starts running ...\n",
+-      "[57440:MainThread](2023-04-08 21:59:14,262) INFO - qlib.workflow - [recorder.py:341] - Recorder 2a6c0d1972f0466b9642c956d168f198 starts running under Experiment 2 ...\n",
+-      "[57440:MainThread](2023-04-08 21:59:15,327) INFO - qlib.timer - [log.py:128] - Time cost: 0.000s | waiting `async_log` Done\n"
++     "ename": "NameError",
++     "evalue": "name 'recorder' is not defined",
++     "output_type": "error",
++     "traceback": [
++      "\u001b[1;31m---------------------------------------------------------------------------\u001b[0m",
++      "\u001b[1;31mNameError\u001b[0m                                 Traceback (most recent call last)",
++      "Cell \u001b[1;32mIn[1], line 1\u001b[0m\n\u001b[1;32m----> 1\u001b[0m recorder\n",
++      "\u001b[1;31mNameError\u001b[0m: name 'recorder' is not defined"
+      ]
+     }
+    ],
+    "source": [
+-    "# 使用已有模型\n",
+-    "from qlib.workflow import R\n",
++    "try:\n",
++    "    recorder = record_dict['recorder']\n",
++    "except NameError:\n",
++    "    # 使用已有模型\n",
++    "    from qlib.workflow import R\n",
++    "    import pickle\n",
++    "    with open(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", \"rb\") as f:\n",
++    "        turncoeff_dataset = pickle.load(f)\n",
+     "\n",
+-    "with R.start():\n",
++    "    with R.start():\n",
+     "\n",
+-    "    recorder = R.get_recorder(\n",
+-    "        recorder_name=\"mlflow_recorder\", recorder_id='bb197c15e2dc4b02a0d17e7f583eafbf'\n",
+-    "    )"
++    "        recorder = R.get_recorder(\n",
++    "            recorder_name=\"mlflow_recorder\", recorder_id='bb197c15e2dc4b02a0d17e7f583eafbf'\n",
++    "        )"
+    ]
+   },
+   {

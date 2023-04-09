@@ -1,0 +1,63 @@
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/0/meta.yaml" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/0/meta.yaml"
+index 0c615e6c7..368044c37 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/0/meta.yaml"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/0/meta.yaml"
+@@ -1,4 +1,6 @@
+-artifact_location: file:D:\WrokSpace\visualization_stock_market\sqlalchemy_to_data\测试相关\筹码分布算法\mlruns/0
++artifact_location: file:D:\WorkSpace\visualization_stock_market\sqlalchemy_to_data\测试相关\筹码分布算法\mlruns/0
++creation_time: 1680698662127
+ experiment_id: '0'
++last_update_time: 1680698662127
+ lifecycle_stage: active
+ name: Default
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/1/meta.yaml" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/1/meta.yaml"
+index 21319cfdb..79dd197bc 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/1/meta.yaml"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/1/meta.yaml"
+@@ -1,4 +1,6 @@
+-artifact_location: file:D:\WrokSpace\visualization_stock_market\sqlalchemy_to_data\测试相关\筹码分布算法\mlruns/1
++artifact_location: file:D:\WorkSpace\visualization_stock_market\sqlalchemy_to_data\测试相关\筹码分布算法\mlruns/1
++creation_time: 1680698662132
+ experiment_id: '1'
++last_update_time: 1680698662132
+ lifecycle_stage: active
+-name: train
++name: tcn_workflow
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/2/meta.yaml" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/2/meta.yaml"
+deleted file mode 100644
+index 494c41d55..000000000
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/2/meta.yaml"
++++ /dev/null
+@@ -1,4 +0,0 @@
+-artifact_location: file:D:\WrokSpace\visualization_stock_market\sqlalchemy_to_data\测试相关\筹码分布算法\mlruns/2
+-experiment_id: '2'
+-lifecycle_stage: active
+-name: predict
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/3/meta.yaml" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/3/meta.yaml"
+deleted file mode 100644
+index 2630fb110..000000000
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/mlruns/3/meta.yaml"
++++ /dev/null
+@@ -1,4 +0,0 @@
+-artifact_location: file:D:\WrokSpace\visualization_stock_market\sqlalchemy_to_data\测试相关\筹码分布算法\mlruns/3
+-experiment_id: '3'
+-lifecycle_stage: active
+-name: backtest
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/__init__.cpython-38.pyc" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/__init__.cpython-38.pyc"
+index a0b0e5297..1696395b1 100644
+Binary files "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/__init__.cpython-38.pyc" and "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/__init__.cpython-38.pyc" differ
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/cyq.cpython-38.pyc" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/cyq.cpython-38.pyc"
+index 45e95fe9f..7433cd6cb 100644
+Binary files "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/cyq.cpython-38.pyc" and "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/cyq.cpython-38.pyc" differ
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/cyq_ops.cpython-38.pyc" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/cyq_ops.cpython-38.pyc"
+index 1ef1e0fbf..e36f391af 100644
+Binary files "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/cyq_ops.cpython-38.pyc" and "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/cyq_ops.cpython-38.pyc" differ
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/distribution_of_chips.cpython-38.pyc" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/distribution_of_chips.cpython-38.pyc"
+index 6d568f039..96a94378a 100644
+Binary files "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/distribution_of_chips.cpython-38.pyc" and "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/distribution_of_chips.cpython-38.pyc" differ
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/factor_expr.cpython-38.pyc" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/factor_expr.cpython-38.pyc"
+index 96ca3188f..aee8ebec9 100644
+Binary files "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/factor_expr.cpython-38.pyc" and "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/factor_expr.cpython-38.pyc" differ
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/utils.cpython-38.pyc" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/utils.cpython-38.pyc"
+index 76663fe69..d6120a882 100644
+Binary files "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/utils.cpython-38.pyc" and "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/utils.cpython-38.pyc" differ

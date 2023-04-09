@@ -1,0 +1,13 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   "../AI\350\265\233\351\201\223\346\213\245\346\214\244\345\272\246/AI\350\265\233\351\201\223\346\210\220\344\272\244\345\215\240\346\257\224.ipynb"
+	modified:   scr/__pycache__/plotting.cpython-38.pyc
+	modified:   scr/factor_analyze.py
+	modified:   scr/plotting.py
+	modified:   view_bt.ipynb
+
+no changes added to commit (use "git add" and/or "git commit -a")

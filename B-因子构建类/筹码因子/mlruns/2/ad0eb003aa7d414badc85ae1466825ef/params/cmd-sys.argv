@@ -1,0 +1,1 @@
+d:\anaconda3\envs\qlib_env\lib\site-packages\ipykernel_launcher.py --ip=127.0.0.1 --stdin=9003 --control=9001 --hb=9000 --Session.signature_scheme="hmac-sha256" --Session.key=b"f245deac-ace3-41ae-a1b7-c66c961f08c5" --shell=9002 --transport="tcp" --iopub=9004 --f=c:\Users\华思远\AppData\Roaming\jupyter\runtime\kernel-v2-52164NCuQliLK5aiX.json

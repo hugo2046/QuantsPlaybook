@@ -1,0 +1,339 @@
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc"
+index 6abb143c7..f055304cb 100644
+Binary files "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc" and "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc" differ
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/qlib_workflow.py" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/qlib_workflow.py"
+index f9d95febb..8795d0251 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/qlib_workflow.py"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/qlib_workflow.py"
+@@ -5,7 +5,7 @@ from qlib.utils import init_instance_by_config
+ from qlib.workflow import R  # 实验记录管理器
+ from qlib.workflow.record_temp import PortAnaRecord, SigAnaRecord, SignalRecord
+ from rich.console import Console
+-
++from pathlib import Path
+ console = Console()
+ 
+ 
+@@ -257,6 +257,11 @@ def run_model(
+     else:
+         model_config: Dict = MODEL_CONFIG[model]()
+         
++    if model != "gbdt":
++        CURRENT_DIR = Path(__file__).parents[0]
++        save_path:str = CURRENT_DIR / "tmp.pth"
++    else:
++        save_path = None
+     model = init_instance_by_config(model_config)
+     # R变量可以理解为实验记录管理器。
+     console.log(f"实验名:{experiment_name},训练模型:{trained_model},开始运行...")
+@@ -265,7 +270,7 @@ def run_model(
+         ############
+         # 训练
+         #############
+-        model.fit(dataset)
++        model.fit(dataset,save_path)
+ 
+         # 训练好的模型以pkl文件形式保存到本次实验运行记录目录下的artifacts子目录
+         R.save_objects(**{trained_model: model})
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb"
+index c10092290..3fcf40754 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb"
+@@ -2,7 +2,7 @@
+  "cells": [
+   {
+    "cell_type": "code",
+-   "execution_count": 17,
++   "execution_count": 2,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -17,7 +17,7 @@
+     "from scr.turnover_coefficient_ops import ARC,VRC,SRC,KRC\n",
+     "from scr.cyq_ops import (CYQK_C_T,CYQK_C_U,CYQK_C_TN,ASR_T,ASR_U,ASR_TN,CKDW_T,CKDW_U,CKDW_TN,PRP_T,PRP_U,PRP_TN)\n",
+     "from scr.factor_analyze import clean_factor_data,get_factor_group_returns\n",
+-    "from scr.qlib_workflow import run_model\n",
++    "from scr.qlib_workflow import run_model,get_dataset_config\n",
+     "from scr.plotting import plot_dist_chips,model_performance_graph\n",
+     "\n",
+     "import matplotlib.pyplot as plt\n",
+@@ -30,16 +30,16 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 18,
++   "execution_count": 3,
+    "metadata": {},
+    "outputs": [
+     {
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[57440:MainThread](2023-04-08 21:58:29,712) INFO - qlib.Initialization - [config.py:416] - default_conf: client.\n",
+-      "[57440:MainThread](2023-04-08 21:58:29,714) INFO - qlib.Initialization - [__init__.py:74] - qlib successfully initialized based on client settings.\n",
+-      "[57440:MainThread](2023-04-08 21:58:29,715) INFO - qlib.Initialization - [__init__.py:76] - data_path={'__DEFAULT_FREQ': WindowsPath('D:/WorkSpace/visualization_stock_market/sqlalchemy_to_data/测试相关/筹码分布算法/qlib_data')}\n"
++      "[21960:MainThread](2023-04-09 13:14:16,064) INFO - qlib.Initialization - [config.py:416] - default_conf: client.\n",
++      "[21960:MainThread](2023-04-09 13:14:16,068) INFO - qlib.Initialization - [__init__.py:74] - qlib successfully initialized based on client settings.\n",
++      "[21960:MainThread](2023-04-09 13:14:16,068) INFO - qlib.Initialization - [__init__.py:76] - data_path={'__DEFAULT_FREQ': WindowsPath('D:/WorkSpace/visualization_stock_market/sqlalchemy_to_data/测试相关/筹码分布算法/qlib_data')}\n"
+      ]
+     }
+    ],
+@@ -132,17 +132,17 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 4,
++   "execution_count": 6,
+    "metadata": {},
+    "outputs": [
+     {
+      "data": {
+       "text/html": [
+-       "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"color: #7fbfbf; text-decoration-color: #7fbfbf\">[10:31:54] </span>实验名:turncoeffchips,训练模型:trained_model.pkl,开始运行<span style=\"color: #808000; text-decoration-color: #808000\">...</span>                         <a href=\"file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py\" target=\"_blank\"><span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">qlib_workflow.py</span></a><span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">:</span><a href=\"file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py#79\" target=\"_blank\"><span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">79</span></a>\n",
++       "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"color: #7fbfbf; text-decoration-color: #7fbfbf\">[13:15:24] </span>实验名:turncoeffchips,训练模型:trained_model.pkl,开始运行<span style=\"color: #808000; text-decoration-color: #808000\">...</span>                        <a href=\"file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py\" target=\"_blank\"><span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">qlib_workflow.py</span></a><span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">:</span><a href=\"file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py#262\" target=\"_blank\"><span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">262</span></a>\n",
+        "</pre>\n"
+       ],
+       "text/plain": [
+-       "\u001b[2;36m[10:31:54]\u001b[0m\u001b[2;36m \u001b[0m实验名:turncoeffchips,训练模型:trained_model.pkl,开始运行\u001b[33m...\u001b[0m                         \u001b]8;id=471045;file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py\u001b\\\u001b[2mqlib_workflow.py\u001b[0m\u001b]8;;\u001b\\\u001b[2m:\u001b[0m\u001b]8;id=483635;file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py#79\u001b\\\u001b[2m79\u001b[0m\u001b]8;;\u001b\\\n"
++       "\u001b[2;36m[13:15:24]\u001b[0m\u001b[2;36m \u001b[0m实验名:turncoeffchips,训练模型:trained_model.pkl,开始运行\u001b[33m...\u001b[0m                        \u001b]8;id=800194;file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py\u001b\\\u001b[2mqlib_workflow.py\u001b[0m\u001b]8;;\u001b\\\u001b[2m:\u001b[0m\u001b]8;id=980358;file://d:\\WorkSpace\\visualization_stock_market\\sqlalchemy_to_data\\测试相关\\筹码分布算法\\scr\\qlib_workflow.py#262\u001b\\\u001b[2m262\u001b[0m\u001b]8;;\u001b\\\n"
+       ]
+      },
+      "metadata": {},
+@@ -152,9 +152,8 @@
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[9668:MainThread](2023-04-07 10:31:54,253) WARNING - qlib.workflow - [expm.py:230] - No valid experiment found. Create a new experiment with name turncoeffchips.\n",
+-      "[9668:MainThread](2023-04-07 10:31:54,256) INFO - qlib.workflow - [exp.py:258] - Experiment 3 starts running ...\n",
+-      "[9668:MainThread](2023-04-07 10:31:54,397) INFO - qlib.workflow - [recorder.py:341] - Recorder 0085ae5575954fe9bea22c0b2fbdd533 starts running under Experiment 3 ...\n"
++      "[21960:MainThread](2023-04-09 13:15:24,217) INFO - qlib.workflow - [exp.py:258] - Experiment 3 starts running ...\n",
++      "[21960:MainThread](2023-04-09 13:15:24,237) INFO - qlib.workflow - [recorder.py:341] - Recorder 12fc39fab9f64103b985dbb5115cfc3c starts running under Experiment 3 ...\n"
+      ]
+     },
+     {
+@@ -180,7 +179,7 @@
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[9668:MainThread](2023-04-07 10:31:55,293) INFO - qlib.workflow - [record_temp.py:196] - Signal record 'pred.pkl' has been saved as the artifact of the Experiment 3\n"
++      "[21960:MainThread](2023-04-09 13:15:25,125) INFO - qlib.workflow - [record_temp.py:196] - Signal record 'pred.pkl' has been saved as the artifact of the Experiment 3\n"
+      ]
+     },
+     {
+@@ -205,18 +204,18 @@
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[9668:MainThread](2023-04-07 10:31:55,870) INFO - qlib.backtest caller - [__init__.py:93] - Create new exchange\n",
+-      "[9668:MainThread](2023-04-07 10:32:44,059) WARNING - qlib.online operator - [exchange.py:219] - $open field data contains nan.\n",
+-      "[9668:MainThread](2023-04-07 10:32:44,061) WARNING - qlib.online operator - [exchange.py:219] - $open field data contains nan.\n",
+-      "[9668:MainThread](2023-04-07 10:32:46,123) WARNING - qlib.data - [data.py:666] - load calendar error: freq=day, future=True; return current calendar!\n",
+-      "[9668:MainThread](2023-04-07 10:32:46,124) WARNING - qlib.data - [data.py:669] - You can get future calendar by referring to the following document: https://github.com/microsoft/qlib/blob/main/scripts/data_collector/contrib/README.md\n",
+-      "[9668:MainThread](2023-04-07 10:32:46,136) WARNING - qlib.BaseExecutor - [executor.py:121] - `common_infra` is not set for <qlib.backtest.executor.SimulatorExecutor object at 0x0000022610ACDF40>\n"
++      "[21960:MainThread](2023-04-09 13:15:25,709) INFO - qlib.backtest caller - [__init__.py:93] - Create new exchange\n",
++      "[21960:MainThread](2023-04-09 13:16:32,634) WARNING - qlib.online operator - [exchange.py:219] - $open field data contains nan.\n",
++      "[21960:MainThread](2023-04-09 13:16:32,637) WARNING - qlib.online operator - [exchange.py:219] - $open field data contains nan.\n",
++      "[21960:MainThread](2023-04-09 13:16:34,713) WARNING - qlib.data - [data.py:666] - load calendar error: freq=day, future=True; return current calendar!\n",
++      "[21960:MainThread](2023-04-09 13:16:34,715) WARNING - qlib.data - [data.py:669] - You can get future calendar by referring to the following document: https://github.com/microsoft/qlib/blob/main/scripts/data_collector/contrib/README.md\n",
++      "[21960:MainThread](2023-04-09 13:16:34,726) WARNING - qlib.BaseExecutor - [executor.py:121] - `common_infra` is not set for <qlib.backtest.executor.SimulatorExecutor object at 0x0000026984672EB0>\n"
+      ]
+     },
+     {
+      "data": {
+       "application/vnd.jupyter.widget-view+json": {
+-       "model_id": "0b115e26c4ca48b4a54260268ab76c3d",
++       "model_id": "69e13a7f19fc4557bf5ac0109981d6bd",
+        "version_major": 2,
+        "version_minor": 0
+       },
+@@ -233,7 +232,7 @@
+      "text": [
+       "d:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\qlib\\utils\\index_data.py:482: RuntimeWarning: Mean of empty slice\n",
+       "  return np.nanmean(self.data)\n",
+-      "[9668:MainThread](2023-04-07 10:32:49,527) INFO - qlib.workflow - [record_temp.py:505] - Portfolio analysis record 'port_analysis_1day.pkl' has been saved as the artifact of the Experiment 3\n"
++      "[21960:MainThread](2023-04-09 13:16:37,300) INFO - qlib.workflow - [record_temp.py:505] - Portfolio analysis record 'port_analysis_1day.pkl' has been saved as the artifact of the Experiment 3\n"
+      ]
+     },
+     {
+@@ -249,25 +248,25 @@
+       "max_drawdown      -0.473379\n",
+       "'The following are analysis results of the excess return without cost(1day).'\n",
+       "                       risk\n",
+-      "mean               0.001193\n",
+-      "std                0.008965\n",
+-      "annualized_return  0.283819\n",
+-      "information_ratio  2.052158\n",
+-      "max_drawdown      -0.104293\n",
++      "mean               0.000822\n",
++      "std                0.009355\n",
++      "annualized_return  0.195552\n",
++      "information_ratio  1.354981\n",
++      "max_drawdown      -0.094902\n",
+       "'The following are analysis results of the excess return with cost(1day).'\n",
+       "                       risk\n",
+-      "mean              -0.000667\n",
+-      "std                0.008951\n",
+-      "annualized_return -0.158663\n",
+-      "information_ratio -1.148936\n",
+-      "max_drawdown      -0.357776\n"
++      "mean               0.000399\n",
++      "std                0.009372\n",
++      "annualized_return  0.094848\n",
++      "information_ratio  0.656026\n",
++      "max_drawdown      -0.116303\n"
+      ]
+     },
+     {
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[9668:MainThread](2023-04-07 10:32:49,543) INFO - qlib.workflow - [record_temp.py:530] - Indicator analysis record 'indicator_analysis_1day.pkl' has been saved as the artifact of the Experiment 3\n"
++      "[21960:MainThread](2023-04-09 13:16:37,320) INFO - qlib.workflow - [record_temp.py:530] - Indicator analysis record 'indicator_analysis_1day.pkl' has been saved as the artifact of the Experiment 3\n"
+      ]
+     },
+     {
+@@ -279,14 +278,14 @@
+       "ffr    1.0\n",
+       "pa     0.0\n",
+       "pos    0.0\n",
+-      "info {'class': 'Recorder', 'id': '0085ae5575954fe9bea22c0b2fbdd533', 'name': 'mlflow_recorder', 'experiment_id': '3', 'start_time': '2023-04-07 10:31:54', 'end_time': None, 'status': 'RUNNING'}\n"
++      "info {'class': 'Recorder', 'id': '12fc39fab9f64103b985dbb5115cfc3c', 'name': 'mlflow_recorder', 'experiment_id': '3', 'start_time': '2023-04-09 13:15:24', 'end_time': None, 'status': 'RUNNING'}\n"
+      ]
+     },
+     {
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[9668:MainThread](2023-04-07 10:32:49,549) INFO - qlib.timer - [log.py:128] - Time cost: 0.002s | waiting `async_log` Done\n"
++      "[21960:MainThread](2023-04-09 13:16:37,335) INFO - qlib.timer - [log.py:128] - Time cost: 0.006s | waiting `async_log` Done\n"
+      ]
+     }
+    ],
+@@ -299,36 +298,15 @@
+     "VALID_PERIODS: Tuple = (\"2018-01-01\", \"2020-12-31\")\n",
+     "TEST_PERIODS: Tuple = (\"2021-01-01\", \"2023-02-17\")\n",
+     "\n",
+-    "data_handler_config: Dict = {\n",
+-    "    \"start_time\": TARIN_PERIODS[0],\n",
+-    "    \"end_time\": TEST_PERIODS[1],\n",
+-    "    \"fit_start_time\": TARIN_PERIODS[0],\n",
+-    "    \"fit_end_time\": TARIN_PERIODS[1],\n",
+-    "    \"instruments\": \"csi300\",\n",
+-    "}\n",
+     "\n",
+-    "dataset_config: Dict = {  # 　因子数据集参数配置\n",
+-    "    # 数据集类，是Dataset with Data(H)andler的缩写，即带数据处理器的数据集\n",
+-    "    \"class\": \"DatasetH\",\n",
+-    "    # 数据集类所在模块\n",
+-    "    \"module_path\": \"qlib.data.dataset\",\n",
+-    "    # 数据集类的参数配置\n",
+-    "    \"kwargs\": {\n",
+-    "        \"handler\": {  # 数据集使用的数据处理器配置\n",
+-    "            \"class\": \"TurnCoeffChips\",  # 数据处理器类，继承自DataHandlerLP\n",
+-    "            \"module_path\": \"scr.factor_expr\",  # 数据处理器类所在模块\n",
+-    "            \"kwargs\": data_handler_config,  # 数据处理器参数配置\n",
+-    "        },\n",
+-    "        \"segments\": {  # 数据集时段划分\n",
+-    "            \"train\": TARIN_PERIODS,  # 训练集时段\n",
+-    "            \"valid\": VALID_PERIODS,  # 验证集时段\n",
+-    "            \"test\": TEST_PERIODS,  # 测试集时段\n",
+-    "        },\n",
+-    "    },\n",
+-    "}\n",
++    "dataset_config: Dict = get_dataset_config(\n",
++    "    \"csi300\", TARIN_PERIODS, VALID_PERIODS, TEST_PERIODS, \"TurnCoeffChips\"\n",
++    ")\n",
++    "\n",
+     "\n",
+     "if Path(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\").exists():\n",
+     "    import pickle\n",
++    "\n",
+     "    with open(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", \"rb\") as f:\n",
+     "        turncoeff_dataset = pickle.load(f)\n",
+     "else:\n",
+@@ -340,12 +318,13 @@
+     "    turncoeff_dataset.to_pickle(\n",
+     "        path=\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", dump_all=True\n",
+     "    )\n",
+-    "\n",
++    "# C:\\Users\\华思远\\tmp\\tmpdtktrjma\n",
+     "record_dict: Dict = run_model(\n",
+     "    turncoeff_dataset,\n",
+-    "    \"gbdt\",\n",
++    "    \"transformer\",\n",
+     "    start_time=TEST_PERIODS[0],\n",
+     "    end_time=TEST_PERIODS[1],\n",
++    "    model_kw={\"d_feat\": 4, \"method\": \"normal\"},\n",
+     "    experiment_name=\"turncoeffchips\",\n",
+     "    trained_model=\"trained_model.pkl\",\n",
+     ")"
+@@ -441,48 +420,36 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 7,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "recorder = record_dict['recorder']"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 19,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "import pickle\n",
+-    "with open(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", \"rb\") as f:\n",
+-    "    turncoeff_dataset = pickle.load(f)"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 20,
++   "execution_count": 1,
+    "metadata": {},
+    "outputs": [
+     {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "[57440:MainThread](2023-04-08 21:59:14,243) INFO - qlib.workflow - [exp.py:258] - Experiment 2 starts running ...\n",
+-      "[57440:MainThread](2023-04-08 21:59:14,262) INFO - qlib.workflow - [recorder.py:341] - Recorder 2a6c0d1972f0466b9642c956d168f198 starts running under Experiment 2 ...\n",
+-      "[57440:MainThread](2023-04-08 21:59:15,327) INFO - qlib.timer - [log.py:128] - Time cost: 0.000s | waiting `async_log` Done\n"
++     "ename": "NameError",
++     "evalue": "name 'recorder' is not defined",
++     "output_type": "error",
++     "traceback": [
++      "\u001b[1;31m---------------------------------------------------------------------------\u001b[0m",
++      "\u001b[1;31mNameError\u001b[0m                                 Traceback (most recent call last)",
++      "Cell \u001b[1;32mIn[1], line 1\u001b[0m\n\u001b[1;32m----> 1\u001b[0m recorder\n",
++      "\u001b[1;31mNameError\u001b[0m: name 'recorder' is not defined"
+      ]
+     }
+    ],
+    "source": [
+-    "# 使用已有模型\n",
+-    "from qlib.workflow import R\n",
++    "try:\n",
++    "    recorder = record_dict['recorder']\n",
++    "except NameError:\n",
++    "    # 使用已有模型\n",
++    "    from qlib.workflow import R\n",
++    "    import pickle\n",
++    "    with open(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", \"rb\") as f:\n",
++    "        turncoeff_dataset = pickle.load(f)\n",
+     "\n",
+-    "with R.start():\n",
++    "    with R.start():\n",
+     "\n",
+-    "    recorder = R.get_recorder(\n",
+-    "        recorder_name=\"mlflow_recorder\", recorder_id='bb197c15e2dc4b02a0d17e7f583eafbf'\n",
+-    "    )"
++    "        recorder = R.get_recorder(\n",
++    "            recorder_name=\"mlflow_recorder\", recorder_id='bb197c15e2dc4b02a0d17e7f583eafbf'\n",
++    "        )"
+    ]
+   },
+   {

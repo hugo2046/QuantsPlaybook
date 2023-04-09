@@ -1,0 +1,6 @@
+artifact_location: file:D:\WorkSpace\visualization_stock_market\sqlalchemy_to_data\测试相关\筹码分布算法\mlruns/1
+creation_time: 1680698662132
+experiment_id: '1'
+last_update_time: 1680698662132
+lifecycle_stage: active
+name: tcn_workflow

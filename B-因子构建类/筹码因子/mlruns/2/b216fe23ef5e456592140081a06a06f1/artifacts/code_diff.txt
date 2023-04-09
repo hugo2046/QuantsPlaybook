@@ -1,0 +1,17 @@
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json"
+index 1d2cb7c0d..13cf20b74 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json"
+@@ -1 +1,9 @@
+-{"class": "Recorder", "id": "d896265a99174606b0f9f17140d9088c", "name": "mlflow_recorder", "experiment_id": "1", "start_time": "2023-04-05 20:44:22", "end_time": null, "status": "RUNNING"}
+\ No newline at end of file
++{
++    "class": "Recorder",
++    "id": "d896265a99174606b0f9f17140d9088c",
++    "name": "mlflow_recorder",
++    "experiment_id": "1",
++    "start_time": "2023-04-05 20:44:22",
++    "end_time": null,
++    "status": "RUNNING"
++}
+\ No newline at end of file

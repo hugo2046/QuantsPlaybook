@@ -1,0 +1,18 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   mlruns/0/meta.yaml
+	modified:   mlruns/1/meta.yaml
+	deleted:    mlruns/2/meta.yaml
+	deleted:    mlruns/3/meta.yaml
+	modified:   scr/__pycache__/__init__.cpython-38.pyc
+	modified:   scr/__pycache__/cyq.cpython-38.pyc
+	modified:   scr/__pycache__/cyq_ops.cpython-38.pyc
+	modified:   scr/__pycache__/distribution_of_chips.cpython-38.pyc
+	modified:   scr/__pycache__/factor_expr.cpython-38.pyc
+	modified:   scr/__pycache__/utils.cpython-38.pyc
+
+no changes added to commit (use "git add" and/or "git commit -a")

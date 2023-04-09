@@ -1,0 +1,6 @@
+artifact_location: file:D:\WorkSpace\visualization_stock_market\sqlalchemy_to_data\测试相关\筹码分布算法\mlruns/4
+creation_time: 1681019601544
+experiment_id: '4'
+last_update_time: 1681019601544
+lifecycle_stage: active
+name: transform_workflow

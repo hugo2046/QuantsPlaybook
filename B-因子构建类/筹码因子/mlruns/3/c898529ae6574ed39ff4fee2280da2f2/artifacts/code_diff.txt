@@ -1,0 +1,140 @@
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc"
+index 6abb143c7..2e2fe7b69 100644
+Binary files "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc" and "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/scr/__pycache__/qlib_workflow.cpython-38.pyc" differ
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb"
+index c10092290..27b1c33f6 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/\347\255\271\347\240\201\345\210\206\345\270\203\345\233\240\345\255\220\346\261\207\346\200\273.ipynb"
+@@ -17,7 +17,7 @@
+     "from scr.turnover_coefficient_ops import ARC,VRC,SRC,KRC\n",
+     "from scr.cyq_ops import (CYQK_C_T,CYQK_C_U,CYQK_C_TN,ASR_T,ASR_U,ASR_TN,CKDW_T,CKDW_U,CKDW_TN,PRP_T,PRP_U,PRP_TN)\n",
+     "from scr.factor_analyze import clean_factor_data,get_factor_group_returns\n",
+-    "from scr.qlib_workflow import run_model\n",
++    "from scr.qlib_workflow import run_model,get_dataset_config\n",
+     "from scr.plotting import plot_dist_chips,model_performance_graph\n",
+     "\n",
+     "import matplotlib.pyplot as plt\n",
+@@ -299,36 +299,15 @@
+     "VALID_PERIODS: Tuple = (\"2018-01-01\", \"2020-12-31\")\n",
+     "TEST_PERIODS: Tuple = (\"2021-01-01\", \"2023-02-17\")\n",
+     "\n",
+-    "data_handler_config: Dict = {\n",
+-    "    \"start_time\": TARIN_PERIODS[0],\n",
+-    "    \"end_time\": TEST_PERIODS[1],\n",
+-    "    \"fit_start_time\": TARIN_PERIODS[0],\n",
+-    "    \"fit_end_time\": TARIN_PERIODS[1],\n",
+-    "    \"instruments\": \"csi300\",\n",
+-    "}\n",
+     "\n",
+-    "dataset_config: Dict = {  # 　因子数据集参数配置\n",
+-    "    # 数据集类，是Dataset with Data(H)andler的缩写，即带数据处理器的数据集\n",
+-    "    \"class\": \"DatasetH\",\n",
+-    "    # 数据集类所在模块\n",
+-    "    \"module_path\": \"qlib.data.dataset\",\n",
+-    "    # 数据集类的参数配置\n",
+-    "    \"kwargs\": {\n",
+-    "        \"handler\": {  # 数据集使用的数据处理器配置\n",
+-    "            \"class\": \"TurnCoeffChips\",  # 数据处理器类，继承自DataHandlerLP\n",
+-    "            \"module_path\": \"scr.factor_expr\",  # 数据处理器类所在模块\n",
+-    "            \"kwargs\": data_handler_config,  # 数据处理器参数配置\n",
+-    "        },\n",
+-    "        \"segments\": {  # 数据集时段划分\n",
+-    "            \"train\": TARIN_PERIODS,  # 训练集时段\n",
+-    "            \"valid\": VALID_PERIODS,  # 验证集时段\n",
+-    "            \"test\": TEST_PERIODS,  # 测试集时段\n",
+-    "        },\n",
+-    "    },\n",
+-    "}\n",
++    "dataset_config: Dict = get_dataset_config(\n",
++    "    \"csi300\", TARIN_PERIODS, VALID_PERIODS, TEST_PERIODS, \"TurnCoeffChips\"\n",
++    ")\n",
++    "\n",
+     "\n",
+     "if Path(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\").exists():\n",
+     "    import pickle\n",
++    "\n",
+     "    with open(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", \"rb\") as f:\n",
+     "        turncoeff_dataset = pickle.load(f)\n",
+     "else:\n",
+@@ -343,9 +322,10 @@
+     "\n",
+     "record_dict: Dict = run_model(\n",
+     "    turncoeff_dataset,\n",
+-    "    \"gbdt\",\n",
++    "    \"transformer\",\n",
+     "    start_time=TEST_PERIODS[0],\n",
+     "    end_time=TEST_PERIODS[1],\n",
++    "    model_kw={\"d_feat\": 4, \"method\": \"normal\"},\n",
+     "    experiment_name=\"turncoeffchips\",\n",
+     "    trained_model=\"trained_model.pkl\",\n",
+     ")"
+@@ -441,48 +421,36 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 7,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "recorder = record_dict['recorder']"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 19,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "import pickle\n",
+-    "with open(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", \"rb\") as f:\n",
+-    "    turncoeff_dataset = pickle.load(f)"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 20,
++   "execution_count": 1,
+    "metadata": {},
+    "outputs": [
+     {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "[57440:MainThread](2023-04-08 21:59:14,243) INFO - qlib.workflow - [exp.py:258] - Experiment 2 starts running ...\n",
+-      "[57440:MainThread](2023-04-08 21:59:14,262) INFO - qlib.workflow - [recorder.py:341] - Recorder 2a6c0d1972f0466b9642c956d168f198 starts running under Experiment 2 ...\n",
+-      "[57440:MainThread](2023-04-08 21:59:15,327) INFO - qlib.timer - [log.py:128] - Time cost: 0.000s | waiting `async_log` Done\n"
++     "ename": "NameError",
++     "evalue": "name 'recorder' is not defined",
++     "output_type": "error",
++     "traceback": [
++      "\u001b[1;31m---------------------------------------------------------------------------\u001b[0m",
++      "\u001b[1;31mNameError\u001b[0m                                 Traceback (most recent call last)",
++      "Cell \u001b[1;32mIn[1], line 1\u001b[0m\n\u001b[1;32m----> 1\u001b[0m recorder\n",
++      "\u001b[1;31mNameError\u001b[0m: name 'recorder' is not defined"
+      ]
+     }
+    ],
+    "source": [
+-    "# 使用已有模型\n",
+-    "from qlib.workflow import R\n",
++    "try:\n",
++    "    recorder = record_dict['recorder']\n",
++    "except NameError:\n",
++    "    # 使用已有模型\n",
++    "    from qlib.workflow import R\n",
++    "    import pickle\n",
++    "    with open(\"../筹码分布算法/factor_data/turnovercoeff_dataset.pkl\", \"rb\") as f:\n",
++    "        turncoeff_dataset = pickle.load(f)\n",
+     "\n",
+-    "with R.start():\n",
++    "    with R.start():\n",
+     "\n",
+-    "    recorder = R.get_recorder(\n",
+-    "        recorder_name=\"mlflow_recorder\", recorder_id='bb197c15e2dc4b02a0d17e7f583eafbf'\n",
+-    "    )"
++    "        recorder = R.get_recorder(\n",
++    "            recorder_name=\"mlflow_recorder\", recorder_id='bb197c15e2dc4b02a0d17e7f583eafbf'\n",
++    "        )"
+    ]
+   },
+   {

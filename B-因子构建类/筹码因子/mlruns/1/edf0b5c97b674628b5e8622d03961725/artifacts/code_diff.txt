@@ -1,0 +1,354 @@
+diff --git a/sqlalchemy_to_data/learn_qlib/qlib_stock_pool_bt.ipynb b/sqlalchemy_to_data/learn_qlib/qlib_stock_pool_bt.ipynb
+index 17ae91fa6..18a9d97b2 100644
+--- a/sqlalchemy_to_data/learn_qlib/qlib_stock_pool_bt.ipynb
++++ b/sqlalchemy_to_data/learn_qlib/qlib_stock_pool_bt.ipynb
+@@ -38,9 +38,9 @@
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[47672:MainThread](2023-04-06 09:00:31,021) INFO - qlib.Initialization - [config.py:416] - default_conf: client.\n",
+-      "[47672:MainThread](2023-04-06 09:00:31,024) INFO - qlib.Initialization - [__init__.py:74] - qlib successfully initialized based on client settings.\n",
+-      "[47672:MainThread](2023-04-06 09:00:31,024) INFO - qlib.Initialization - [__init__.py:76] - data_path={'__DEFAULT_FREQ': WindowsPath('D:/WorkSpace/visualization_stock_market/sqlalchemy_to_data/learn_qlib/qlib_data')}\n"
++      "[17528:MainThread](2023-04-07 08:34:51,832) INFO - qlib.Initialization - [config.py:416] - default_conf: client.\n",
++      "[17528:MainThread](2023-04-07 08:34:51,835) INFO - qlib.Initialization - [__init__.py:74] - qlib successfully initialized based on client settings.\n",
++      "[17528:MainThread](2023-04-07 08:34:51,836) INFO - qlib.Initialization - [__init__.py:76] - data_path={'__DEFAULT_FREQ': WindowsPath('D:/WorkSpace/visualization_stock_market/sqlalchemy_to_data/learn_qlib/qlib_data')}\n"
+      ]
+     }
+    ],
+@@ -51,7 +51,7 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 3,
++   "execution_count": 4,
+    "metadata": {},
+    "outputs": [
+     {
+@@ -59,7 +59,7 @@
+      "output_type": "stream",
+      "text": [
+       "股票池数量:370\n",
+-      "起始日:2014-01-02 00:00:00,结束日:2023-04-04 00:00:00\n"
++      "起始日:2014-01-02 00:00:00,结束日:2023-04-06 00:00:00\n"
+      ]
+     }
+    ],
+@@ -84,24 +84,24 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 4,
++   "execution_count": 6,
+    "metadata": {},
+    "outputs": [
+     {
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[47672:MainThread](2023-04-06 09:01:32,938) INFO - qlib.timer - [log.py:128] - Time cost: 56.330s | Loading data Done\n",
+-      "[47672:MainThread](2023-04-06 09:01:33,291) INFO - qlib.timer - [log.py:128] - Time cost: 0.111s | DropnaLabel Done\n",
++      "[17528:MainThread](2023-04-07 08:39:02,520) INFO - qlib.timer - [log.py:128] - Time cost: 64.797s | Loading data Done\n",
++      "[17528:MainThread](2023-04-07 08:39:02,909) INFO - qlib.timer - [log.py:128] - Time cost: 0.114s | DropnaLabel Done\n",
+       "d:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\qlib\\data\\dataset\\processor.py:322: SettingWithCopyWarning: \n",
+       "A value is trying to be set on a copy of a slice from a DataFrame.\n",
+       "Try using .loc[row_indexer,col_indexer] = value instead\n",
+       "\n",
+       "See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy\n",
+       "  df[cols] = df[cols].groupby(\"datetime\", group_keys=False).apply(self.zscore_func)\n",
+-      "[47672:MainThread](2023-04-06 09:01:34,738) INFO - qlib.timer - [log.py:128] - Time cost: 1.448s | CSZScoreNorm Done\n",
+-      "[47672:MainThread](2023-04-06 09:01:34,750) INFO - qlib.timer - [log.py:128] - Time cost: 1.811s | fit & process data Done\n",
+-      "[47672:MainThread](2023-04-06 09:01:34,751) INFO - qlib.timer - [log.py:128] - Time cost: 58.143s | Init data Done\n"
++      "[17528:MainThread](2023-04-07 08:39:04,365) INFO - qlib.timer - [log.py:128] - Time cost: 1.456s | CSZScoreNorm Done\n",
++      "[17528:MainThread](2023-04-07 08:39:04,375) INFO - qlib.timer - [log.py:128] - Time cost: 1.854s | fit & process data Done\n",
++      "[17528:MainThread](2023-04-07 08:39:04,375) INFO - qlib.timer - [log.py:128] - Time cost: 66.652s | Init data Done\n"
+      ]
+     },
+     {
+@@ -122,15 +122,15 @@
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[47672:MainThread](2023-04-06 09:01:52,920) INFO - qlib.workflow - [exp.py:258] - Experiment 1 starts running ...\n",
+-      "[47672:MainThread](2023-04-06 09:01:53,086) INFO - qlib.workflow - [recorder.py:341] - Recorder 8386fa9dddad43a5a0fc3cb8e0f9f3e2 starts running under Experiment 1 ...\n"
++      "[17528:MainThread](2023-04-07 08:39:24,285) INFO - qlib.workflow - [exp.py:258] - Experiment 1 starts running ...\n",
++      "[17528:MainThread](2023-04-07 08:39:24,451) INFO - qlib.workflow - [recorder.py:341] - Recorder a985dd14845b442d825600e07d23673d starts running under Experiment 1 ...\n"
+      ]
+     }
+    ],
+    "source": [
+     "# 时间设置\n",
+     "BEGIN_DT: str = \"2013-01-01\"\n",
+-    "END_DT: str = \"2023-04-04\"\n",
++    "END_DT: str = \"2023-04-06\"\n",
+     "\n",
+     "# 配置数据\n",
+     "train_period = (BEGIN_DT, \"2021-12-31\")\n",
+@@ -176,28 +176,28 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 5,
++   "execution_count": 7,
+    "metadata": {},
+    "outputs": [
+     {
+      "data": {
+       "text/plain": [
+        "instrument\n",
+-       "SZ300344    0.067912\n",
+-       "SZ002837    0.052907\n",
+-       "SH688310    0.052745\n",
+-       "SH688153    0.052313\n",
+-       "SZ002530    0.048911\n",
++       "SZ300344    0.050567\n",
++       "SH605128    0.048075\n",
++       "SH688310    0.046286\n",
++       "SZ300688    0.042572\n",
++       "SZ300624    0.042537\n",
+        "dtype: float64"
+       ]
+      },
+-     "execution_count": 5,
++     "execution_count": 7,
+      "metadata": {},
+      "output_type": "execute_result"
+     }
+    ],
+    "source": [
+-    "pred_score.loc['2023-04-04'].nlargest(5)"
++    "pred_score.loc[END_DT].nlargest(5)"
+    ]
+   },
+   {
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json"
+deleted file mode 100644
+index 13cf20b74..000000000
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/TCNWorckRrecord.json"
++++ /dev/null
+@@ -1,9 +0,0 @@
+-{
+-    "class": "Recorder",
+-    "id": "d896265a99174606b0f9f17140d9088c",
+-    "name": "mlflow_recorder",
+-    "experiment_id": "1",
+-    "start_time": "2023-04-05 20:44:22",
+-    "end_time": null,
+-    "status": "RUNNING"
+-}
+\ No newline at end of file
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py"
+index f1e3c5f45..81d7f5515 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py"
+@@ -34,6 +34,8 @@ TARIN_PERIODS: Tuple = ("2014-01-01", "2017-12-31")
+ VALID_PERIODS: Tuple = ("2018-01-01", "2019-12-31")
+ TEST_PERIODS: Tuple = ("2020-01-01", "2023-02-17")
+ 
++
++################################### DATASET CONFIG ###################################
+ data_handler_config: Dict = {
+     "start_time": TARIN_PERIODS[0],
+     "end_time": TEST_PERIODS[1],
+@@ -42,6 +44,164 @@ data_handler_config: Dict = {
+     "instruments": "csi300",
+ }
+ 
++
++def get_tsdataset_config(
++    train: Tuple, valid: Tuple, test: Tuple, setp_len: int = 20, calss: str = "Chips"
++) -> Dict:
++    return {  # 　因子数据集参数配置
++        "class": "TSDatasetH",
++        # 数据集类所在模块
++        "module_path": "qlib.data.dataset",
++        # 数据集类的参数配置
++        "kwargs": {
++            "handler": {  # 数据集使用的数据处理器配置
++                "class": calss,  # 数据处理器类，继承自DataHandlerLP
++                "module_path": "scr.factor_expr",  # 数据处理器类所在模块
++                "kwargs": data_handler_config,  # 数据处理器参数配置
++            },
++            "segments": {  # 数据集时段划分
++                "train": train,  # 训练集时段
++                "valid": valid,  # 验证集时段
++                "test": test,  # 测试集时段
++            },
++            "step_len": 20,
++        },
++    }
++
++
++def get_dataset_config(
++    train: Tuple, valid: Tuple, test: Tuple, setp_len: int = 20, calss: str = "Chips"
++) -> Dict:
++    return {
++        "class": "DatasetH",
++        "module_path": "qlib.data.dataset",
++        "kwargs": {
++            "handler": {
++                "class": calss,
++                "module_path": "scr.factor_expr",
++                "kwargs": data_handler_config,
++            },
++            "segments": {
++                "train": train,
++                "valid": valid,
++                "test": test,
++            },
++        },
++    }
++
++
++################################### MODEL CONFIG ###################################
++
++transformer_ts_config: Dict = {
++    "class": "TransformerModel",
++    "module_path": "qlib.contrib.model.pytorch_transformer_ts",
++    "kwargs": {"seed": 42, "n_jobs": 20},
++}
++
++
++def get_alstm_ts_config(
++    d_feat: int = 20,
++    hidden_size: int = 64,
++    num_layers: int = 2,
++    dropout: float = 0.0,
++    n_epochs: int = 200,
++    lr: float = 1e-3,
++    early_stop: int = 20,
++    batch_size: int = 800,
++    metric: str = "loss",
++    loss: str = "mse",
++    n_jobs: int = 20
++) -> Dict:
++    return {
++        "class": "ALSTM",
++        "module_path": "qlib.contrib.model.pytorch_alstm_ts",
++        "kwargs": {
++            "d_feat": d_feat,  # 步长
++            "hidden_size": hidden_size,
++            "num_layers": num_layers,
++            "dropout": dropout,
++            "n_epochs": n_epochs,
++            "lr": lr,
++            "early_stop": early_stop,
++            "batch_size": batch_size,
++            "metric": metric,
++            "loss": loss,
++            "n_jobs": n_jobs,
++            "GPU": 0,
++            "rnn_type": 'GRU',
++        },
++    }
++
++
++def get_adarnn_config(
++    d_feat: int = 12,
++    hidden_size: int = 64,
++    num_layers: int = 2,
++    dropout: float = 0.0,
++    n_epochs: int = 200,
++    lr: float = 1e-3,
++    early_stop: int = 20,
++    batch_size: int = 800,
++    metric: str = "loss",
++    loss: str = "mse",
++) -> Dict:
++    return {
++        "class": "ADARNN",
++        "module_path": "qlib.contrib.model.pytorch_adarnn",
++        "kwargs": {
++            "d_feat": d_feat,  # 特征维度
++            "hidden_size": hidden_size,
++            "num_layers": num_layers,
++            "dropout": dropout,
++            "n_epochs": n_epochs,
++            "lr": lr,
++            "early_stop": early_stop,
++            "batch_size": batch_size,
++            "metric": metric,
++            "loss": loss,
++            "GPU": 0,
++        },
++    }
++
++
++def get_tcn_ts_config(
++    d_feat: int = 20,
++    num_layers: int = 8,
++    n_chans: int = 32,
++    kernel_size: int = 7,
++    dropout: float = 0.5,
++    n_epochs: int = 200,
++    lr: float = 1e-4,
++    early_stop: int = 20,
++    batch_size: int = 2000,
++    metric: str = "loss",
++    loss: str = "mse",
++    optimizer: str = "adam",
++    n_jobs: int = 20,
++    GPU: int = 0,
++) -> Dict:
++    return {
++        "class": "TCN",
++        "module_path": "qlib.contrib.model.pytorch_tcn_ts",
++        "kwargs": {
++            "d_feat": d_feat,
++            "num_layers": num_layers,
++            "n_chans": n_chans,
++            "kernel_size": kernel_size,
++            "dropout": dropout,
++            "n_epochs": n_epochs,
++            "lr": lr,
++            "early_stop": early_stop,
++            "batch_size": batch_size,
++            "metric": metric,
++            "loss": loss,
++            "optimizer": optimizer,
++            "n_jobs": n_jobs,
++            "GPU": GPU,
++        },
++    }
++
++
+ # 任务参数配置
+ task: Dict = {
+     # 机器学习模型参数配置
+@@ -52,8 +212,8 @@ task: Dict = {
+         "module_path": "qlib.contrib.model.pytorch_tcn_ts",
+         # 模型类超参数配置，未写的则采用默认值。这些参数传给模型类
+         "kwargs": {  # kwargs用于初始化上面的class
+-            "d_feat": 20, # 步长需要和step_len保持一致
+-            "num_layers": 15,
++            "d_feat": 20,  # 步长需要和step_len保持一致
++            "num_layers": 8,
+             "n_chans": 32,
+             "kernel_size": 7,
+             "dropout": 0.5,
+@@ -64,7 +224,7 @@ task: Dict = {
+             "metric": "loss",
+             "loss": "mse",
+             "optimizer": "adam",
+-            "n_jobs": 25,
++            "n_jobs": 20,
+             "GPU": 0,
+         },
+     },
+@@ -90,6 +250,9 @@ task: Dict = {
+ }
+ 
+ 
++
++
++
+ if __name__ == "__main__":
+ 
+     qlib.init(
+@@ -112,7 +275,6 @@ if __name__ == "__main__":
+     )
+ 
+     if (CURRENT_DIR / "factor_data" / "chip_ts_dataset.pkl").exists:
+-
+         console.log("数据集已存在，开始读取...")
+         with open(CURRENT_DIR / "factor_data" / "chip_ts_dataset.pkl", "rb") as f:
+             dataset = pickle.load(f)

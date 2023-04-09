@@ -1,0 +1,144 @@
+diff --git a/sqlalchemy_to_data/learn_qlib/qlib_stock_pool_bt.ipynb b/sqlalchemy_to_data/learn_qlib/qlib_stock_pool_bt.ipynb
+index 17ae91fa6..18a9d97b2 100644
+--- a/sqlalchemy_to_data/learn_qlib/qlib_stock_pool_bt.ipynb
++++ b/sqlalchemy_to_data/learn_qlib/qlib_stock_pool_bt.ipynb
+@@ -38,9 +38,9 @@
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[47672:MainThread](2023-04-06 09:00:31,021) INFO - qlib.Initialization - [config.py:416] - default_conf: client.\n",
+-      "[47672:MainThread](2023-04-06 09:00:31,024) INFO - qlib.Initialization - [__init__.py:74] - qlib successfully initialized based on client settings.\n",
+-      "[47672:MainThread](2023-04-06 09:00:31,024) INFO - qlib.Initialization - [__init__.py:76] - data_path={'__DEFAULT_FREQ': WindowsPath('D:/WorkSpace/visualization_stock_market/sqlalchemy_to_data/learn_qlib/qlib_data')}\n"
++      "[17528:MainThread](2023-04-07 08:34:51,832) INFO - qlib.Initialization - [config.py:416] - default_conf: client.\n",
++      "[17528:MainThread](2023-04-07 08:34:51,835) INFO - qlib.Initialization - [__init__.py:74] - qlib successfully initialized based on client settings.\n",
++      "[17528:MainThread](2023-04-07 08:34:51,836) INFO - qlib.Initialization - [__init__.py:76] - data_path={'__DEFAULT_FREQ': WindowsPath('D:/WorkSpace/visualization_stock_market/sqlalchemy_to_data/learn_qlib/qlib_data')}\n"
+      ]
+     }
+    ],
+@@ -51,7 +51,7 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 3,
++   "execution_count": 4,
+    "metadata": {},
+    "outputs": [
+     {
+@@ -59,7 +59,7 @@
+      "output_type": "stream",
+      "text": [
+       "股票池数量:370\n",
+-      "起始日:2014-01-02 00:00:00,结束日:2023-04-04 00:00:00\n"
++      "起始日:2014-01-02 00:00:00,结束日:2023-04-06 00:00:00\n"
+      ]
+     }
+    ],
+@@ -84,24 +84,24 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 4,
++   "execution_count": 6,
+    "metadata": {},
+    "outputs": [
+     {
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[47672:MainThread](2023-04-06 09:01:32,938) INFO - qlib.timer - [log.py:128] - Time cost: 56.330s | Loading data Done\n",
+-      "[47672:MainThread](2023-04-06 09:01:33,291) INFO - qlib.timer - [log.py:128] - Time cost: 0.111s | DropnaLabel Done\n",
++      "[17528:MainThread](2023-04-07 08:39:02,520) INFO - qlib.timer - [log.py:128] - Time cost: 64.797s | Loading data Done\n",
++      "[17528:MainThread](2023-04-07 08:39:02,909) INFO - qlib.timer - [log.py:128] - Time cost: 0.114s | DropnaLabel Done\n",
+       "d:\\anaconda3\\envs\\qlib_env\\lib\\site-packages\\qlib\\data\\dataset\\processor.py:322: SettingWithCopyWarning: \n",
+       "A value is trying to be set on a copy of a slice from a DataFrame.\n",
+       "Try using .loc[row_indexer,col_indexer] = value instead\n",
+       "\n",
+       "See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy\n",
+       "  df[cols] = df[cols].groupby(\"datetime\", group_keys=False).apply(self.zscore_func)\n",
+-      "[47672:MainThread](2023-04-06 09:01:34,738) INFO - qlib.timer - [log.py:128] - Time cost: 1.448s | CSZScoreNorm Done\n",
+-      "[47672:MainThread](2023-04-06 09:01:34,750) INFO - qlib.timer - [log.py:128] - Time cost: 1.811s | fit & process data Done\n",
+-      "[47672:MainThread](2023-04-06 09:01:34,751) INFO - qlib.timer - [log.py:128] - Time cost: 58.143s | Init data Done\n"
++      "[17528:MainThread](2023-04-07 08:39:04,365) INFO - qlib.timer - [log.py:128] - Time cost: 1.456s | CSZScoreNorm Done\n",
++      "[17528:MainThread](2023-04-07 08:39:04,375) INFO - qlib.timer - [log.py:128] - Time cost: 1.854s | fit & process data Done\n",
++      "[17528:MainThread](2023-04-07 08:39:04,375) INFO - qlib.timer - [log.py:128] - Time cost: 66.652s | Init data Done\n"
+      ]
+     },
+     {
+@@ -122,15 +122,15 @@
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "[47672:MainThread](2023-04-06 09:01:52,920) INFO - qlib.workflow - [exp.py:258] - Experiment 1 starts running ...\n",
+-      "[47672:MainThread](2023-04-06 09:01:53,086) INFO - qlib.workflow - [recorder.py:341] - Recorder 8386fa9dddad43a5a0fc3cb8e0f9f3e2 starts running under Experiment 1 ...\n"
++      "[17528:MainThread](2023-04-07 08:39:24,285) INFO - qlib.workflow - [exp.py:258] - Experiment 1 starts running ...\n",
++      "[17528:MainThread](2023-04-07 08:39:24,451) INFO - qlib.workflow - [recorder.py:341] - Recorder a985dd14845b442d825600e07d23673d starts running under Experiment 1 ...\n"
+      ]
+     }
+    ],
+    "source": [
+     "# 时间设置\n",
+     "BEGIN_DT: str = \"2013-01-01\"\n",
+-    "END_DT: str = \"2023-04-04\"\n",
++    "END_DT: str = \"2023-04-06\"\n",
+     "\n",
+     "# 配置数据\n",
+     "train_period = (BEGIN_DT, \"2021-12-31\")\n",
+@@ -176,28 +176,28 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 5,
++   "execution_count": 7,
+    "metadata": {},
+    "outputs": [
+     {
+      "data": {
+       "text/plain": [
+        "instrument\n",
+-       "SZ300344    0.067912\n",
+-       "SZ002837    0.052907\n",
+-       "SH688310    0.052745\n",
+-       "SH688153    0.052313\n",
+-       "SZ002530    0.048911\n",
++       "SZ300344    0.050567\n",
++       "SH605128    0.048075\n",
++       "SH688310    0.046286\n",
++       "SZ300688    0.042572\n",
++       "SZ300624    0.042537\n",
+        "dtype: float64"
+       ]
+      },
+-     "execution_count": 5,
++     "execution_count": 7,
+      "metadata": {},
+      "output_type": "execute_result"
+     }
+    ],
+    "source": [
+-    "pred_score.loc['2023-04-04'].nlargest(5)"
++    "pred_score.loc[END_DT].nlargest(5)"
+    ]
+   },
+   {
+diff --git "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py" "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py"
+index f1e3c5f45..93c20ba94 100644
+--- "a/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py"
++++ "b/sqlalchemy_to_data/\346\265\213\350\257\225\347\233\270\345\205\263/\347\255\271\347\240\201\345\210\206\345\270\203\347\256\227\346\263\225/tcn_wf.py"
+@@ -53,7 +53,7 @@ task: Dict = {
+         # 模型类超参数配置，未写的则采用默认值。这些参数传给模型类
+         "kwargs": {  # kwargs用于初始化上面的class
+             "d_feat": 20, # 步长需要和step_len保持一致
+-            "num_layers": 15,
++            "num_layers": 8,
+             "n_chans": 32,
+             "kernel_size": 7,
+             "dropout": 0.5,
+@@ -64,7 +64,7 @@ task: Dict = {
+             "metric": "loss",
+             "loss": "mse",
+             "optimizer": "adam",
+-            "n_jobs": 25,
++            "n_jobs": 20,
+             "GPU": 0,
+         },
+     },

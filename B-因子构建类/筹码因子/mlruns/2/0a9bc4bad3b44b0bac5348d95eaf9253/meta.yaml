@@ -1,0 +1,15 @@
+artifact_uri: file:D:\WorkSpace\visualization_stock_market\sqlalchemy_to_data\测试相关\筹码分布算法\mlruns/2/0a9bc4bad3b44b0bac5348d95eaf9253/artifacts
+end_time: 1680840891881
+entry_point_name: ''
+experiment_id: '2'
+lifecycle_stage: active
+run_id: 0a9bc4bad3b44b0bac5348d95eaf9253
+run_name: mlflow_recorder
+run_uuid: 0a9bc4bad3b44b0bac5348d95eaf9253
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1680840890914
+status: 3
+tags: []
+user_id: 华思远
