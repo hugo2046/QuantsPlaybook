@@ -15,6 +15,8 @@
 
 *考虑到效率问题,并未使用scipy.stats.triang和uniform而是使用numba对其进行了重构。*
 
+因子复合使用了Qlib的TCN和GBDT模型
+
 **数据获取**
 
 这里打包了相关数据,cn_data为csv原始数据,qlib_data为处理后qlib可以直接使用的数据,factor_data是经*DatasetH*处理后的数据

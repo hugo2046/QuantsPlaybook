@@ -1,0 +1,13 @@
+alphalens==0.4.0
+empyrical==0.5.5
+loguru==0.6.0
+matplotlib==3.7.1
+numba==0.56.4
+numpy==1.23.5
+pandas==1.5.3
+pyqlib==0.9.1
+qlib==0.0.2.dev20
+rich==13.3.3
+scipy==1.10.1
+seaborn==0.12.2
+statsmodels==0.13.5
