@@ -324,6 +324,17 @@
             《广发证券_多因子Alpha系列报告之（二十七）——基于筹码分布的选股策略》
         </td>
     </tr>
+ 	<tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/B-%E5%9B%A0%E5%AD%90%E6%9E%84%E5%BB%BA%E7%B1%BB/%E5%87%B8%E6%98%BE%E7%90%86%E8%AE%BASTR%E5%9B%A0%E5%AD%90/%E5%87%B8%E6%98%BE%E5%BA%A6%E5%9B%A0%E5%AD%90.ipynb">凸显度因子</a></td>
+        <td>
+            《20221213_方大证券_显著效应、极端收益扭曲决策权重和“草木皆兵”因子》
+            《20221214-招商证券-“青出于蓝”系列研究之四：行为金融新视角，“凸显性收益”因子STR》
+            《20230323_广发证券_行为金融研究系列之七_凸显理论之 A 股“价”“量”应用》
+            《Salience theory and stock prices Empirical evidence》
+            《SalientStocksFMA2017》
+        </td>
+    </tr>
     <tr>
         <td><strong>量化价值</strong></td>
         <td><a href="https://www.joinquant.com/view/community/detail/30543ad72454c7648b03bae542af55c9">罗伯·瑞克超额现金流选股法则</a></td>
