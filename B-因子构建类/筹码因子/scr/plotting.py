@@ -9,19 +9,69 @@ from typing import List, Tuple
 
 import empyrical as ep
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
-import seaborn as sns
+from scipy import stats
 import statsmodels.api as sm
+
+from .cyq import calc_dist_chips
 
 # from alphalens.utils import quantize_factor
 from matplotlib import ticker
-from scipy import stats
+import seaborn as sns
+
 
 sns.set_theme(style="whitegrid")
 # plt中文显示
 plt.rcParams["font.sans-serif"] = ["SimHei"]
 # plt显示负号
 plt.rcParams["axes.unicode_minus"] = False
+
+############################# 筹码分布 #############################
+
+
+def plot_dist_chips(
+    df: pd.DataFrame,
+    method: str,
+    title: str = "",
+    figsize: tuple = (14, 6),
+    ax: plt.axes = None,
+) -> plt.axes:
+    """画筹码分布
+
+    Args:
+        df (pd.DataFrame): index-date columns-close|avg,high,low,vol,turnover_rate
+        method (str): 计算分布的方法
+            triang: 三角分布
+            uniform: 平均分布
+            turn_coeff: 换手率系数
+        title (str, optional): 标题. Defaults to "".
+        figsize (tuple, optional): figsize. Defaults to (14, 6).
+        ax (plt.axes, optional): _description_. Defaults to None.
+
+    Returns:
+        plt.axes:
+    """
+    cum_vol: pd.Series = calc_dist_chips(df, method)
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+
+    ax.set_title(title)
+
+    if method in {"triang", "uniform"}:
+        ax.bar(x=cum_vol.index, height=cum_vol.values, width=0.01, edgecolor="#4c89bc")
+        min_p, max_p = cum_vol.index.min(), cum_vol.index.max()
+        ax.set_xlim(min_p - 0.5, max_p + 0.5)
+    else:
+        cum_vol.index = np.round(cum_vol.index, 4)
+        cum_vol.plot.bar(ax=ax)
+        ax.set_xticks(range(0, len(cum_vol), 5))
+
+    ax.set_xlabel("price")
+    ax.set_ylabel("volume")
+
+    return ax
 
 
 ############################# 画图计算用组件 #############################
@@ -56,13 +106,13 @@ def _get_score_return(pred_label: pd.DataFrame, N: int = 5, **kwargs) -> pd.Data
     pred_label_drop["group"] = pred_label_drop.groupby(level="datetime")[
         "score"
     ].transform(lambda df: pd.qcut(df, N, labels=False, **kwargs) + 1)
-    last_group_num:int = pred_label_drop["group"].max()
+    last_group_num: int = pred_label_drop["group"].max()
     pred_label_drop["group"] = pred_label_drop["group"].apply(lambda x: "Group%d" % x)
     ts_df: pd.DataFrame = pd.pivot_table(
         pred_label_drop.reset_index(), index="datetime", columns="group", values="label"
     )
 
-    if N !=last_group_num:
+    if N != last_group_num:
         N = last_group_num
     ts_df["long-short"] = ts_df["Group%d" % N] - ts_df["Group1"]
     ts_df["long-average"] = (
@@ -197,7 +247,7 @@ def model_performance_graph(
     turnover_ax = plt.subplot2grid((6, 2), (5, 0), colspan=2)
 
     if reverse:
-        pred_label['score'] *= -1
+        pred_label["score"] *= -1
     # CumulativeReturn
     ts_df: pd.DataFrame = _get_score_return(pred_label, N=N, **kwargs)
 
