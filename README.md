@@ -191,6 +191,11 @@
             <td>《华福证券-市场情绪指标专题（五）：行业指数顶部和底部信号，净新高占比（（NH~NL）%）-230302》</td>
         </tr>
 		<tr>
+            <td><strong>择时</strong></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/398d0cc5732d9d1c0f26768b8fad8c2e6617d250/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/ICU%E5%9D%87%E7%BA%BF/ICU_MA.ipynb">ICU均线</a></td>
+            <td>《20230412_中泰证券_“均线”才是绝对收益利器-ICU均线下的择时策略》</td>
+        </tr>
+		<tr>
         <td><strong>因子构建</strong></td>
         <td><a href="https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980">基于量价关系度量股票的买卖压力</a></td>
         <td>
@@ -341,6 +346,7 @@
     </tr>
 </tboday>
 </table>
+
 
 
 
