@@ -48,51 +48,6 @@ FIELD_DICT: Dict = {
 }
 
 
-def query_tag_concept(
-    tag: str, watch_dt: str = None, fields: Union[List, str] = None
-) -> pd.DataFrame:
-    """查询数据库中的标签情况
-
-    Parameters
-    ----------
-    tag : str
-        pool-为自定义标签
-    watch_dt : str, optional
-        查询日期,yyyy-mm-dd, by default None
-    fields : Union[List, str], optional
-        查询字段, by default None
-
-    Returns
-    -------
-    pd.DataFrame
-        index-idx columns-sec_name|code|trade_date|block_name|+查询字段
-    """
-    db_con = DBConn(f"{get_system_os()}_conn_str", "datacenter")
-    defalut_fields: List = [
-        "sec_name",
-        "code",
-        "trade_date",
-        "block_name",
-    ]
-
-    if fields is None:
-        fields: List = [
-            "vol_ratio",
-            "turnover",
-        ]
-    if isinstance(fields, str):
-        fields: List = [fields]
-    fields: List = list(set(defalut_fields + fields))
-
-    model = db_con.auto_db_base.classes["dashbord_plate_cons"]
-    expr: List = [model.category == tag]
-    if watch_dt is not None:
-        expr.append(model.trade_date == watch_dt)
-    stmt = select(*(getattr(model, field) for field in fields)).where(*expr)
-    # db_con.engine
-    return pd.read_sql(stmt, db_con.engine)
-
-
 def _preprocessing(df: pd.DataFrame) -> pd.DataFrame:
     """数据预处理"""
 
@@ -293,9 +248,11 @@ def get_price(
         for col in daily.columns
         if col in ["open", "high", "low", "close", "pre_close"]
     ]:
-        df: pd.DataFrame = daily[adj_fields].mul(adj_factor["adj_factor"], axis=0)
+        daily[adj_fields]: pd.DataFrame = daily[adj_fields].mul(
+            adj_factor["adj_factor"], axis=0
+        )
 
     if drop_field:
-        df: pd.DataFrame = pd.concat((df, adj_factor), axis=1)
+        daily: pd.DataFrame = pd.concat((daily, adj_factor), axis=1)
 
-    return df.reset_index()
+    return daily.reset_index()
