@@ -1,8 +1,10 @@
-import pandas as pd
-from .db_tools import DBConn
 from functools import lru_cache
-from .utils import get_system_os, format_dt
+
+import pandas as pd
 from sqlalchemy import select
+
+from .db_tools import DBConn
+from .utils import format_dt, get_system_os
 
 
 @lru_cache()
@@ -10,9 +12,11 @@ def get_all_trade_days() -> pd.DatetimeIndex:
     """获取全部交易日历"""
 
     db_con = DBConn(f"{get_system_os()}_conn_str", "datacenter")
+    # db_con.connect()
     model = db_con.auto_db_base.classes["trade_cal"]
     stmt = select(model.cal_date).where(model.is_open == 1)
-    cal_frame: pd.DataFrame = pd.read_sql(stmt, db_con.engine)
+
+    cal_frame: pd.DataFrame = pd.read_sql(stmt, db_con.engine.connect())
 
     return pd.to_datetime(cal_frame["cal_date"].unique())
 
@@ -103,19 +107,18 @@ def Tdaysoffset(watch_date: str, count: int, freq: str = "days") -> pd.Timestamp
 
     return target
 
+
 def get_current_dt(hour: int = 18) -> pd.Timestamp:
-
-    hour_time:int = 18 * 100
+    hour_time: int = 18 * 100
     now_dt: pd.Timestamp = pd.Timestamp.now()
-    now_time:int = int(pd.Timestamp.now().strftime('%H%S'))
+    now_time: int = int(pd.Timestamp.now().strftime("%H%S"))
 
-    today:pd.Timestamp = pd.Timestamp.today().date()
+    today: pd.Timestamp = pd.Timestamp.today().date()
 
-    prevoius_day:pd.Timestamp = Tdaysoffset(today, -1).date()
+    prevoius_day: pd.Timestamp = Tdaysoffset(today, -1).date()
 
     if now_time >= hour_time and now_dt.weekday() not in [5, 6]:
         # 18点后 如果今天是交易日则返回当日 否则返回最近的交易日
         return today if today == prevoius_day else prevoius_day
     else:
-
         return prevoius_day
