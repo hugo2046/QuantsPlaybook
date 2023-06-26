@@ -6,13 +6,47 @@ LastEditTime: 2023-06-20 13:53:31
 Description: 
 """
 
-from typing import List, Union, Tuple
+from typing import Dict, List, Tuple, Union
 
 import pandas as pd
 from sqlalchemy import select
-from .utils import get_system_os
+
 from .db_tools import DBConn
 from .trade_cal import Tdaysoffset
+from .utils import get_system_os
+
+FIELD_DICT: Dict = {
+    "adj_factor": ["adj_factor"],
+    "daily": [
+        "open",
+        "high",
+        "low",
+        "close",
+        "pre_close",
+        "change",
+        "pct_chg",
+        "vol",
+        "amount",
+    ],
+    "valuation": [
+        "turnover_rate",
+        "turnover_rate_f",
+        "volume_ratio",
+        "pe",
+        "pe_ttm",
+        "pb",
+        "ps",
+        "ps_ttm",
+        "dv_ratio",
+        "dv_ttm",
+        "total_share",
+        "float_share",
+        "free_share",
+        "total_mv",
+        "circ_mv",
+    ],
+}
+
 
 def query_tag_concept(
     tag: str, watch_dt: str = None, fields: Union[List, str] = None
@@ -75,7 +109,7 @@ def _check_params(
     codes: Union[str, Tuple, List] = None,
     start_date: str = None,
     end_date: str = None,
-    count:int=None,
+    count: int = None,
     fields: Union[str, List, Tuple] = None,
     table_name: str = None,
     date_name: str = "end_date",
@@ -143,16 +177,16 @@ def query_data(
     codes: Union[str, Tuple, List] = None,
     start_date: str = None,
     end_date: str = None,
-    count:int=None,
+    count: int = None,
     fields: Union[str, List, Tuple] = None,
     table_name: str = None,
     date_name: str = "end_date",
 ) -> pd.DataFrame:
     dml = DBConn()
-    dml.connect()
+    # dml.connect()
     # session = dml.Session()
     stmt = _check_params(
-        codes, start_date, end_date,count, fields, table_name, date_name, dml
+        codes, start_date, end_date, count, fields, table_name, date_name, dml
     )
 
     return pd.read_sql(stmt, dml.engine.connect())
@@ -162,37 +196,43 @@ def query_adj_factor(
     codes: Union[str, Tuple, List] = None,
     start_date: str = None,
     end_date: str = None,
-    count:int=None,
+    count: int = None,
     fields: Union[str, List, Tuple] = None,
 ) -> pd.DataFrame:
     """查询复权因子数据"""
     df: pd.DataFrame = query_data(
-        codes, start_date, end_date,count, fields, "adj_factor", "trade_date"
+        codes, start_date, end_date, count, fields, "adj_factor", "trade_date"
     )
     df: pd.DataFrame = df.drop_duplicates(["code", "trade_date"], keep="last")
     df["trade_date"] = pd.to_datetime(df["trade_date"])
     df: pd.DataFrame = df.sort_values("trade_date")
     return _preprocessing(df)
 
-def query_daily_valuation(codes: Union[str, Tuple, List] = None,
+
+def query_daily_valuation(
+    codes: Union[str, Tuple, List] = None,
     start_date: str = None,
     end_date: str = None,
-    count:int=None,
-    fields: Union[str, List, Tuple] = None)->pd.DataFrame:
+    count: int = None,
+    fields: Union[str, List, Tuple] = None,
+) -> pd.DataFrame:
     """查询每日估值数据"""
-    df:pd.DataFrame = query_data(codes,start_date,end_date,count,fields,'daily_basic','trade_date')
+    df: pd.DataFrame = query_data(
+        codes, start_date, end_date, count, fields, "daily_basic", "trade_date"
+    )
     return _preprocessing(df)
+
 
 def query_daily(
     codes: Union[str, Tuple, List] = None,
     start_date: str = None,
     end_date: str = None,
-    count:int=None,
+    count: int = None,
     fields: Union[str, List, Tuple] = None,
 ) -> pd.DataFrame:
     """查询日线数据"""
     df: pd.DataFrame = query_data(
-        codes, start_date, end_date,count, fields, "daily", "trade_date"
+        codes, start_date, end_date, count, fields, "daily", "trade_date"
     )
 
     return _preprocessing(df)
@@ -202,7 +242,7 @@ def get_price(
     codes: Union[str, Tuple, List] = None,
     start_date: str = None,
     end_date: str = None,
-    count:int=None,
+    count: int = None,
     fields: Union[str, List, Tuple] = None,
     fq: str = "hfq",
 ) -> pd.DataFrame:
@@ -218,19 +258,36 @@ def get_price(
     Returns:
         pd.DataFrame: _description_
     """
+
     drop_field: bool = False
     if fq is not None:
         adj_factor: pd.DataFrame = query_adj_factor(
-            codes, start_date, end_date,count, fields=["code", "trade_date", "adj_factor"]
+            codes,
+            start_date,
+            end_date,
+            count,
+            fields=["code", "trade_date", "adj_factor"],
         ).set_index(["code", "trade_date"])
         if "adj_factor" in fields:
             fields.remove("adj_factor")
             drop_field: bool = True
 
-    daily: pd.DataFrame = query_daily(codes, start_date, end_date,count, fields).set_index(
-        ["code", "trade_date"]
-    )
+    # daily: pd.DataFrame = query_daily(
+    #     codes, start_date, end_date, count, fields
+    # ).set_index(["code", "trade_date"])
+    func_dict: Dict = {"daily": query_daily, "valuation": query_daily_valuation}
+    daily_fields: List = [field for field in fields if field in FIELD_DICT["daily"]]
+    valuation_fields: List = [
+        field for field in fields if field in FIELD_DICT["valuation"]
+    ]
 
+    daily: pd.DataFrame = pd.merge(
+        func_dict["daily"](codes, start_date, end_date, count, daily_fields),
+        func_dict["valuation"](codes, start_date, end_date, count, valuation_fields),
+        on=["code", "trade_date"],
+        how="outer",
+    )
+    daily: pd.DataFrame = daily.set_index(["code", "trade_date"])
     if adj_fields := [
         col
         for col in daily.columns
