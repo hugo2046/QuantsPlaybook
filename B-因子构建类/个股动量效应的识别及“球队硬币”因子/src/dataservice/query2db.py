@@ -174,6 +174,14 @@ def query_adj_factor(
     df: pd.DataFrame = df.sort_values("trade_date")
     return _preprocessing(df)
 
+def query_daily_valuation(codes: Union[str, Tuple, List] = None,
+    start_date: str = None,
+    end_date: str = None,
+    count:int=None,
+    fields: Union[str, List, Tuple] = None)->pd.DataFrame:
+    """查询每日估值数据"""
+    df:pd.DataFrame = query_data(codes,start_date,end_date,count,fields,'daily_basic','trade_date')
+    return _preprocessing(df)
 
 def query_daily(
     codes: Union[str, Tuple, List] = None,
