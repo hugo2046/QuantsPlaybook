@@ -1,11 +1,3 @@
-'''
-Author: hugo2046 shen.lan123@gmail.com
-Date: 2023-06-27 20:50:18
-LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2023-06-27 20:51:37
-FilePath: \Quantitative-analysis\B-因子构建类\个股动量效应的识别及“球队硬币”因子\src\build_factor.py
-Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
-'''
 """
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2023-06-27 20:50:18
@@ -16,6 +8,8 @@ Description:
 """
 from typing import List, Tuple, Union
 
+import pandas as pd
+from FactorZoo import SportBettingFactor
 
 
 def get_factor(
@@ -38,14 +32,12 @@ def get_factors_frame(
             "factor_names and general_names can't be None at the same time"
         )
 
-    if factor_names is not None:
-        if isinstance(factor_names, str):
-            factor_names: List = [factor_names]
+    if (factor_names is not None) and isinstance(factor_names, str):
+        factor_names: List = [factor_names]
 
-    if general_names is not None:
-        if isinstance(general_names, str):
-            general_names: List = [general_names]
-            factor_names: List = get_factor_name(general_names)
+    if (general_names is not None) and isinstance(general_names, str):
+        general_names: List = [general_names]
+        factor_names: List = get_factor_name(general_names)
 
     dfs: List = []
     for factor_name in factor_names:
