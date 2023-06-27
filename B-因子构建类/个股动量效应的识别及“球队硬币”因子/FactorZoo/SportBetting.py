@@ -1,5 +1,6 @@
 import pandas as pd
-from typing import Union, Dict, List
+from typing import Union, Dict
+from functools import lru_cache
 
 
 def get_coins_team(
@@ -45,6 +46,7 @@ class SportBettingFactor(object):
         self.index_name = index_name
         self.created_by = "DataFrame"
 
+    @lru_cache
     def _calc_overnight_distance(self) -> pd.DataFrame:
         """隔夜涨跌幅的市场平均水平是最平静的，因此我们计算每只个股的隔夜涨跌幅与市场平均水平的差值，然后取绝对值
         表示这只个股与“最平静”之间的距离，并将其记为“隔夜距离”因子
@@ -57,7 +59,8 @@ class SportBettingFactor(object):
         overnight_ret: pd.DataFrame = self._calc_overnight_ret()
 
         return overnight_ret.sub(overnight_ret.mean(axis=1), axis=0).abs()
-
+    
+    @lru_cache
     def _calc_overnight_ret(self) -> pd.DataFrame:
         """计算隔夜收益
 
@@ -81,7 +84,8 @@ class SportBettingFactor(object):
         )
         # 使用t日开盘价除以t-1日的收盘价再减 1
         return open_df / close_df.shift(1) - 1
-
+    
+    @lru_cache
     def _calc_intraday_ret(self) -> pd.DataFrame:
         """计算日内收益
 
@@ -240,7 +244,7 @@ class SportBettingFactor(object):
 
         factor_df: pd.DataFrame = (
             self.interday_volatility_reverse(window, True)
-            + self.interday_turnover(window, method, True)
+            + self.interday_turnover_reverse(window, method, True)
         ) * 0.5
         if usedf:
             return factor_df
@@ -348,7 +352,7 @@ class SportBettingFactor(object):
 
         factor_df: pd.DataFrame = (
             self.intraday_volatility_reverse(window, True)
-            + self.intraday_turnover(window, method, True)
+            + self.intraday_turnover_reverse(window, method, True)
         ) * 0.5
         if usedf:
             return factor_df
