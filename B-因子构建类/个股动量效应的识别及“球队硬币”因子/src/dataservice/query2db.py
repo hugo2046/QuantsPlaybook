@@ -13,7 +13,6 @@ from sqlalchemy import select
 
 from .db_tools import DBConn
 from .trade_cal import Tdaysoffset
-from .utils import get_system_os
 
 FIELD_DICT: Dict = {
     "adj_factor": ["adj_factor"],
