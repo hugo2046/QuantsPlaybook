@@ -35,8 +35,9 @@ def get_factors_frame(
     if (factor_names is not None) and isinstance(factor_names, str):
         factor_names: List = [factor_names]
 
-    if (general_names is not None) and isinstance(general_names, str):
-        general_names: List = [general_names]
+    if general_names is not None:
+        if isinstance(general_names, str):
+            general_names: List = [general_names]
         factor_names: List = get_factor_name(general_names)
 
     dfs: List = []
@@ -55,10 +56,7 @@ def get_factors_frame(
         else:
             dfs.append(get_factor(data, window, method=method, factor_name=factor_name))
 
-    return pd.concat(
-        (get_factor(data, window, method, factor_name) for factor_name in factor_names),
-        axis=1,
-    )
+    return pd.concat(dfs, axis=1)
 
 
 def get_factor_name(general_names: Union[str, List, Tuple] = None) -> List[str]:
@@ -78,14 +76,14 @@ def get_factor_name(general_names: Union[str, List, Tuple] = None) -> List[str]:
         因子名称
     """
     if general_names is None:
-        factor_type: set = {"interday", "intraday", "overnight"}
+        general_names: set = {"interday", "intraday", "overnight"}
 
     if isinstance(general_names, str):
-        factor_type: set = {general_names}
+        general_names: set = {general_names}
 
     factors: List = []
 
-    for factor in factor_type:
+    for factor in general_names:
         factors.extend(
             [
                 f"{factor}_volatility_reverse",
