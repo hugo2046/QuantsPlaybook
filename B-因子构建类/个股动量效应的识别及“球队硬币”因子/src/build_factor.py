@@ -10,6 +10,7 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 from FactorZoo import SportBettingFactor
+from tqdm import tqdm
 
 
 def get_factor(
@@ -41,20 +42,27 @@ def get_factors_frame(
         factor_names: List = get_factor_name(general_names)
 
     dfs: List = []
-    for factor_name in factor_names:
-        if factor_name.find("turnover"):
-            if method is None:
-                for i in (1, 2):
-                    dfs.append(
-                        get_factor(data, window, method=i, factor_name=factor_name)
-                    )
-            else:
-                dfs.append(
-                    get_factor(data, window, method=method, factor_name=factor_name)
-                )
+    for factor_name in tqdm(factor_names, desc="因子计算中"):
+        if factor_name.find("turnover") == -1:
+            dfs.append(
+                get_factor(
+                    data, window, method=method, factor_name=factor_name
+                ).sort_index()
+            )
 
+        elif method is None:
+            for i in (1, 2):
+                dfs.append(
+                    get_factor(
+                        data, window, method=i, factor_name=factor_name
+                    ).sort_index()
+                )
         else:
-            dfs.append(get_factor(data, window, method=method, factor_name=factor_name))
+            dfs.append(
+                get_factor(
+                    data, window, method=method, factor_name=factor_name
+                ).sort_index()
+            )
 
     return pd.concat(dfs, axis=1)
 
