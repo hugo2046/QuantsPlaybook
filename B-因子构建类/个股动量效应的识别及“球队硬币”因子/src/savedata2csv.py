@@ -12,7 +12,8 @@ import fire
 import pandas as pd
 from rich.console import Console
 from rich.progress import track
-from src.dataservice import get_price
+
+from dataservice import get_price
 
 console = Console()
 
