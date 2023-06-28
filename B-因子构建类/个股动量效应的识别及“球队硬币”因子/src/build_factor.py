@@ -6,25 +6,25 @@ LastEditTime: 2023-06-27 20:50:31
 FilePath: 
 Description: 
 """
+from functools import partial
 from typing import List, Tuple, Union
 
 import pandas as pd
-from FactorZoo import SportBettingFactor
+from FactorZoo import SportBettingsFactor
 from tqdm import tqdm
+
+from joblib import Parallel, delayed
 
 
 def get_factor(
-    data: pd.DataFrame, window: int, factor_name: str, method: int = None
+    sportbetting: SportBettingsFactor, factor_name: str, window: int
 ) -> pd.Series:
-    """根据因子名获取因子"""
-    sportbetting: SportBettingFactor = SportBettingFactor(data)
-    return getattr(sportbetting, factor_name)(window=window, method=method, usedf=False)
+    return getattr(sportbetting, factor_name)(window=window, usedf=False)
 
 
 def get_factors_frame(
     data: pd.DataFrame,
     window: int,
-    method: int = None,
     factor_names: Union[str, List, Tuple] = None,
     general_names: Union[str, List, Tuple] = None,
 ) -> pd.DataFrame:
@@ -41,30 +41,13 @@ def get_factors_frame(
             general_names: List = [general_names]
         factor_names: List = get_factor_name(general_names)
 
-    dfs: List = []
-    for factor_name in tqdm(factor_names, desc="因子计算中"):
-        if factor_name.find("turnover") == -1:
-            dfs.append(
-                get_factor(
-                    data, window, method=method, factor_name=factor_name
-                ).sort_index()
-            )
+    sportbetting: SportBettingsFactor = SportBettingsFactor(data)
 
-        elif method is None:
-            for i in (1, 2):
-                dfs.append(
-                    get_factor(
-                        data, window, method=i, factor_name=factor_name
-                    ).sort_index()
-                )
-        else:
-            dfs.append(
-                get_factor(
-                    data, window, method=method, factor_name=factor_name
-                ).sort_index()
-            )
-
-    return pd.concat(dfs, axis=1)
+    parallel = Parallel(n_jobs=-1, verbose=1, backend="multiprocessing")
+    result = parallel(
+        delayed(get_factor)(sportbetting, x, window) for x in factor_names
+    )
+    return pd.concat(result, axis=1, sort=True)
 
 
 def get_factor_name(general_names: Union[str, List, Tuple] = None) -> List[str]:
@@ -96,6 +79,7 @@ def get_factor_name(general_names: Union[str, List, Tuple] = None) -> List[str]:
             [
                 f"{factor}_volatility_reverse",
                 f"{factor}_turnover_reverse",
+                f"{factor}_turnover_f_reverse",
                 f"revise_{factor}_reverse",
             ]
         )
