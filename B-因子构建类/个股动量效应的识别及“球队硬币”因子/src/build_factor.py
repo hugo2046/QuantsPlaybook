@@ -84,4 +84,5 @@ def get_factor_name(general_names: Union[str, List, Tuple] = None) -> List[str]:
             ]
         )
 
+    factors += ['coin_team','coin_team_f']
     return factors

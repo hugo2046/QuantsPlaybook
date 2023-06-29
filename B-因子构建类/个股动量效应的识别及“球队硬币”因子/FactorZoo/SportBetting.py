@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def get_coins_team(
-    baseline_df: pd.DataFrame, factor_df: pd.DataFrame, opr: str = "gt"
+    baseline_df: pd.DataFrame, factor_df: pd.DataFrame, opr: str = "lt"
 ) -> pd.DataFrame:
     """比较baseline与baseline截面均值的关系
     关系根据opr参数确定,生成的布尔值矩阵再乘以factor_df
@@ -17,7 +17,7 @@ def get_coins_team(
     factor_df : pd.DataFrame
         因子值
     opr : str, optional
-        gt(>);lt(<), by default 'gt'
+        gt(>);lt(<), by default 'lt'
 
     Returns
     -------
@@ -195,8 +195,12 @@ class SprotBettingsFactorBase(object):
             由于未来其发生动量效应的概率更大,因此我们将其当[月日间收益率]乘以-1
         """
         pct_chg: pd.DataFrame = self._get_returns(type_of_return)
-        avg_ret: pd.DataFrame = pct_chg.rolling(window, min_periods=1).mean()
-        std_df: pd.DataFrame = pct_chg.rolling(window, min_periods=1).std()
+        avg_ret: pd.DataFrame = pct_chg.rolling(window, min_periods=1).mean(
+            engine="numba",engine_kwargs={'parallel': True}
+        )
+        std_df: pd.DataFrame = pct_chg.rolling(window, min_periods=1).std(
+            engine="numba",engine_kwargs={'parallel': True}
+        )
         factor_df: pd.DataFrame = get_coins_team(std_df, avg_ret, opr)
         return factor_df
 
@@ -230,8 +234,13 @@ class SprotBettingsFactorBase(object):
         pct_chg: pd.DataFrame = self._get_returns(type_of_return)
         turnover: pd.DataFrame = self._get_turnover_rate(field, offset)
         diff_turnover: pd.DataFrame = turnover - turnover.shift(1)
+        # engine_kwargs={'parallel': True}
         factor_df: pd.DataFrame = (
-            get_coins_team(diff_turnover, pct_chg, opr).rolling(window).mean()
+            get_coins_team(diff_turnover, pct_chg, opr)
+            .rolling(window)
+            .mean(
+                engine="numba",engine_kwargs={'parallel': True}
+            )
         )
         return factor_df
 
@@ -499,7 +508,7 @@ class SportBettingsFactor(SprotBettingsFactorBase):
             ser - MultiIndex level0-date level1-code value-factor
         """
         return self.get_factor(
-            "turnover", "intraday", window, usedf, field="turnover_rate_f",offset=1
+            "turnover", "intraday", window, usedf, field="turnover_rate_f", offset=1
         )
 
     def overnight_turnover_f_reverse(
@@ -522,7 +531,7 @@ class SportBettingsFactor(SprotBettingsFactorBase):
         """
 
         return self.get_factor(
-            "turnover", "overnight", window, usedf, field="turnover_rate_f",offset=1
+            "turnover", "overnight", window, usedf, field="turnover_rate_f", offset=1
         )
 
     def revise_interday_reverse(
@@ -692,3 +701,28 @@ class SportBettingsFactor(SprotBettingsFactorBase):
             method="revise",
             field="turnover_rate_f",
         )
+
+    def coin_team(
+        self, window: int = 20, usedf: bool = False
+    ) -> Union[pd.Series, pd.DataFrame]:
+        
+        df:pd.DataFrame = (
+            self.revise_interday_reverse(window, usedf)
+            + self.revise_intraday_reverse(window, usedf)
+            + self.revise_overnight_reverse(window, usedf)
+        )
+        df.name = "coin_team"
+        return df
+
+    def coin_team_f(
+        self, window: int = 20, usedf: bool = False
+    ) -> Union[pd.Series, pd.DataFrame]:
+        
+        df:pd.DataFrame = (
+            self.revise_interday_f_reverse(window, usedf)
+            + self.revise_intraday_f_reverse(window, usedf)
+            + self.revise_overnight_f_reverse(window, usedf)
+        )
+        
+        df.name = "coin_team_f"
+        return df
