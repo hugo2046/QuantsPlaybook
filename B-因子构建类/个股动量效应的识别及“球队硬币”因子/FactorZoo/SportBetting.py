@@ -57,10 +57,7 @@ def check_data_cols(df: pd.DataFrame) -> None:
 
 
 class SprotBettingsFactorBase(object):
-    fields_dict: Dict = {
-        "field": {1: "turnover_rate", 2: "turnover_rate_f"},
-        "name": {1: "turnover", 2: "turnover_f"},
-    }
+
     created_by = "DataFrame"
 
     def __init__(
@@ -128,7 +125,7 @@ class SprotBettingsFactorBase(object):
             columns=self.columns_name,
             values="close",
         )
-        return price.pct_change()
+        return price.pct_change(fill_method=None)
 
     @lru_cache
     def _calc_intraday_ret(self) -> pd.DataFrame:
@@ -204,10 +201,10 @@ class SprotBettingsFactorBase(object):
             由于未来其发生动量效应的概率更大,因此我们将其当[月日间收益率]乘以-1
         """
         pct_chg: pd.DataFrame = self._get_returns(type_of_return)
-        avg_ret: pd.DataFrame = pct_chg.rolling(window, min_periods=1).mean(
+        avg_ret: pd.DataFrame = pct_chg.rolling(window).mean(
             engine="numba", engine_kwargs={"parallel": True}
         )
-        std_df: pd.DataFrame = pct_chg.rolling(window, min_periods=1).std(
+        std_df: pd.DataFrame = pct_chg.rolling(window).std(
             engine="numba", engine_kwargs={"parallel": True}
         )
         factor_df: pd.DataFrame = get_coins_team(std_df, avg_ret, opr)
