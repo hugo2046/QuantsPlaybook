@@ -1,6 +1,7 @@
 from functools import lru_cache
 from typing import Dict, Union
 
+import numpy as np
 import pandas as pd
 
 
@@ -25,7 +26,15 @@ def get_coins_team(
         index-date columns-code value-factor
     """
     cross_avg: pd.Series = baseline_df.mean(axis=1)
-    coins: pd.DataFrame = getattr(baseline_df, opr)(cross_avg, axis=0) * -1
+    # 研报中多为 因子<截面均值 则为硬币型股票 因子值*-1 
+    # 即：sign(因子 - 截面均值) * 因子
+    # 意外收获是波动率反转类 仅标记波动率小于截面均值的 其他标记在0时效果会很好
+    # getattr(baseline_df, opr)(cross_avg, axis=0)
+    reversed: int = {"lt": 1, "gt": -1}[opr]
+    coins: pd.DataFrame = (
+        baseline_df.sub(cross_avg, axis=0).mul(reversed).apply(lambda x: np.sign(x))
+    )
+
     return factor_df * coins
 
 
@@ -196,10 +205,10 @@ class SprotBettingsFactorBase(object):
         """
         pct_chg: pd.DataFrame = self._get_returns(type_of_return)
         avg_ret: pd.DataFrame = pct_chg.rolling(window, min_periods=1).mean(
-            engine="numba",engine_kwargs={'parallel': True}
+            engine="numba", engine_kwargs={"parallel": True}
         )
         std_df: pd.DataFrame = pct_chg.rolling(window, min_periods=1).std(
-            engine="numba",engine_kwargs={'parallel': True}
+            engine="numba", engine_kwargs={"parallel": True}
         )
         factor_df: pd.DataFrame = get_coins_team(std_df, avg_ret, opr)
         return factor_df
@@ -238,9 +247,7 @@ class SprotBettingsFactorBase(object):
         factor_df: pd.DataFrame = (
             get_coins_team(diff_turnover, pct_chg, opr)
             .rolling(window)
-            .mean(
-                engine="numba",engine_kwargs={'parallel': True}
-            )
+            .mean(engine="numba", engine_kwargs={"parallel": True})
         )
         return factor_df
 
@@ -705,8 +712,7 @@ class SportBettingsFactor(SprotBettingsFactorBase):
     def coin_team(
         self, window: int = 20, usedf: bool = False
     ) -> Union[pd.Series, pd.DataFrame]:
-        
-        df:pd.DataFrame = (
+        df: pd.DataFrame = (
             self.revise_interday_reverse(window, usedf)
             + self.revise_intraday_reverse(window, usedf)
             + self.revise_overnight_reverse(window, usedf)
@@ -717,12 +723,11 @@ class SportBettingsFactor(SprotBettingsFactorBase):
     def coin_team_f(
         self, window: int = 20, usedf: bool = False
     ) -> Union[pd.Series, pd.DataFrame]:
-        
-        df:pd.DataFrame = (
+        df: pd.DataFrame = (
             self.revise_interday_f_reverse(window, usedf)
             + self.revise_intraday_f_reverse(window, usedf)
             + self.revise_overnight_f_reverse(window, usedf)
         )
-        
+
         df.name = "coin_team_f"
         return df

@@ -2,14 +2,19 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2023-06-26 10:37:39
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2023-06-27 16:23:53
+LastEditTime: 2023-07-05 16:10:46
 Description: 
 '''
 from collections import namedtuple
-from typing import  Union
+from typing import Tuple, Union,List
 
 import numpy as np
 import pandas as pd
+from qlib.data.dataset import DatasetH
+from qlib.data.dataset.handler import DataHandlerLP
+from qlib.data.dataset.loader import StaticDataLoader
+from qlib.data.dataset.processor import (CSRankNorm, DropnaLabel, Fillna,
+                                         ProcessInf)
 
 
 def check_sign(left:Union[float,np.ndarray],right:Union[float,np.ndarray])->Union[float,np.ndarray]:
@@ -80,3 +85,54 @@ def mom_effect_stats(
     stable_excess_mom_rate: pd.DataFrame = avg_excess_mom_rate.div(std_excess_mom_rate)
 
     return res(excess_mom_rate, avg_excess_mom_rate, stable_excess_mom_rate)
+
+
+def load2qlib(
+    all_data: pd.DataFrame,
+    train_periods: Tuple,
+    valid_periods: Tuple,
+    test_periods: Tuple,
+) -> DatasetH:
+    """将通过pandas生成的因子数据 加载到qlib模型中
+
+    Parameters
+    ----------
+    all_data : pd.DataFrame
+        columns - factors + next_ret
+    train_periods : Tuple
+        训练区间 (start_time,end_time)
+    valid_periods : Tuple
+        验证集 (start_time,end_time)
+    test_periods : Tuple
+        测试集 (start_time,end_time)
+
+    Returns
+    -------
+    DatasetH
+    """
+    cols: List = [
+        ("feature", i) if i != "next_ret" else ("label", i) for i in all_data.columns
+    ]
+    all_data.columns = pd.MultiIndex.from_tuples(cols)
+    pools: List = all_data.index.get_level_values("instrument").unique().tolist()
+
+    learn_processors = [DropnaLabel()]
+    infer_processors = [ProcessInf(), CSRankNorm(), Fillna()]
+
+    sdl: StaticDataLoader = StaticDataLoader(config=all_data)
+    dh_pr: DataHandlerLP = DataHandlerLP(
+        instruments=pools,
+        start_time=train_periods[0],
+        end_time=test_periods[1],
+        process_type=DataHandlerLP.PTYPE_A,
+        learn_processors=learn_processors,
+        infer_processors=infer_processors,
+        data_loader=sdl,
+    )
+
+    ds: DatasetH = DatasetH(
+        dh_pr,
+        segments={"train": train_periods, "valid": valid_periods, "test": test_periods},
+    )
+
+    return ds

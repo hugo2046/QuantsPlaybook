@@ -11,6 +11,7 @@ import empyrical as ep
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import seaborn.objects as so
 import statsmodels.api as sm
 
 # from alphalens.utils import quantize_factor
@@ -56,13 +57,13 @@ def _get_score_return(pred_label: pd.DataFrame, N: int = 5, **kwargs) -> pd.Data
     pred_label_drop["group"] = pred_label_drop.groupby(level="datetime")[
         "score"
     ].transform(lambda df: pd.qcut(df, N, labels=False, **kwargs) + 1)
-    last_group_num:int = pred_label_drop["group"].max()
+    last_group_num: int = pred_label_drop["group"].max()
     pred_label_drop["group"] = pred_label_drop["group"].apply(lambda x: "Group%d" % x)
     ts_df: pd.DataFrame = pd.pivot_table(
         pred_label_drop.reset_index(), index="datetime", columns="group", values="label"
     )
 
-    if N !=last_group_num:
+    if N != last_group_num:
         N = last_group_num
     ts_df["long-short"] = ts_df["Group%d" % N] - ts_df["Group1"]
     ts_df["long-average"] = (
@@ -187,17 +188,21 @@ def model_performance_graph(
     plt.close("all")
     fig = plt.figure(figsize=figsize)
 
-    ts_cum_ax = plt.subplot2grid((6, 2), (0, 0), colspan=2)
-    ls_hist_ax = plt.subplot2grid((6, 2), (1, 0))
-    la_hist_ax = plt.subplot2grid((6, 2), (1, 1))
-    ts_ic_ax = plt.subplot2grid((6, 2), (2, 0), colspan=2)
-    ic_hist_ax = plt.subplot2grid((6, 2), (3, 0))
-    ic_qq_ax = plt.subplot2grid((6, 2), (3, 1))
-    auto_corr_ax = plt.subplot2grid((6, 2), (4, 0), colspan=2)
-    turnover_ax = plt.subplot2grid((6, 2), (5, 0), colspan=2)
+
+    ts_cum_ax = plt.subplot2grid((6, 4), (0, 0), colspan=3)
+    avg_ret_bar_ax =  plt.subplot2grid((6, 4), (0, 3))
+    ls_hist_ax = plt.subplot2grid((6, 4), (1, 0),colspan=2)
+    la_hist_ax = plt.subplot2grid((6, 4), (1, 2),colspan=2)
+    ts_ic_ax = plt.subplot2grid((6, 4), (2, 0), colspan=4)
+    ic_hist_ax = plt.subplot2grid((6, 4), (3, 0),colspan=2)
+    ic_qq_ax = plt.subplot2grid((6, 4), (3, 2),colspan=2)
+    auto_corr_ax = plt.subplot2grid((6, 4), (4, 0), colspan=4)
+    turnover_ax = plt.subplot2grid((6, 4), (5, 0), colspan=4)
+
 
     if reverse:
-        pred_label['score'] *= -1
+        pred_label["score"] *= -1
+        
     # CumulativeReturn
     ts_df: pd.DataFrame = _get_score_return(pred_label, N=N, **kwargs)
 
@@ -208,6 +213,14 @@ def model_performance_graph(
     )
     ts_cum_ax.axhline(0, color="black", lw=1, ls="--")
 
+    # Average Return Bar
+    avg_ret_bar_ax.set_title('Average Return')
+    sns.barplot(ts_df,ax=avg_ret_bar_ax)
+    avg_ret_bar_ax.yaxis.set_major_formatter(
+        ticker.FuncFormatter(lambda x, pos: "%.2f%%" % (x * 100))
+    )
+    avg_ret_bar_ax.set_ylabel('Returns')
+    avg_ret_bar_ax.tick_params(axis='x', labelrotation=90)
     # ts_df:pd.DataFrame = ts_df.loc[:, ["long-short", "long-average"]]
     # _bin_size:float = float(((t_df.max() - t_df.min()) / 20).min())
 
@@ -378,3 +391,39 @@ def plot_group_turnover(
     sns.lineplot(data=r_df, ax=ax)
 
     return fig
+
+
+def plot_cumulativeline_from_dataframe(df: pd.DataFrame, figsize: Tuple = None):
+    """根据df的col level1级分类画折线图
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        df columns为MultiIndex level0:factor_name level1:分组
+        df index为date index_name为date
+
+    """
+    if figsize is None:
+        figsize: Tuple = (18, 12)
+
+
+    lines_df: pd.DataFrame = pd.melt(
+        df.reset_index(),
+        id_vars=["date"],
+        var_name=["factor_name", "group"],
+        value_name="cum_returns",
+    )
+
+    return (
+        so.Plot(
+            x=lines_df["date"],
+            y=lines_df["cum_returns"],
+            color=lines_df["group"],
+        )
+        .facet(lines_df["factor_name"], wrap=4)
+        .scale(y=so.Continuous().label(like="{x:.2%}"))
+        .share(y=False, x=False)
+        .add(so.Lines(linewidth=1))
+        .layout(size=figsize)
+        .label(title="{}".format)
+    )
