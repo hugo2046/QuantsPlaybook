@@ -10,19 +10,17 @@ Description:
 from typing import Dict, List, Tuple, Union
 
 import pandas as pd
-from FactorZoo import SportBettingsFactor
 from joblib import Parallel, delayed
-from qlib.data import D
 from loguru import logger
+from qlib.data import D
 
 
-def get_factor(
-    sportbetting: SportBettingsFactor, factor_name: str, window: int
-) -> pd.Series:
-    return getattr(sportbetting, factor_name)(window=window, usedf=False)
+def get_factor(factor_obj: object, factor_name: str, window: int) -> pd.Series:
+    return getattr(factor_obj, factor_name)(window=window, usedf=False)
 
 
 def get_factors_frame(
+    factor_obj: object,
     data: pd.DataFrame,
     window: int,
     factor_names: Union[str, List, Tuple] = None,
@@ -41,13 +39,11 @@ def get_factors_frame(
             general_names: List = [general_names]
         factor_names: List = _generate_factor(general_names)
 
-    sportbetting: SportBettingsFactor = SportBettingsFactor(data)
+    obj: object = factor_obj(data)
 
     parallel = Parallel(n_jobs=-1, verbose=1, backend="multiprocessing")
 
-    result = parallel(
-        delayed(get_factor)(sportbetting, x, window) for x in factor_names
-    )
+    result = parallel(delayed(get_factor)(obj, x, window) for x in factor_names)
     return pd.concat(result, axis=1, sort=True)
 
 
@@ -158,13 +154,21 @@ def get_oto_data(
 
 
 def get_factor_data_and_forward_return(
-    start_dt: str = None, end_dt: str = None, window: int = 20, periods: int = 1
+    factor_obj: object,
+    start_dt: str = None,
+    end_dt: str = None,
+    window: int = 20,
+    periods: int = 1,
+    factor_names: Union[str, List, Tuple] = None,
+    general_names: Union[str, List, Tuple] = None,
 ) -> pd.DataFrame:
     """获取因子数据及下期收益数据 下期收益为OTO收益
     总体模拟T日因子 使用T+1日开盘收益率作为下期收益
     T+1日开盘收益率 = T+2日开盘价/T+1日开盘价-1
     Parameters
     ----------
+    factor_obj:object
+        因子类
     start_dt : str, optional
         起始日, by default None
     end_dt : str, optional
@@ -173,7 +177,10 @@ def get_factor_data_and_forward_return(
         因子计算期窗口, by default 20
     periods : int, optional
         未来收益率,为1时表示未来一期, by default 1
-
+    factor_names:str,optional
+        因子名称, by default None
+    general_names:str,optional
+        通用因子名称, by default None
     Returns
     -------
     pd.DataFrame
@@ -192,7 +199,7 @@ def get_factor_data_and_forward_return(
     logger.info("start get factor data...")
     # 计算因子
     factor_data: pd.DataFrame = get_factors_frame(
-        data, window, general_names=["interday", "intraday", "overnight"]
+        factor_obj, data, window, factor_names=factor_names, general_names=general_names
     )
     logger.info("factor data success!")
     logger.info("start merge data...")
@@ -203,6 +210,6 @@ def get_factor_data_and_forward_return(
     all_data: pd.DataFrame = all_data.sort_index()
     logger.info("merge data success!")
 
-    slice_idx: pd.Index = all_data.index.levels[0][window:-(1+periods)]
+    slice_idx: pd.Index = all_data.index.levels[0][window : -(1 + periods)]
 
     return all_data.loc[slice_idx]

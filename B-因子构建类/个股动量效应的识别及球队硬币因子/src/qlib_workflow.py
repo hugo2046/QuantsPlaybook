@@ -454,6 +454,8 @@ class QlibFlow:
     def backtest(
         self,
         pred_score: pd.DataFrame = None,
+        start_time: str = None,
+        end_time: str = None,
         topk: int = 30,
         n_drop: int = 5,
         account: Union[int, float] = 100000000,
@@ -474,6 +476,10 @@ class QlibFlow:
         if pred_score is None:
             pred_score: Tuple = (self.model, self.dataset)
 
+        if (start_time is None) or (end_time is None):
+            start_time: str = self.start_time
+            end_time: str = self.end_time
+
         STRATEGY_CONFIG = {
             "topk": topk,
             "n_drop": n_drop,
@@ -491,8 +497,8 @@ class QlibFlow:
         }
 
         backtest_config = {
-            "start_time": self.start_time,  # test集开始时间
-            "end_time": self.end_time,  # test集结束时间
+            "start_time": start_time,  # test集开始时间
+            "end_time": end_time,  # test集结束时间
             "account": account,
             "benchmark": benchmark,
             "exchange_kwargs": {
@@ -515,111 +521,6 @@ class QlibFlow:
         self.portfolio_metric_dict, self.indicator_dict = backtest(
             executor=executor_obj, strategy=strategy_obj, **backtest_config
         )
-
-    # def backtest(
-    #     self,
-    #     backtest_experiment_name: str = "backtest",
-    #     recorder_name: str = None,
-    #     recorder_id: str = None,
-    #     experiment_id: str = None,
-    #     experiment_name: str = "predict",
-    #     topk: int = 30,
-    #     n_drop: int = 0,
-    #     only_tradele: bool = True,
-    #     risk_degree: float = 0.95,
-    #     hold_thresh: int = 1,
-    #     account: int = 100000000,
-    #     limit_threshold: float = 0.095,
-    #     deal_price: str = "open",
-    #     open_cost: float = 0.0005,
-    #     close_cost: float = 0.0015,
-    #     min_cost: int = 5,
-    #     impact_cost: float = 0.005,
-    #     trade_unit: int = 100,
-    #     verbose: bool = False,
-    #     pred_df: pd.DataFrame = None,
-    # ) -> None:
-    #     if pred_df is not None:
-    #         kw: Dict = {
-    #             "signal": pred_df,  # 信号，也可以是pred_df，得到测试集的预测值score MuliIndex level0-datetime level1-instrument columns-score value
-    #             "topk": topk,
-    #             "n_drop": n_drop,
-    #             "only_tradable": only_tradele,
-    #             "risk_degree": risk_degree,  # 资金使用比率
-    #             "hold_thresh": hold_thresh,  # 股票最小持有天数,默认1天
-    #         }
-    #     else:
-    #         kw: Dict = {
-    #             "model": self.model,  # 模型对象
-    #             "dataset": self.dataset,  # 数据集
-    #             # "signal": (model, dataset),  # 信号，也可以是pred_df，得到测试集的预测值score
-    #             "topk": topk,
-    #             "n_drop": n_drop,
-    #             "only_tradable": only_tradele,
-    #             "risk_degree": risk_degree,  # 资金使用比率
-    #             "hold_thresh": hold_thresh,  # 股票最小持有天数,默认1天
-    #         }
-
-    #     # 回测所需参数配置
-    #     port_analysis_config: Dict = {
-    #         "executor": {
-    #             "class": "SimulatorExecutor",
-    #             "module_path": "qlib.backtest.executor",
-    #             "kwargs": {
-    #                 "time_per_step": "day",
-    #                 "generate_portfolio_metrics": True,
-    #                 "verbose": verbose,  # 是否打印订单执行记录
-    #             },
-    #         },
-    #         "strategy": {  # 回测策略相关超参数配置
-    #             "class": "TopkDropoutStrategy",  # 策略类名称
-    #             "module_path": "qlib.contrib.strategy.signal_strategy",
-    #             "kwargs": kw,
-    #         },
-    #         "backtest": {  # 回测数据参数
-    #             "start_time": self.start_time,  # test集开始时间
-    #             "end_time": self.end_time,  # test集结束时间
-    #             "account": account,
-    #             "benchmark": "000300.SH",  # 基准
-    #             "exchange_kwargs": {
-    #                 "freq": "day",  # 使用日线数据
-    #                 "limit_threshold": limit_threshold,  # 涨跌停板幅度
-    #                 "deal_price": deal_price,  # 以开盘价成交
-    #                 "open_cost": open_cost,  # 开仓佣金费率
-    #                 "close_cost": close_cost,  # 平仓佣金费率
-    #                 "min_cost": min_cost,  # 一笔交易的最小成本
-    #                 "impact_cost": impact_cost,  # 冲击成本费率，比如因滑点产生的冲击成本
-    #                 "trade_unit": trade_unit,  # 对应复权前的交易量为100的整数倍
-    #             },
-    #         },
-    #     }
-
-    #     ###############
-    #     # 回测
-    #     #############
-    #     if self.R is None:
-    #         self.R = R
-
-    #     predict_recorder = self.R.get_recorder(
-    #         recorder_name=recorder_name,
-    #         recorder_id=recorder_id,
-    #         experiment_id=experiment_id,
-    #         experiment_name=experiment_name,
-    #     )
-
-    #     with self.R.start(experiment_name=backtest_experiment_name):
-    #         pa_rec = PortAnaRecord(predict_recorder, port_analysis_config, "day")
-    #         pa_rec.generate()
-
-    #         console.print(
-    #             "predict_recorder.experiment_id",
-    #             predict_recorder.experiment_id,
-    #             "predict_recorder.id",
-    #             predict_recorder.id,
-    #         )
-    #         # 打印本次实验记录器信息，含记录器id，experiment_id等信息
-    #         console.print("backtest info")
-    #         console.print(self.R.get_recorder().info)
 
     def get_pred(
         self,

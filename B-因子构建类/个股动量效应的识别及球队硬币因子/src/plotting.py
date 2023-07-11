@@ -64,10 +64,11 @@ def _get_score_return(pred_label: pd.DataFrame, N: int = 5, **kwargs) -> pd.Data
     )
 
     if N != last_group_num:
-        N = last_group_num
+        N: int = last_group_num
+
     ts_df["long-short"] = ts_df["Group%d" % N] - ts_df["Group1"]
     ts_df["long-average"] = (
-        ts_df["Group5"] - pred_label.groupby(level="datetime")["label"].mean()
+        ts_df["Group%d" % N] - pred_label.groupby(level="datetime")["label"].mean()
     )
 
     return ts_df
@@ -188,21 +189,19 @@ def model_performance_graph(
     plt.close("all")
     fig = plt.figure(figsize=figsize)
 
-
     ts_cum_ax = plt.subplot2grid((6, 4), (0, 0), colspan=3)
-    avg_ret_bar_ax =  plt.subplot2grid((6, 4), (0, 3))
-    ls_hist_ax = plt.subplot2grid((6, 4), (1, 0),colspan=2)
-    la_hist_ax = plt.subplot2grid((6, 4), (1, 2),colspan=2)
+    avg_ret_bar_ax = plt.subplot2grid((6, 4), (0, 3))
+    ls_hist_ax = plt.subplot2grid((6, 4), (1, 0), colspan=2)
+    la_hist_ax = plt.subplot2grid((6, 4), (1, 2), colspan=2)
     ts_ic_ax = plt.subplot2grid((6, 4), (2, 0), colspan=4)
-    ic_hist_ax = plt.subplot2grid((6, 4), (3, 0),colspan=2)
-    ic_qq_ax = plt.subplot2grid((6, 4), (3, 2),colspan=2)
+    ic_hist_ax = plt.subplot2grid((6, 4), (3, 0), colspan=2)
+    ic_qq_ax = plt.subplot2grid((6, 4), (3, 2), colspan=2)
     auto_corr_ax = plt.subplot2grid((6, 4), (4, 0), colspan=4)
     turnover_ax = plt.subplot2grid((6, 4), (5, 0), colspan=4)
 
-
     if reverse:
         pred_label["score"] *= -1
-        
+
     # CumulativeReturn
     ts_df: pd.DataFrame = _get_score_return(pred_label, N=N, **kwargs)
 
@@ -214,13 +213,13 @@ def model_performance_graph(
     ts_cum_ax.axhline(0, color="black", lw=1, ls="--")
 
     # Average Return Bar
-    avg_ret_bar_ax.set_title('Average Return')
-    sns.barplot(ts_df,ax=avg_ret_bar_ax)
+    avg_ret_bar_ax.set_title("Average Return")
+    sns.barplot(ts_df, ax=avg_ret_bar_ax)
     avg_ret_bar_ax.yaxis.set_major_formatter(
         ticker.FuncFormatter(lambda x, pos: "%.2f%%" % (x * 100))
     )
-    avg_ret_bar_ax.set_ylabel('Returns')
-    avg_ret_bar_ax.tick_params(axis='x', labelrotation=90)
+    avg_ret_bar_ax.set_ylabel("Returns")
+    avg_ret_bar_ax.tick_params(axis="x", labelrotation=90)
     # ts_df:pd.DataFrame = ts_df.loc[:, ["long-short", "long-average"]]
     # _bin_size:float = float(((t_df.max() - t_df.min()) / 20).min())
 
@@ -405,7 +404,6 @@ def plot_cumulativeline_from_dataframe(df: pd.DataFrame, figsize: Tuple = None):
     """
     if figsize is None:
         figsize: Tuple = (18, 12)
-
 
     lines_df: pd.DataFrame = pd.melt(
         df.reset_index(),

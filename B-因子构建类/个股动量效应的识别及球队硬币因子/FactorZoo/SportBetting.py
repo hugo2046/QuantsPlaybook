@@ -26,7 +26,7 @@ def get_coins_team(
         index-date columns-code value-factor
     """
     cross_avg: pd.Series = baseline_df.mean(axis=1)
-    # 研报中多为 因子<截面均值 则为硬币型股票 因子值*-1 
+    # 研报中多为 因子<截面均值 则为硬币型股票 因子值*-1
     # 即：sign(因子 - 截面均值) * 因子
     # 意外收获是波动率反转类 仅标记波动率小于截面均值的 其他标记在0时效果会很好
     # getattr(baseline_df, opr)(cross_avg, axis=0)
@@ -57,7 +57,6 @@ def check_data_cols(df: pd.DataFrame) -> None:
 
 
 class SprotBettingsFactorBase(object):
-
     created_by = "DataFrame"
 
     def __init__(
@@ -728,3 +727,52 @@ class SportBettingsFactor(SprotBettingsFactorBase):
 
         df.name = "coin_team_f"
         return df
+
+
+class VolatilityMomentum(SprotBettingsFactorBase):
+    created_by = "DataFrame"
+
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        index_name: str = "datetime",
+        columns_name="instrument",
+    ) -> None:
+        super().__init__(data, index_name, columns_name)
+
+        self.data = data
+        self.index_name = index_name
+        self.index_name = index_name
+
+    def get_factor(
+        self, type_of_return: str, window: int = 20, usedf: bool = False
+    ) -> Union[pd.Series, pd.DataFrame]:
+        pct_chg: pd.DataFrame = self._get_returns(type_of_return)
+        avg_ret: pd.DataFrame = pct_chg.rolling(window).mean(
+            engine="numba", engine_kwargs={"parallel": True}
+        )
+        std_df: pd.DataFrame = pct_chg.rolling(window).std(
+            engine="numba", engine_kwargs={"parallel": True}
+        )
+
+        cross_avg: pd.Series = std_df.mean(axis=1)
+        factor_df: pd.DataFrame = std_df.lt(cross_avg, axis=0) * -1 * avg_ret
+        factor_df: pd.DataFrame = factor_df.where(factor_df != 0)
+
+        if usedf:
+            return factor_df
+
+        ser: pd.Series = factor_df.stack()
+        ser.name = f"{type_of_return}_lowvolatility_momentum"
+
+        return ser
+
+    def interday_volatility_reverse(
+        self, window: int = 20, usedf: bool = False
+    ) -> Union[pd.Series, pd.DataFrame]:
+        return self.get_factor("interday", window, usedf)
+
+    def intraday_volatility_reverse(
+        self, window: int = 20, usedf: bool = False
+    ) -> Union[pd.Series, pd.DataFrame]:
+        return self.get_factor("intraday", window, usedf)

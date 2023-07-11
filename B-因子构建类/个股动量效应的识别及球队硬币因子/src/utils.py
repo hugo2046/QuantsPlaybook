@@ -1,23 +1,25 @@
-'''
+"""
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2023-06-26 10:37:39
 LastEditors: hugo2046 shen.lan123@gmail.com
 LastEditTime: 2023-07-11 09:34:49
 Description: 
-'''
+"""
+
 from collections import namedtuple
-from typing import Tuple, Union,List
+from typing import List, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from qlib.data.dataset import DatasetH
 from qlib.data.dataset.handler import DataHandlerLP
 from qlib.data.dataset.loader import StaticDataLoader
-from qlib.data.dataset.processor import (CSRankNorm, DropnaLabel, Fillna,
-                                         ProcessInf)
+from qlib.data.dataset.processor import CSRankNorm, DropnaLabel, Fillna, ProcessInf
 
 
-def check_sign(left:Union[float,np.ndarray],right:Union[float,np.ndarray])->Union[float,np.ndarray]:
+def check_sign(
+    left: Union[float, np.ndarray], right: Union[float, np.ndarray]
+) -> Union[float, np.ndarray]:
     """比较两个数的符号是否相同
 
     Parameters
@@ -32,9 +34,7 @@ def check_sign(left:Union[float,np.ndarray],right:Union[float,np.ndarray])->Unio
     Union[float,np.ndarray]
         结果为布尔值或布尔数组
     """
-    return (left>=0)==(right>=0)
-
-
+    return (left >= 0) == (right >= 0)
 
 
 def mom_effect_stats(
@@ -92,6 +92,7 @@ def load2qlib(
     train_periods: Tuple,
     valid_periods: Tuple,
     test_periods: Tuple,
+    inplace: bool = True,
 ) -> DatasetH:
     """将通过pandas生成的因子数据 加载到qlib模型中
 
@@ -110,14 +111,16 @@ def load2qlib(
     -------
     DatasetH
     """
+    if not inplace:
+        all_data: pd.DataFrame = all_data.copy()
     cols: List = [
         ("feature", i) if i != "next_ret" else ("label", i) for i in all_data.columns
     ]
     all_data.columns = pd.MultiIndex.from_tuples(cols)
     pools: List = all_data.index.get_level_values("instrument").unique().tolist()
 
-    learn_processors:List = [DropnaLabel()]
-    infer_processors:List = [ProcessInf(), CSRankNorm(), Fillna()]
+    learn_processors: List = [DropnaLabel()]
+    infer_processors: List = [ProcessInf(), CSRankNorm(), Fillna()]
 
     sdl: StaticDataLoader = StaticDataLoader(config=all_data)
     dh_pr: DataHandlerLP = DataHandlerLP(
@@ -136,3 +139,10 @@ def load2qlib(
     )
 
     return ds
+
+
+# def get_max_group_num_columns(cols: Union[list, Tuple, pd.Index]) -> int:
+#     """寻找col分组重最大的数字"""
+#     import re
+#     cols_num: List = [int(re.findall(r"\d+$", col)[0]) for col in cols]
+#     return max(cols_num)
