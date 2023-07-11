@@ -1,3 +1,11 @@
+<!--
+ * @Author: hugo2046 shen.lan123@gmail.com
+ * @Date: 2023-06-28 08:27:59
+ * @LastEditors: hugo2046 shen.lan123@gmail.com
+ * @LastEditTime: 2023-07-11 10:50:33
+ * @FilePath: \QuantsPlaybook\B-因子构建类\个股动量效应的识别及球队硬币因子\README.md
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 # 说明
 
 ## 数据获取
@@ -45,9 +53,9 @@ $cd 个股动量效应的识别及“球队硬币”因子 && python src\savedat
 | close      | float | 收盘价           |
 | pre_close  | float | 昨收价(前复权)   |
 | change     | float | 涨跌额           |
-| pct_chg    | float | 涨跌幅 （未复权) |
-| vol        | float | 成交量 （手）    |
-| amount     | float | 成交额 （千元）  |
+| pct_chg    | float | 涨跌幅 (未复权) |
+| vol        | float | 成交量 (手)    |
+| amount     | float | 成交额 (千元)  |
 
 **表名:adj_factor**
 

@@ -322,10 +322,18 @@ def get_ranker_config(
     num_leaves=20,
     max_depth=-1,
     learning_rate=0.05,
+    ndcg_eval_at=[5],
     n_estimators=200,
-    random_state=42,
-    # class_weight=[0, 0, 0, 0, 1],
-    n_jobs=20,
+    seed=42,
+    n_jobs=-1,
+    min_split_gain=0.0,
+    min_child_weight=0.001,
+    min_child_samples=20,
+    reg_alpha=0.0,
+    reg_lambda=0.0,
+    subsample=1.0,
+    subsample_for_bin=200000,
+    subsample_freq=0,
 ) -> Dict:
     import sys
     from pathlib import Path
@@ -337,16 +345,24 @@ def get_ranker_config(
         "class": "LGBRanker",
         "module_path": "src.LGBRanker",  # "qlib.contrib.model.gbdt_ranker",
         "kwargs": {
-            "objective": "lambdarank",
-            "metric": metric,
-            "device_type": device_type,
+            "object": "lambdarank",
             "boosting_type": boosting_type,
+            "device_type": device_type,
+            "metric": metric,
+            "ndcg_eval_at": ndcg_eval_at,
+            "learning_rate": learning_rate,
             "num_leaves": num_leaves,
             "max_depth": max_depth,
-            "learning_rate": learning_rate,
             "n_estimators": n_estimators,
-            "random_state": random_state,
-            # class_weight=[0, 0, 0, 0, 1],
+            "min_split_gain": min_split_gain,
+            "min_child_weight": min_child_weight,
+            "min_child_samples": min_child_samples,
+            "random_state": seed,
+            "reg_alpha": reg_alpha,
+            "reg_lambda": reg_lambda,
+            "subsample": subsample,
+            "subsample_for_bin": subsample_for_bin,
+            "subsample_freq": subsample_freq,
             "n_jobs": n_jobs,
         },
     }
@@ -384,10 +400,11 @@ class QlibFlow:
         self._create_model()
 
     def _create_model(self):
-        
+        if self.model_kw is None:
+            self.model_kw: Dict = {}
         model_name: str = self.model_name.lower()
-        model_config:Dict = MODEL_CONFIG[model_name]()
-        model_config['kwargs'].update(self.model_kw)
+        model_config: Dict = MODEL_CONFIG[model_name]()
+        model_config["kwargs"].update(self.model_kw)
 
         # if self.model_kw is not None:
         #     model_config: Dict = MODEL_CONFIG[model_name](**self.model_kw)

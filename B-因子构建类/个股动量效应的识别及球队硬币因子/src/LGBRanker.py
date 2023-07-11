@@ -28,7 +28,7 @@ class LGBRanker(Model, FeatureInt):
     ):
         self.early_stopping_rounds = early_stopping_rounds
         self.num_boost_round = num_boost_round
-        self.params = {"objective": objective}
+        self.params = {"object": objective}
         self.params.update(kwargs)
         self.model = None
 
@@ -37,8 +37,6 @@ class LGBRanker(Model, FeatureInt):
         dataset: DatasetH,
         quantiles: int = 5,
         duplicates: str = "drop",
-        seed: int = None,
-        stopping_rounds: int = 200,
         **kwargs
     ):
         if "save_path" in kwargs:
@@ -84,10 +82,9 @@ class LGBRanker(Model, FeatureInt):
             valid_sets=[dtrain, dvalid],
             valid_names=["train", "valid"],
             callbacks=[
-                lgb.early_stopping(stopping_rounds=stopping_rounds),
+                lgb.early_stopping(stopping_rounds=self.early_stopping_rounds),
                 lgb.log_evaluation(period=50),
             ],
-            random_state=seed,
             **kwargs
         )
 

@@ -2,7 +2,7 @@
 Author: hugo2046 shen.lan123@gmail.com
 Date: 2023-06-26 10:37:39
 LastEditors: hugo2046 shen.lan123@gmail.com
-LastEditTime: 2023-07-05 16:10:46
+LastEditTime: 2023-07-11 09:34:49
 Description: 
 '''
 from collections import namedtuple
@@ -116,8 +116,8 @@ def load2qlib(
     all_data.columns = pd.MultiIndex.from_tuples(cols)
     pools: List = all_data.index.get_level_values("instrument").unique().tolist()
 
-    learn_processors = [DropnaLabel()]
-    infer_processors = [ProcessInf(), CSRankNorm(), Fillna()]
+    learn_processors:List = [DropnaLabel()]
+    infer_processors:List = [ProcessInf(), CSRankNorm(), Fillna()]
 
     sdl: StaticDataLoader = StaticDataLoader(config=all_data)
     dh_pr: DataHandlerLP = DataHandlerLP(
