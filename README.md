@@ -342,7 +342,7 @@
     </tr>
      <tr>
         <td><strong>因子构建</strong></td>
-        <td><a href="">球队硬币因子</a></td>
+        <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/B-%E5%9B%A0%E5%AD%90%E6%9E%84%E5%BB%BA%E7%B1%BB/%E4%B8%AA%E8%82%A1%E5%8A%A8%E9%87%8F%E6%95%88%E5%BA%94%E7%9A%84%E8%AF%86%E5%88%AB%E5%8F%8A%E7%90%83%E9%98%9F%E7%A1%AC%E5%B8%81%E5%9B%A0%E5%AD%90/%E7%90%83%E9%98%9F%E7%A1%AC%E5%B8%81%E5%9B%A0%E5%AD%90.ipynb">球队硬币因子</a></td>
         <td>
             <li>《20220611-方正证券-多因子选股系列研究之四：个股动量效应识别及“球队硬币”因子构建》</li>
             <li>《Moskowitz T J. Asset pricing and sports betting[J]. Journal of Finance, Forthcoming, 2021.》</li>
