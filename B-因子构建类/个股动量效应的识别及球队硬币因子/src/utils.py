@@ -93,6 +93,7 @@ def load2qlib(
     valid_periods: Tuple,
     test_periods: Tuple,
     inplace: bool = True,
+    output_type: str = "DatasetH",
 ) -> DatasetH:
     """将通过pandas生成的因子数据 加载到qlib模型中
 
@@ -111,8 +112,11 @@ def load2qlib(
     -------
     DatasetH
     """
+    if output_type not in ['DatasetH', 'DataHandlerLP']:
+        raise ValueError(f"output_type must be DatasetH or DataHandlerLP, but got {output_type}")
     if not inplace:
         all_data: pd.DataFrame = all_data.copy()
+
     cols: List = [
         ("feature", i) if i != "next_ret" else ("label", i) for i in all_data.columns
     ]
@@ -123,6 +127,7 @@ def load2qlib(
     infer_processors: List = [ProcessInf(), CSRankNorm(), Fillna()]
 
     sdl: StaticDataLoader = StaticDataLoader(config=all_data)
+
     dh_pr: DataHandlerLP = DataHandlerLP(
         instruments=pools,
         start_time=train_periods[0],
@@ -133,6 +138,10 @@ def load2qlib(
         data_loader=sdl,
     )
 
+    if output_type == "DataHandlerLP":
+        # 这个用于滚动训练时使用
+        return dh_pr
+    
     ds: DatasetH = DatasetH(
         dh_pr,
         segments={"train": train_periods, "valid": valid_periods, "test": test_periods},
