@@ -117,10 +117,8 @@ class RollingBenchmark(Rolling):
         experiment_id: str = None,
         experiment_name: str = "predict",
     ) -> pd.DataFrame:
-        if self.R is None:
-            self.R = R
 
-        recorder = self.R.get_recorder(
+        recorder = R.get_recorder(
             recorder_name=recorder_name,
             recorder_id=recorder_id,
             experiment_id=experiment_id,
