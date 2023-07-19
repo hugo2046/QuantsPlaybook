@@ -95,3 +95,12 @@ $cd 个股动量效应的识别及“球队硬币”因子 && python src\savedat
 ```bash
 $cd 个股动量效应的识别及“球队硬币”因子 && python src\dump_bin.py dump_all --csv_path data\cn_data --qlib_dir  data\qlib_data --date_field_name trade_date --exclude_fields code
 ```
+
+# 数据下载
+
+如果没有数据这里提供一份数据用于测试
+
+链接：https://pan.baidu.com/s/10e3L7brOGmrvXIL1sWVv8g?pwd=3qix 
+提取码：3qix
+
+数据来源于[Tushare数据](https://tushare.pro/),数据区间为2013-01-01至2023-05-31
