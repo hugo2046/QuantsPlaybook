@@ -384,10 +384,10 @@ MODEL_CONFIG: Dict = {
 class QlibFlow:
     def __init__(
         self,
-        dataset: DatasetH,
-        model: str,
-        start_time: str,
-        end_time: str,
+        dataset: DatasetH=None,
+        model: str=None,
+        start_time: str=None,
+        end_time: str=None,
         model_kw: Dict = None,
     ) -> None:
         self.dataset = dataset
@@ -396,12 +396,15 @@ class QlibFlow:
         self.end_time = end_time
         self.model_kw = model_kw
         self.R = None
-        # 生成模型
-        self._create_model()
+
 
     def _create_model(self):
         if self.model_kw is None:
             self.model_kw: Dict = {}
+
+        if self.model_name is None:
+            raise ValueError("请指定模型!")
+        
         model_name: str = self.model_name.lower()
         model_config: Dict = MODEL_CONFIG[model_name]()
         model_config["kwargs"].update(self.model_kw)
@@ -423,6 +426,11 @@ class QlibFlow:
 
     def fit(self, experiment_name: str = "train", **kwargs) -> None:
         """train"""
+        # 生成模型
+        self._create_model()
+        
+        if self.dataset is None:
+            raise ValueError("请指定数据集!")
         self.R = R
         try:
             self.save_path
@@ -543,3 +551,5 @@ class QlibFlow:
         pred_df: pd.DataFrame = recorder.load_object("pred.pkl")
 
         return pd.concat((label_df, pred_df), axis=1, sort=True).reindex(label_df.index)
+    
+
