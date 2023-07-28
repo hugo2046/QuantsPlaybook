@@ -95,3 +95,11 @@ $cd 个股动量效应的识别及“球队硬币”因子 && python src\savedat
 ```bash
 $cd 个股动量效应的识别及“球队硬币”因子 && python src\dump_bin.py dump_all --csv_path data\cn_data --qlib_dir  data\qlib_data --date_field_name trade_date --exclude_fields code
 ```
+
+## 共享数据下载
+
+提供2013至2023-05-31的全A后复权数据,个股当日如无数据则表示当日停牌或未交易,数据来源于[Tushare]([Tushare数据](https://tushare.pro/document/2))
+
+链接：https://pan.baidu.com/s/1fjK9ORYQFA1mrnKJmmccgA?pwd=mpns 
+提取码：mpns
+
