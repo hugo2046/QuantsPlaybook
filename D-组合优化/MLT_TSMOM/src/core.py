@@ -22,14 +22,14 @@ class MTL_TSMOM:
         dataset: DataProcessor,
         input_size: int,
         lstm_hidden_size: int,
-        mpl_hidden_size: int,
+        mlp_hidden_size: int,
         lstm_layers: int,
-        mpl_layers: int,
+        mlp_layers: int,
         optimizer_name: str,
         transcation_cost: float,
         target_vol: float,
         lstm_dropout: float,
-        mpl_dropout: float,
+        mlp_dropout: float,
         max_grad_norm: float,
         # batch_size: int,
         num_epochs: int,
@@ -56,11 +56,11 @@ class MTL_TSMOM:
         self.model = Multi_Task_Model(
             input_size,
             lstm_hidden_size,
-            mpl_hidden_size,
+            mlp_hidden_size,
             lstm_layers,
-            mpl_layers,
+            mlp_layers,
             lstm_dropout,
-            mpl_dropout,
+            mlp_dropout,
         ).cuda()
 
         if opt_kwargs is None:

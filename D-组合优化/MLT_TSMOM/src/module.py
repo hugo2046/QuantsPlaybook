@@ -146,7 +146,7 @@ class Multi_Task_Model(nn.Module):
         self,
         input_size: int,
         lstm_hidden_size: int,
-        mpl_hidden_size: int,
+        mlp_hidden_size: int,
         lstm_layers: int = 1,
         mlp_layers: int = 1,
         lstm_dropout: float = None,
@@ -164,22 +164,22 @@ class Multi_Task_Model(nn.Module):
             input_size, lstm_hidden_size, dropout=lstm_dropout, num_layers=lstm_layers
         )
         self.ffn_ctc = AuxTaskNN(
-            lstm_hidden_size, mpl_hidden_size, mlp_layers, mlp_dropout, output
+            lstm_hidden_size, mlp_hidden_size, mlp_layers, mlp_dropout, output
         )
         self.ffn_p = AuxTaskNN(
-            lstm_hidden_size, mpl_hidden_size, mlp_layers, mlp_dropout, output
+            lstm_hidden_size, mlp_hidden_size, mlp_layers, mlp_dropout, output
         )
         self.ffn_gk = AuxTaskNN(
-            lstm_hidden_size, mpl_hidden_size, mlp_layers, mlp_dropout, output
+            lstm_hidden_size, mlp_hidden_size, mlp_layers, mlp_dropout, output
         )
         self.ffn_rs = AuxTaskNN(
-            lstm_hidden_size, mpl_hidden_size, mlp_layers, mlp_dropout, output
+            lstm_hidden_size, mlp_hidden_size, mlp_layers, mlp_dropout, output
         )
         self.ffn_yz = AuxTaskNN(
-            lstm_hidden_size, mpl_hidden_size, mlp_layers, mlp_dropout, output
+            lstm_hidden_size, mlp_hidden_size, mlp_layers, mlp_dropout, output
         )
         self.main = MainTaskNN(
-            lstm_hidden_size, mpl_hidden_size, mlp_layers, mlp_dropout, output
+            lstm_hidden_size, mlp_hidden_size, mlp_layers, mlp_dropout, output
         )
 
     def forward(self, x):

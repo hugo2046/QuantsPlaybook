@@ -18,6 +18,8 @@ python get_data.py dump_all --codes "510300.SH" --start_dt "2023-01-01" --end_dt
 
 使用时需要修改ts_data_service文件中的config，将tushare的token改为自己的
 
+**data文件中也含有所需数据**
+
 ## 模型
 
 具体参看mlt_tsmom.ipynb文件

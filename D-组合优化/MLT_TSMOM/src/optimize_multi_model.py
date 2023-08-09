@@ -39,13 +39,15 @@ def optimize_multi_hyperparameters(
     def objective(trial: optuna.trial.Trial) -> float:
         # We optimize the number of layers, hidden units in each layer and dropouts.
         lstm_layers = trial.suggest_int("lstm_layers", 1, 4)
-        mpl_layers = trial.suggest_int("mpl_layers", 1, 4)
-        lstm_hidden_size = trial.suggest_categorical("lstm_hidden_size", HIDDEN_HYPER_SPACE)
-        mpl_hidden_size = trial.suggest_categorical(
+        mlp_layers = trial.suggest_int("mlp_layers", 1, 4)
+        lstm_hidden_size = trial.suggest_categorical(
+            "lstm_hidden_size", HIDDEN_HYPER_SPACE
+        )
+        mlp_hidden_size = trial.suggest_categorical(
             "mpl_hidden_size", HIDDEN_HYPER_SPACE
         )
         lstm_dropout = trial.suggest_categorical("lstm_dropout", DROP_HYPER_SPACE)
-        mpl_dropout = trial.suggest_categorical("mpl_dropout", DROP_HYPER_SPACE)
+        mlp_dropout = trial.suggest_categorical("mlp_dropout", DROP_HYPER_SPACE)
         max_grad_norm = trial.suggest_categorical("max_grad_norm", [0.01, 0.1, 0.0])
         lr = trial.suggest_categorical("lr", [1e-4, 1e-3, 1e-2, 0.1])
 
@@ -55,11 +57,11 @@ def optimize_multi_hyperparameters(
             dataset=dataset,
             input_size=FEATURE_SIZE,
             lstm_hidden_size=lstm_hidden_size,
-            mpl_hidden_size=mpl_hidden_size,
+            mlp_hidden_size=mlp_hidden_size,
             lstm_layers=lstm_layers,
-            mpl_layers=mpl_layers,
+            mpl_layers=mlp_layers,
             lstm_dropout=lstm_dropout,
-            mpl_dropout=mpl_dropout,
+            mpl_dropout=mlp_dropout,
             max_grad_norm=max_grad_norm,
             optimizer_name=optimizer_name,
             opt_kwargs={"lr": lr},
