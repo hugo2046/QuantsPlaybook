@@ -372,7 +372,7 @@
     </tr>
 <tr>
         <td><strong>组合优化</strong></td>
-        <td><a href="">多任务时序动量策略</a></td>
+        <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/D-%E7%BB%84%E5%90%88%E4%BC%98%E5%8C%96/MLT_TSMOM/mlt_tsmom.ipynb">多任务时序动量策略</a></td>
         <td>
             <li><a href="https://arxiv.org/abs/2306.13661">《Constructing Time-Series Momentum Portfolios with Deep Multi-Task Learning》</a></li>
         </td>
