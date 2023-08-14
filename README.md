@@ -370,8 +370,16 @@
             <li>《20191018-浙商证券-人工智能系列（二）：人工智能再出发，次优理论下的组合配置与策略构建》</li>
         </td>
     </tr>
+<tr>
+        <td><strong>组合优化</strong></td>
+        <td><a href="">多任务时序动量策略</a></td>
+        <td>
+            <li><a href="https://arxiv.org/abs/2306.13661">《Constructing Time-Series Momentum Portfolios with Deep Multi-Task Learning》</a></li>
+        </td>
+    </tr>
 </tboday>
 </table>
+
 
 
 
