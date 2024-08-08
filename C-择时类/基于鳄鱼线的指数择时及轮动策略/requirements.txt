@@ -1,0 +1,5 @@
+matplotlib==3.7.1
+numpy==1.23.5
+pandas==1.5.3
+TA_Lib==0.4.24
+vectorbt==0.26.1
