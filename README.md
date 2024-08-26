@@ -196,6 +196,16 @@
             <td>《20230412_中泰证券_“均线”才是绝对收益利器-ICU均线下的择时策略》</td>
         </tr>
 		<tr>
+            <td><strong>择时</strong></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%9F%BA%E4%BA%8E%E9%B3%84%E9%B1%BC%E7%BA%BF%E7%9A%84%E6%8C%87%E6%95%B0%E6%8B%A9%E6%97%B6%E5%8F%8A%E8%BD%AE%E5%8A%A8%E7%AD%96%E7%95%A5/zs_timing_strategy.ipynb">基于鳄鱼线的指数择时及轮动策略</a></td>
+            <td>《20240507-招商证券-金融工程：基于鳄鱼线的指数择时及轮动策略》</td>
+        </tr>
+		<tr>
+            <td><strong>择时</strong></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%8F%A6%E7%B1%BBETF%E4%BA%A4%E6%98%93%E7%AD%96%E7%95%A5%EF%BC%9A%E6%97%A5%E5%86%85%E5%8A%A8%E9%87%8F/etf_mom_strategy.ipynb">另类ETF交易策略：日内动量</a></td>
+            <td>《20240809-西部证券-指数化配置系列研究（1）：另类ETF交易策略，日内动量》</td>
+        </tr>
+		<tr>
         <td><strong>因子构建</strong></td>
         <td><a href="https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980">基于量价关系度量股票的买卖压力</a></td>
         <td>
