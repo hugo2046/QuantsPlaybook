@@ -1,0 +1,10 @@
+backtrader==1.9.78.123
+empyrical==0.5.5
+empyrical_reloaded==0.5.10
+loguru==0.7.2
+matplotlib==3.9.2
+numpy==1.23.5
+pandas==2.2.3
+pyfolio_reloaded==0.9.7
+seaborn==0.13.2
+tqdm==4.66.4
