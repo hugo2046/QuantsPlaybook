@@ -138,6 +138,16 @@
                 </ur>
             </td>
         </tr>
+ <tr>
+            <td><strong>择时</strong></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E6%8A%80%E6%9C%AF%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95%E6%A1%86%E6%9E%B6%E4%B8%8E%E5%AE%9E%E6%88%98%E4%BA%8C/%E8%AF%86%E5%88%AB%E5%9C%86%E5%BC%A7%E5%BA%95.ipynb">识别圆弧底</a></td>
+            <td>
+                <ur>
+                相关研报
+                <br>《20211231_中泰证券_技术分析算法、框架与实战之二：识别“圆弧底”》</br>
+                </ur>
+            </td>
+        </tr>
         <tr>
             <td><strong>择时</strong></td>
             <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/C-VIX%E4%B8%AD%E5%9B%BD%E7%89%88VIX%E7%BC%96%E5%88%B6%E6%89%8B%E5%86%8C/VIX.ipynb">C-VIX中国版VIX编制手册</a></td>
@@ -162,7 +172,7 @@
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td>Trader-Company集成算法交易策略</td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/Trader-Company%E9%9B%86%E6%88%90%E7%AE%97%E6%B3%95%E4%BA%A4%E6%98%93%E7%AD%96%E7%95%A5/Trader_Company.ipynb">Trader-Company集成算法交易策略<a></td>
             <td>
                 <ur>
                 相关论文
@@ -179,7 +189,7 @@
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/42bd804bcf72f0a086b442f6769fd3ad">均线交叉结合通道突破择时研究</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%9D%87%E7%BA%BF%E4%BA%A4%E5%8F%89%E7%BB%93%E5%90%88%E9%80%9A%E9%81%93%E7%AA%81%E7%A0%B4%E6%8B%A9%E6%97%B6%E7%A0%94%E7%A9%B6/20180410-%E7%94%B3%E4%B8%87%E5%AE%8F%E6%BA%90-%E5%9D%87%E7%BA%BF%E4%BA%A4%E5%8F%89%E7%BB%93%E5%90%88%E9%80%9A%E9%81%93%E7%AA%81%E7%A0%B4%E6%8B%A9%E6%97%B6%E7%A0%94%E7%A9%B6.ipynb">均线交叉结合通道突破择时研究</a></td>
             <td>《20180410-申万宏源-均线交叉结合通道突破择时研究》</td>
         </tr>
 		<tr>
@@ -394,6 +404,7 @@
     </tr>
 </tboday>
 </table>
+
 
 
 
