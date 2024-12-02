@@ -36,11 +36,6 @@
                 <li>《20210121-量化择时系列（1）：金融工程视角下的技术择时艺术》</li>
             </td>
         </tr>
-        <tr>
-            <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/f011921f2398c593eee3542a6069f61c">低延迟趋势线与交易择时</a></td>
-            <td>《20170303-广发证券-低延迟趋势线与交易择时》</td>
-        </tr>
 <tr>
             <td><strong>择时</strong></td>
                 <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/QRS%E6%8B%A9%E6%97%B6%E4%BF%A1%E5%8F%B7/QRS.ipynb">QRS择时</a></td>
@@ -48,24 +43,29 @@
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/ddf35e24e9dbad456d3e6beaf0841262">基于相对强弱下单向波动差值应用</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E4%BD%8E%E5%BB%B6%E8%BF%9F%E8%B6%8B%E5%8A%BF%E7%BA%BF%E4%B8%8E%E4%BA%A4%E6%98%93%E6%8B%A9%E6%97%B6/py/%E4%BD%8E%E5%BB%B6%E8%BF%9F%E8%B6%8B%E5%8A%BF%E7%BA%BF%E4%B8%8E%E4%BA%A4%E6%98%93%E6%8B%A9%E6%97%B6.ipynb">低延迟趋势线与交易择时</a></td>
+            <td>《20170303-广发证券-低延迟趋势线与交易择时》</td>
+        </tr>
+        <tr>
+            <td><strong>择时</strong></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%9F%BA%E4%BA%8E%E7%9B%B8%E5%AF%B9%E5%BC%BA%E5%BC%B1%E4%B8%8B%E5%8D%95%E5%90%91%E6%B3%A2%E5%8A%A8%E5%B7%AE%E5%80%BC%E5%BA%94%E7%94%A8/py/%E5%9F%BA%E4%BA%8E%E7%9B%B8%E5%AF%B9%E5%BC%BA%E5%BC%B1%E4%B8%8B%E5%8D%95%E5%90%91%E6%B3%A2%E5%8A%A8%E5%B7%AE%E5%80%BC%E5%BA%94%E7%94%A8.ipynb">基于相对强弱下单向波动差值应用</a></td>
             <td>《20151022-国信证券-市场波动率研究：基于相对强弱下单向波动差值应用》</td>
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/aa69406f4427ea472b1c640fc2e8c448">扩散指标</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E6%89%A9%E6%95%A3%E6%8C%87%E6%A0%87/py/%E6%89%A9%E6%95%A3%E6%8C%87%E6%A0%87.ipynb">扩散指标</a></td>
             <td>《择时-20190924-东北证券-金融工程研究报告：扩散指标择时研究之一，基本用法》</td>
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/e585df64077e4073ece0bcaa6b054bfa">指数高阶矩择时</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E6%8C%87%E6%95%B0%E9%AB%98%E9%98%B6%E7%9F%A9%E6%8B%A9%E6%97%B6/py/%E6%8C%87%E6%95%B0%E9%AB%98%E9%98%B6%E7%9F%A9%E6%8B%A9%E6%97%B6.ipynb">指数高阶矩择时</a></td>
             <td>《20150520-广发证券-交易性择时策略研究之八：指数高阶矩择时策略》</td>
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/6a77f468b6f996fcd995a8d0ad8c939c">CSVC框架及熊牛指标</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/CSVC%E6%A1%86%E6%9E%B6%E5%8F%8A%E7%86%8A%E7%89%9B%E6%8C%87%E6%A0%87/py/CSCV%E5%9B%9E%E6%B5%8B%E8%BF%87%E6%8B%9F%E5%90%88%E6%A6%82%E7%8E%87%E5%88%86%E6%9E%90%E6%A1%86%E6%9E%B6.ipynb">CSVC框架及熊牛指标</a></td>
             <td><strong>CSVC防过拟框架</strong>
-                <br><strong><a href="https://www.joinquant.com/view/community/detail/d0b0406c2ad2086662de715c92d518cd">熊牛线指标构建</a></strong></br>
+                <br><strong><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/CSVC%E6%A1%86%E6%9E%B6%E5%8F%8A%E7%86%8A%E7%89%9B%E6%8C%87%E6%A0%87/py/%E6%B3%A2%E5%8A%A8%E7%8E%87%E5%92%8C%E6%8D%A2%E6%89%8B%E7%8E%87%E6%9E%84%E5%BB%BA%E7%89%9B%E7%86%8A%E6%8C%87%E6%A0%87.ipynb">熊牛线指标构建</a></strong></br>
                 相关论文
                 <li>《The Probability of Backtest Overfitting》</li>
                 相关研报
@@ -76,12 +76,12 @@
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/3b4c68880062b3b660165bba7571d5a4">基于CCK模型的股票市场羊群效应研究</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%9F%BA%E4%BA%8ECCK%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%82%A1%E7%A5%A8%E5%B8%82%E5%9C%BA%E7%BE%8A%E7%BE%A4%E6%95%88%E5%BA%94%E7%A0%94%E7%A9%B6/py/%E7%BE%8A%E7%BE%A4%E6%95%88%E5%BA%94.ipynb">基于CCK模型的股票市场羊群效应研究</a></td>
             <td>《20181128-国泰君安-数量化专题之一百二十二：基于CCK模型的股票市场羊群效应研究》</td>
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/eab0008b70882d0b1966bb6425db3469">小波分析择时</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%B0%8F%E6%B3%A2%E5%88%86%E6%9E%90/py/%E5%B0%8F%E6%B3%A2%E5%88%86%E6%9E%90%E6%8B%A9%E6%97%B6.ipynb">小波分析择时</a></td>
             <td>
                 <br>《20100621-国信证券-基于小波分析和支持向量机的指数预测模型》</br>
                 《20120220-平安证券-量化择时选股系列报告二：水致清则鱼自现_小波分析与支持向量机择时研究》
@@ -89,7 +89,7 @@
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/634a7a14e79f87d44c980094c5e8d5d1">时变夏普</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E6%97%B6%E5%8F%98%E5%A4%8F%E6%99%AE/py/Tsharpe.ipynb">时变夏普</a></td>
             <td>相关研报
                 <li>《20101028-国海证券-新量化择时指标之二：时变夏普比率把握长中短趋势》</li>
                 <li>《20120726-国信证券-时变夏普率的择时策略》</li>
@@ -103,22 +103,22 @@
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/c11731e00f6de8e489ed64cec1621c33">北向资金交易能力一定强吗</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%8C%97%E5%90%91%E8%B5%84%E9%87%91%E4%BA%A4%E6%98%93%E8%83%BD%E5%8A%9B%E4%B8%80%E5%AE%9A%E5%BC%BA%E5%90%97/py/%E5%8C%97%E5%90%91%E8%B5%84%E9%87%91%E4%BA%A4%E6%98%93%E8%83%BD%E5%8A%9B%E4%B8%80%E5%AE%9A%E5%BC%BA%E5%90%97.ipynb">北向资金交易能力一定强吗</a></td>
             <td>《20200624-安信证券-金融工程主题报告：北向资金交易能力一定强吗》</td>
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/986f2732c0b0287bc8f161829f32b689">择时视角下的波动率因子</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E6%8B%A9%E6%97%B6%E8%A7%86%E8%A7%92%E4%B8%8B%E7%9A%84%E6%B3%A2%E5%8A%A8%E7%8E%87%E5%9B%A0%E5%AD%90.ipynb">择时视角下的波动率因子</a></td>
             <td>无</td>
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/9d12d9691b4201f95e4d0b99ada7676d">趋与势的量化定义研究</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E8%B6%8B%E4%B8%8E%E5%8A%BF%E7%9A%84%E9%87%8F%E5%8C%96%E5%AE%9A%E4%B9%89%E7%A0%94%E7%A9%B6/%E8%B6%8B%E4%B8%8E%E5%8A%BF%E7%9A%84%E9%87%8F%E5%8C%96%E5%AE%9A%E4%B9%89.ipynb">趋与势的量化定义研究</a></td>
             <td>《数量化专题之六十四_趋与势的量化定义研究_2015-08-10_国泰君安》</td>
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/f5d05b8233169adbbf44fb7522b2bf53">基于点位效率理论的个股趋势预测研究</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%9F%BA%E4%BA%8E%E7%82%B9%E4%BD%8D%E6%95%88%E7%8E%87%E7%90%86%E8%AE%BA%E7%9A%84%E4%B8%AA%E8%82%A1%E8%B6%8B%E5%8A%BF%E9%A2%84%E6%B5%8B%E7%A0%94%E7%A9%B6/py/%E5%9F%BA%E4%BA%8E%E7%82%B9%E4%BD%8D%E6%95%88%E7%8E%87%E7%90%86%E8%AE%BA%E7%9A%84%E4%B8%AA%E8%82%A1%E8%B6%8B%E5%8A%BF%E9%A2%84%E6%B5%8B%E7%A0%94%E7%A9%B6.ipynb">基于点位效率理论的个股趋势预测研究</a></td>
             <td>
                 <ur>
                 <li>《20210917-兴业证券-花开股市，相似几何系列二：基于点位效率理论的个股趋势预测研究》</li>
@@ -128,7 +128,7 @@
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/1636a1cadab86dc65c65355fe431380c">技术指标形态识别</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E6%8A%80%E6%9C%AF%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95%E6%A1%86%E6%9E%B6%E4%B8%8E%E5%AE%9E%E6%88%98/py/%E6%8A%80%E6%9C%AF%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95%E6%A1%86%E6%9E%B6%E4%B8%8E%E5%AE%9E%E6%88%98_20220221.ipynb">技术指标形态识别</a></td>
             <td>
                 <ur>
                 相关论文
@@ -140,7 +140,7 @@
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/787f5bf7ba5add2d5bc68e154046c10e">C-VIX中国版VIX编制手册</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/C-VIX%E4%B8%AD%E5%9B%BD%E7%89%88VIX%E7%BC%96%E5%88%B6%E6%89%8B%E5%86%8C/VIX.ipynb">C-VIX中国版VIX编制手册</a></td>
             <td>
                 <ur>
                 <li>《20140331-国信证券-衍生品应用与产品设计系列之vix介绍及gsvx编制》</li>
@@ -152,12 +152,12 @@
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/17e97079ece6d76c85fb5f3aa62acdc0">特征分布建模择时</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E7%89%B9%E5%BE%81%E5%88%86%E5%B8%83%E5%BB%BA%E6%A8%A1%E6%8B%A9%E6%97%B6/%E7%89%B9%E5%BE%81%E5%88%86%E5%B8%83%E6%8B%A9%E6%97%B6.ipynb">特征分布建模择时</a></td>
             <td>《2022-06-17_华创证券_金融工程_特征分布建模择时系列之一：物极必反，龙虎榜机构模型》</td>
         </tr>
         <tr>
             <td><strong>择时</strong></td>
-            <td><a href="https://www.joinquant.com/view/community/detail/25eef9ac283dd0592359c0eb25e18247">特征分布建模择时系列之二：特征成交量</a></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E7%89%B9%E5%BE%81%E5%88%86%E5%B8%83%E5%BB%BA%E6%A8%A1%E6%8B%A9%E6%97%B6%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C/%E7%89%B9%E5%BE%81%E5%88%86%E5%B8%83%E5%BB%BA%E6%A8%A1%E6%8B%A9%E6%97%B6%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C.ipynb">特征分布建模择时系列之二：特征成交量</a></td>
             <td>《20220805华创证券宏观研究_特征分布建模择时系列之二：物极必反，巧妙做空，特征成交量，模型终完备》</td>
         </tr>
         <tr>
@@ -174,7 +174,7 @@
         </tr>
 		<tr>
             <td><strong>择时</strong></td>
-            <td>成交量的奥秘：另类价量共振指标的择时</td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E6%88%90%E4%BA%A4%E9%87%8F%E7%9A%84%E5%A5%A5%E7%A7%98_%E5%8F%A6%E7%B1%BB%E4%BB%B7%E9%87%8F%E5%85%B1%E6%8C%AF%E6%8C%87%E6%A0%87%E7%9A%84%E6%8B%A9%E6%97%B6/%E5%8F%A6%E7%B1%BB%E4%BB%B7%E9%87%8F%E5%85%B1%E6%8C%AF%E6%8C%87%E6%A0%87%E6%8B%A9%E6%97%B6.ipynb">成交量的奥秘：另类价量共振指标的择时</a></td>
             <td>《2019-02-22_华创证券_金融工程_成交量的奥秘：另类价量共振指标的择时》</td>
         </tr>
         <tr>
@@ -394,6 +394,7 @@
     </tr>
 </tboday>
 </table>
+
 
 
 
