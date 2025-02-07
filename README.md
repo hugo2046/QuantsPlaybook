@@ -2,8 +2,8 @@
 
  * @Author: your name
  * @Date: 2022-04-17 00:54:11
- * @LastEditTime: 2022-12-09 16:08:37
- * @LastEditors: hugo2046 shen.lan123@gmail.com
+ * @LastEditTime: 2025-02-07 22:12:46
+ * @LastEditors: shen.lan123@gmail.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \undefinedd:\WrokSpace\Quantitative-analysis\README.md
 -->
@@ -219,6 +219,18 @@
             <td><strong>择时</strong></td>
             <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%8F%A6%E7%B1%BBETF%E4%BA%A4%E6%98%93%E7%AD%96%E7%95%A5%EF%BC%9A%E6%97%A5%E5%86%85%E5%8A%A8%E9%87%8F/etf_mom_strategy.ipynb">另类ETF交易策略：日内动量</a></td>
             <td>《20240809-西部证券-指数化配置系列研究（1）：另类ETF交易策略，日内动量》</td>
+        </tr>
+		<tr>
+        <td><strong>因子构建</strong></td>
+        <td><a href="https://www.joinquant.com/view/community/detail/efc4f507b2ef8703d2c20283b1301980">基于量价关系度量股票的买卖压力</a></td>
+        <td>
+            《20191029-东方证券- 因子选股系列研究六十：基于量价关系度量股票的买卖压力》
+        </td>
+    </tr>
+    <tr>
+            <td><strong>择时</strong></td>
+            <td><a href="https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E7%BB%93%E5%90%88%E6%94%B9%E8%BF%9BHHT%E6%A8%A1%E5%9E%8B%E5%92%8C%E5%88%86%E7%B1%BB%E7%AE%97%E6%B3%95%E7%9A%84%E4%BA%A4%E6%98%93%E7%AD%96%E7%95%A5/hht_timing.ipynb">结合改进HHT模型和分类算法的交易策略</a></td>
+            <td>《20241210-招商证券-技术择时系列研究：结合改进HHT模型和分类算法的交易策略》</td>
         </tr>
 		<tr>
         <td><strong>因子构建</strong></td>
