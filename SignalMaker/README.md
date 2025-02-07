@@ -11,6 +11,8 @@
 
 ## HHT择时信号
 
+研究文档:[结合改进HHT模型和分类算法的交易策略](https://github.com/hugo2046/QuantsPlaybook/tree/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E7%BB%93%E5%90%88%E6%94%B9%E8%BF%9BHHT%E6%A8%A1%E5%9E%8B%E5%92%8C%E5%88%86%E7%B1%BB%E7%AE%97%E6%B3%95%E7%9A%84%E4%BA%A4%E6%98%93%E7%AD%96%E7%95%A5)
+
 ### HT信号
 
 ```python
