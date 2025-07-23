@@ -2,12 +2,12 @@
 
  * @Author: your name
  * @Date: 2022-04-17 00:54:11
- * @LastEditTime: 2025-02-07 22:12:46
+ * @LastEditTime: 2025-02-12 09:45:29
  * @LastEditors: shen.lan123@gmail.com
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \undefinedd:\WrokSpace\Quantitative-analysis\README.md
+ * @Description: 复现目录
+ * @FilePath: \undefinedd:\WrokSpace\QuantsPlaybook\README.md
 -->
-# Quantitative-analysis
+# QuantsPlaybook
 
 ## 利用python对国内各大券商的金工研报进行复现
 
@@ -416,15 +416,15 @@
     </tr>
 </tboday>
 </table>
+## 更多分享请加入
 
+分享有更多qlib的模型复现
 
-
-
-
-
-
+![image](https://github.com/hugo2046/QuantsPlaybook/raw/5b244d751b7b2671b39d9fc0bf47b285a9b02ff9/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83.jpg)
 
 ## 请我喝杯咖啡吧
 
 ![image](https://raw.githubusercontent.com/hugo2046/Quantitative-analysis/master/coffee.png)
+
+
 
