@@ -7,3 +7,9 @@ qlib_data/
 factor_data/
 cn_data/
 data/
+
+CLAUDE.md
+
+# 忽略缓存文件
+__pycache__/
+*.py[cod]
