@@ -108,7 +108,7 @@
 
 ---
 
-## 🔵 因子构建策略 (20+个策略)
+## 🔵 因子构建策略 (21+个策略)
 
 | 策略名称 | 链接 | 参考文献 |
 |----------|------|----------|
@@ -132,6 +132,7 @@
 | **筹码分布因子** | [筹码分布因子](https://github.com/hugo2046/QuantsPlaybook/blob/master/B-%E5%9B%A0%E5%AD%90%E6%9E%84%E5%BB%BA%E7%B1%BB/%E7%AD%B9%E7%A0%81%E5%9B%A0%E5%AD%90/%E7%AD%B9%E7%A0%81%E5%88%86%E5%B8%83%E5%9B%A0%E5%AD%90.ipynb) | 《广发证券_多因子Alpha系列报告之（二十七）——基于筹码分布的选股策略》 |
 | **凸显性因子(STR)** | [凸显度因子](https://github.com/hugo2046/QuantsPlaybook/blob/master/B-%E5%9B%A0%E5%AD%90%E6%9E%84%E5%BB%BA%E7%B1%BB/%E5%87%B8%E6%98%BE%E7%90%86%E8%AE%BASTR%E5%9B%A0%E5%AD%90/%E5%87%B8%E6%98%BE%E5%BA%A6%E5%9B%A0%E5%AD%90.ipynb) | • 《20221213_方大证券_显著效应、极端收益扭曲决策权重和"草木皆兵"因子》<br>• 《20221214-招商证券-"青出于蓝"系列研究之四：行为金融新视角，"凸显性收益"因子STR》 |
 | **球队硬币因子** | [球队硬币因子](https://github.com/hugo2046/QuantsPlaybook/blob/master/B-%E5%9B%A0%E5%AD%90%E6%9E%84%E5%BB%BA%E7%B1%BB/%E4%B8%AA%E8%82%A1%E5%8A%A8%E9%87%8F%E6%95%88%E5%BA%94%E7%9A%84%E8%AF%86%E5%88%AB%E5%8F%8A%E7%90%83%E9%98%9F%E7%A1%AC%E5%B8%81%E5%9B%A0%E5%AD%90/%E7%90%83%E9%98%9F%E7%A1%AC%E5%B8%81%E5%9B%A0%E5%AD%90.ipynb) | • 《20220611-方正证券-多因子选股系列研究之四：个股动量效应识别及"球队硬币"因子构建》<br>• 《Moskowitz T J. Asset pricing and sports betting[J]. Journal of Finance, Forthcoming, 2021.》 |
+| **股票网络与网络中心度因子** | [网络中心度因子](https://github.com/hugo2046/QuantsPlaybook/blob/master/B-%E5%9B%A0%E5%AD%90%E6%9E%84%E5%BB%BA%E7%B1%BB/%E8%82%A1%E7%A5%A8%E7%BD%91%E7%BB%9C%E4%B8%8E%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%BF%83%E5%BA%A6%E5%9B%A0%E5%AD%90%E7%A0%94%E7%A9%B6/README.md) | 《20210316-华西证券-金融工程专题报告：股票网络与网络中心度因子研究》 |
 
 ---
 
@@ -158,7 +159,7 @@
 ```
 QuantsPlaybook/
 ├── A-量化基本面/           # 价值投资策略 (2个)
-├── B-因子构建类/           # 多因子模型构建 (20+个)
+├── B-因子构建类/           # 多因子模型构建 (21+个)
 ├── C-择时类/              # 市场择时策略 (25+个)
 ├── D-组合优化/            # 投资组合管理 (2个)
 ├── hugos_toolkit/         # 通用工具库
@@ -167,7 +168,7 @@ QuantsPlaybook/
 
 ### 🎯 策略统计
 - **🟢 择时策略**: 25+个市场择时算法
-- **🔵 因子构建**: 20+个多因子模型
+- **🔵 因子构建**: 21+个多因子模型
 - **🟡 量化价值**: 经典价值投资方法
 - **🔴 组合优化**: 现代投资组合理论
 - **📊 总计**: 100+个量化策略
