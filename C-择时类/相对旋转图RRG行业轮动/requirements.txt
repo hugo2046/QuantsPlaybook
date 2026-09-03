@@ -1,0 +1,13 @@
+pandas==2.3.3
+numpy==2.4.3
+duckdb==1.5.2
+cvxpy==1.7.5
+vectorbt==1.0.0
+matplotlib==3.10.8
+pyecharts==2.1.0
+seaborn==0.13.2
+openpyxl==3.1.5
+scipy==1.17.1
+loguru==0.7.3
+ipykernel==7.2.0
+pytest==9.0.2

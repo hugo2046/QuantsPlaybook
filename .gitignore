@@ -14,3 +14,18 @@ CLAUDE.md
 __pycache__/
 *.py[cod]
 .claude/
+
+# 忽略 macOS 目录元数据
+.DS_Store
+
+# 忽略 git worktree 目录
+.worktree/
+
+# 忽略 RRG 项目 docs 下的 superpowers 工作流文件（spec/plan 等）
+/C-择时类/相对旋转图RRG行业轮动/docs/superpowers/
+# RRG 项目 data/：放行目录本身与小映射/说明文件，忽略 duckdb 大文件
+!C-择时类/相对旋转图RRG行业轮动/data/
+C-择时类/相对旋转图RRG行业轮动/data/*
+!C-择时类/相对旋转图RRG行业轮动/data/*.csv
+!C-择时类/相对旋转图RRG行业轮动/data/ETF基础信息.xlsx
+!C-择时类/相对旋转图RRG行业轮动/data/说明.md
