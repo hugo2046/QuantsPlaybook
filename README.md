@@ -105,6 +105,7 @@
 | **基于鳄鱼线的指数择时及轮动策略** | [鳄鱼线择时策略](https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%9F%BA%E4%BA%8E%E9%B3%84%E9%B1%BC%E7%BA%BF%E7%9A%84%E6%8C%87%E6%95%B0%E6%8B%A9%E6%97%B6%E5%8F%8A%E8%BD%AE%E5%8A%A8%E7%AD%96%E7%95%A5/zs_timing_strategy.ipynb) | 《20240507-招商证券-金融工程：基于鳄鱼线的指数择时及轮动策略》 |
 | **另类ETF交易策略：日内动量** | [ETF日内动量](https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E5%8F%A6%E7%B1%BBETF%E4%BA%A4%E6%98%93%E7%AD%96%E7%95%A5%EF%BC%9A%E6%97%A5%E5%86%85%E5%8A%A8%E5%8A%A8/etf_mom_strategy.ipynb) | 《20240809-西部证券-指数化配置系列研究（1）：另类ETF交易策略，日内动量》 |
 | **结合改进HHT模型和分类算法的交易策略** | [HHT模型交易策略](https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E7%BB%93%E5%90%88%E6%94%B9%E8%BF%9BHHT%E6%A8%A1%E5%9E%8B%E5%92%8C%E5%88%86%E7%B1%BB%E7%AE%97%E6%B3%95%E7%9A%84%E4%BA%A4%E6%98%93%E7%AD%96%E7%95%A5/hht_timing.ipynb) | 《20241210-招商证券-技术择时系列研究：结合改进HHT模型和分类算法的交易策略》 |
+| **相对旋转图RRG行业轮动** | [RRG行业轮动](https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E7%9B%B8%E5%AF%B9%E6%97%8B%E8%BD%AC%E5%9B%BERRG%E8%A1%8C%E4%B8%9A%E8%BD%AE%E5%8A%A8/notebook/etf_rrg.ipynb) \| [项目说明（含已知偏离）](https://github.com/hugo2046/QuantsPlaybook/blob/master/C-%E6%8B%A9%E6%97%B6%E7%B1%BB/%E7%9B%B8%E5%AF%B9%E6%97%8B%E8%BD%AC%E5%9B%BERRG%E8%A1%8C%E4%B8%9A%E8%BD%AE%E5%8A%A8/README.md) | 《20260525-西部证券-指数化配置系列研究（6）：相对旋转图RRG框架下的行业研究》 |
 
 ---
 
